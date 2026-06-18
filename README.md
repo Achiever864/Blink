@@ -1,0 +1,1 @@
+Blink is a modern, high-performance social media ecosystem designed to cut through the digital noise. Built with a hyper-focused, framework-free frontend aesthetic and a lightweight Express backend, Blink delivers a seamless experience where ideas move at the speed of sight
