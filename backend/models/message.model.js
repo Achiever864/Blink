@@ -6,7 +6,7 @@ const messageSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Room",
             required: true,
-            index: true  //rememger to index for fast search ups on your database
+            index: true  //remember to index for fast search ups on your database
         },
         sender: {
             type: mongoose.Schema.Types.ObjectId,
@@ -27,6 +27,5 @@ const messageSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
-
 
 export default mongoose.model("Message", messageSchema);

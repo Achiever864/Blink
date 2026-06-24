@@ -1,1 +1,2 @@
-Blink is a modern, high-performance social media ecosystem designed to cut through the digital noise. Built with a hyper-focused, framework-free frontend aesthetic and a lightweight Express backend, Blink delivers a seamless experience where ideas move at the speed of sight
+Blink is an interactive social media platform for Gen-Z or Gen-Alpha. It is built to be highly interactive and engaging. It is built with the purpose of making social media a more interactive space where you live it, feel it.
+Developed by Dev, Igaga Ikhuemoisa Adeoluwa

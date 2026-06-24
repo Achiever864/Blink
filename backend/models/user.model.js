@@ -39,6 +39,35 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "" //should store a URL for the users profile picture, I should consider AWS or cloudinary
     },
+    dateOfBirth: {
+        type: String,
+        default: "",
+        required: true,
+        trim: true
+    },
+
+    occupation: {
+        type: String,
+        default: "",
+        trim: true
+    },
+
+    nationality: {
+        type: String,
+        default: "",
+        trim: true
+    },
+
+    city: {
+        type: String,
+        default: "",
+        trim: true
+    },
+
+    interests: [
+        {type: String}
+    ],
+
     bio:{
         type: String,
         maxlength: [200, "Bio cannot exceed 200 characters"],

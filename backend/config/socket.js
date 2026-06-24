@@ -43,7 +43,7 @@ const getio = () => {
     }
 };
 
-export default {
+export {
     initSocket,
-    getIO
+    getio
 }
