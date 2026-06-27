@@ -1,5 +1,5 @@
 import AuthPage from "./pages/AuthPage";
-import FeedPage from "./pages/ChatPage";
+import FeedPage from "./pages/FeedPage";
 import { StatusBarProvider } from "./context/StatusBarContext";
 import { AuthProvider } from "./context/AuthContext";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
