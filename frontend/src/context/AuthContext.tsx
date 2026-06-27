@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import API from "../api/axios";
 import { useStatus } from "./StatusBarContext";
-import { AuthFormData, UserProfile } from "../types/auth";
+import type { AuthFormData, UserProfile } from "../types/auth";
 
 interface AuthContextType{
     user: UserProfile | null;
@@ -22,7 +22,8 @@ export const AuthProvider: React.FC<{children: React.React.Node}> = ({ children 
     const login = async (credentials: AuthFormData) => {
         setIsLoading(true);
         try{
-            const res = await API.post("/auth/login", {
+            const res = await API.post("/login", {
+                username: credentials.username,
                 email: credentials.email,
                 password: credentials.password
             });
@@ -35,7 +36,7 @@ export const AuthProvider: React.FC<{children: React.React.Node}> = ({ children 
         } catch(error: any){
             const errorMsg = error.response?.data?.message || "Authentication rejected: Invalid credentials.";
             showStatus(errorMsg, "error");
-            throw error: //let the component know it failed if needed
+            throw error; //let the component know it failed if needed
         } finally{
             setIsLoading(false);
         }
@@ -74,3 +75,9 @@ export const AuthProvider: React.FC<{children: React.React.Node}> = ({ children 
         </AuthContext.Provider>
     );
 };
+
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) throw new Error("useAuth must be executed inside an AuthProvider wrapper");
+    return context;
+}

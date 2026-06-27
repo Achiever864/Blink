@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 const registerUser = async (req, res) => {
     try {
-        const { username, email, password, firstName, lastName  } = req.body;
+        const { username, email, password  } = req.body;
 
         //Check existing user
         const existingUser = await User.findOne({ email });
@@ -24,9 +24,7 @@ const registerUser = async (req, res) => {
         const newUser = await User.create({
             username,
             email,
-            password: hashedPassword,
-            firstName,
-            lastName
+            password: hashedPassword
         })
 
         const token = jwt.sign(
@@ -41,15 +39,13 @@ const registerUser = async (req, res) => {
                 id: newUser._id,
                 username: newUser.username,
                 email: newUser.email,
-                firstName: newUser.firstName,
-                lastName: newUser.lastName,
                 token: token
             }
         });
 
     } catch (error) {
         console.error("Error registering user:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+        res.status(500).json({ message: "Error registering user. Please try again later" });
 }
 };
 
@@ -70,7 +66,7 @@ const loginUser = async (req, res) => {
         }
 
         const token = jwt.sign(
-            {id: newUser._id},
+            {id: user._id},
             process.env.JWT_SECRET,
             { expiresIn: "7d" }
         );

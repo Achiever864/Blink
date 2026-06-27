@@ -1,12 +1,12 @@
 export interface AuthFormData{
-    name?: string;
+    username?: string;
     email: string;
     password: string;
 }
 
 export interface UserProfile {
     id: string;
-    name: string;
+    username: string;
     email: string;
     avatarUrl?: string;
     createdAt: string;

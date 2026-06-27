@@ -1,22 +1,40 @@
 import React, { useState } from "react";
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useStatus } from "../context/StatusBarContext";
+import { useAuth } from "../context/AuthContext";
+import { redirect, useNavigate } from "react-router-dom";
+import Spinner from "../components/loadSpinner";
 
 //Import your type definitions if extracted or define them locally for now
 //import { AuthFormData } from "../types/auth.ts";
 
 const AuthPage: React.FC = () => {
     const [isLogin, setIsLogin] = useState<booolean>(true);
+    const { login, register, isLoading } = useAuth();
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const { showStatus } = useStatus();
-    const [formData, setFormData] = useState<AuthFormData>({
-        name: "",
+    const [formData, setFormData] = useState({
+        username: "",
         email: "",
         password: "",
     });
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        try{
+            if(isLogin) {
+                await login({email: formData.email, password: formData.password });
+                //redirection to the next page should happen here if success
+            } else {
+                await register(formData);
+            }
+
+            //the code hits this line when the login has been completed successfully
+            navigate("/feed");
+        } catch(err){
+            console.error("Auth action aborted");
+        }
         console.log("Submitting Type-Safe Data:", formData);
         //Next: to feed this directly into an axios/fetch handler
     };
@@ -55,7 +73,7 @@ const AuthPage: React.FC = () => {
                 {/*Auth Form*/}
                 <form onSubmit={handleSubmit} className="mt-8 space-y-5">
 
-                    {/*Name Field (visible only during registration)*/}
+                    {/*Userame Field (visible only during registration)*/}
                     {!isLogin && (
                         <div className="space-y-1.5">
                             <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Full Name</label>
@@ -66,8 +84,8 @@ const AuthPage: React.FC = () => {
                                     required
                                     placeholder="Igaga Adeoluwa"
                                     className="w-full rounded-2xl border border-slate-800 bg-slate-950/60 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-600 outline-none transition-all focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
-                                    value={formData.name}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("name", e.target.value)}
+                                    value={formData.username}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("username", e.target.value)}
                                 />
                             </div>
                         </div>
@@ -119,9 +137,18 @@ const AuthPage: React.FC = () => {
                     {/*Submit button oo */}
                     <button
                     type="submit"
-                    className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-gradiend-to-r from-violet-600 to-indigo-600 py-3.5 font-semibold text-white shadow-lg shadow-violet-600/20 hover:from-violet-500 hover:to-indigo-500 transition-all transform active:scale-[0.98]">
-                        {isLogin ? "Sign In" : "Get Started"}
-                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    disabled = {isLoading}
+                    className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-gradiend-to-r from-violet-600 to-indigo-600 py-3.5 font-semibold text-white shadow-lg shadow-violet-600/20 hover:from-violet-500 hover:to-indigo-500 transition-all transform active:scale-[0.98] hover:scale-[1.02]">
+                        {isLoading ? (
+                            <>
+                                <Spinner size="sm" variant="white" />
+                                <span>Loading...</span>
+                            </>
+                        ) : (
+                            <>
+                                <span>{isLogin ? "Sign In" : "Get Started"}</span>
+                            </>
+                        )}
                     </button>
                 </form>
                 

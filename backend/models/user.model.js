@@ -27,22 +27,20 @@ const userSchema = new mongoose.Schema({
     },
     firstName: {
         type: String,
-        required: [true, "First name is required"],
         trim: true,
     },
     LastName: {
         type: String,
-        required: [true, "Last name is required"],
         trim: true
     },
     profilePicture: {
         type: String,
         default: "" //should store a URL for the users profile picture, I should consider AWS or cloudinary
     },
+
     dateOfBirth: {
         type: String,
         default: "",
-        required: true,
         trim: true
     },
 
