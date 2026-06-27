@@ -9,7 +9,7 @@ import Spinner from "../components/loadSpinner";
 //import { AuthFormData } from "../types/auth.ts";
 
 const AuthPage: React.FC = () => {
-    const [isLogin, setIsLogin] = useState<booolean>(true);
+    const [isLogin, setIsLogin] = useState<boolean>(true);
     const { login, register, isLoading } = useAuth();
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState<boolean>(false);

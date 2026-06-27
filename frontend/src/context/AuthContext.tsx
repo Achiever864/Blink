@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import API from "../api/axios";
 import { useStatus } from "./StatusBarContext";
 import type { AuthFormData, UserProfile } from "../types/auth";
+import { useNavigate } from "react-router-dom";
 
 interface AuthContextType{
     user: UserProfile | null;
@@ -17,6 +18,7 @@ export const AuthProvider: React.FC<{children: React.React.Node}> = ({ children 
     const [user, setUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { showStatus } = useStatus();
+    const navigate = useNavigate();
 
     //actual request to handle login
     const login = async (credentials: AuthFormData) => {
@@ -67,6 +69,7 @@ export const AuthProvider: React.FC<{children: React.React.Node}> = ({ children 
         localStorage.removeItem("myToken");
         setUser(null);
         showStatus("Session terminated. See you soon!", "success");
+        navigate("/")
     };
 
     return(

@@ -104,7 +104,12 @@ const updateUserProfile = async (req, res) => {
         { new: true }
     )
 }
+
+const getUserSuggestions = async () => {
+    
+}
 export {
+    getUser,
     registerUser,
     loginUser
 }

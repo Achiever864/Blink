@@ -23,3 +23,20 @@
 .animate-toast-progress {
     animation: progressCountdown 4s linear forwards;
 }
+
+@layer utilities{
+    /*Hide scrollbar for Chrome, safara and newer Edge browsers*/
+    .no-scrollbar::-webkit-scrollbar{
+        display: none;
+    }
+
+    /*Hide scrollbar for Firefox*/
+    .no-scrollbar {
+        scrollbar-width: none;
+    }
+
+    /*Old browsers, Legacy Edge */
+    .no-scrollbar {
+        -ms-overflow-style: none;
+    }
+}
