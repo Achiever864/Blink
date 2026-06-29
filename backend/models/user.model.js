@@ -34,8 +34,14 @@ const userSchema = new mongoose.Schema({
         trim: true
     },
     profilePicture: {
-        type: String,
-        default: "" //should store a URL for the users profile picture, I should consider AWS or cloudinary
+        url: {
+            type: String,
+            default: null
+        },
+        publicId: {         //this is for cloudinary to easily access medias to be deleted and stuffs
+            type: String,
+            default: null 
+        }
     },
 
     dateOfBirth: {

@@ -4,6 +4,7 @@ import {
     Home, MessageSquare, Bell, User, LogOut, Heart, MessageCircle, Send, Sparkles
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import GetFriendsDashboard from "../components/getFriendsDashboard";
 
 
 interface Post {
@@ -13,6 +14,8 @@ interface Post {
     likes: number;
     comments: number;
     time: string;
+    mediaUrl?: string;
+    mediaType?: "image" | "video"
 }
 
 const FeedPage: React.FC = () => {
@@ -27,374 +30,6 @@ const FeedPage: React.FC = () => {
                 likes: 42,
                 comments: 5,
                 time: "12m ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "1",
-                username: "cyber_architect",
-                content: "Just finalized the glassmorphic styling engines for the new system framework. The biolet sub-glow looks absolutely premium.",
-                likes: 42,
-                comments: 5,
-                time: "12m ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "1",
-                username: "cyber_architect",
-                content: "Just finalized the glassmorphic styling engines for the new system framework. The biolet sub-glow looks absolutely premium.",
-                likes: 42,
-                comments: 5,
-                time: "12m ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "1",
-                username: "cyber_architect",
-                content: "Just finalized the glassmorphic styling engines for the new system framework. The biolet sub-glow looks absolutely premium.",
-                likes: 42,
-                comments: 5,
-                time: "12m ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "1",
-                username: "cyber_architect",
-                content: "Just finalized the glassmorphic styling engines for the new system framework. The biolet sub-glow looks absolutely premium.",
-                likes: 42,
-                comments: 5,
-                time: "12m ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "1",
-                username: "cyber_architect",
-                content: "Just finalized the glassmorphic styling engines for the new system framework. The biolet sub-glow looks absolutely premium.",
-                likes: 42,
-                comments: 5,
-                time: "12m ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "1",
-                username: "cyber_architect",
-                content: "Just finalized the glassmorphic styling engines for the new system framework. The biolet sub-glow looks absolutely premium.",
-                likes: 42,
-                comments: 5,
-                time: "12m ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "1",
-                username: "cyber_architect",
-                content: "Just finalized the glassmorphic styling engines for the new system framework. The biolet sub-glow looks absolutely premium.",
-                likes: 42,
-                comments: 5,
-                time: "12m ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "1",
-                username: "cyber_architect",
-                content: "Just finalized the glassmorphic styling engines for the new system framework. The biolet sub-glow looks absolutely premium.",
-                likes: 42,
-                comments: 5,
-                time: "12m ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "1",
-                username: "cyber_architect",
-                content: "Just finalized the glassmorphic styling engines for the new system framework. The biolet sub-glow looks absolutely premium.",
-                likes: 42,
-                comments: 5,
-                time: "12m ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "1",
-                username: "cyber_architect",
-                content: "Just finalized the glassmorphic styling engines for the new system framework. The biolet sub-glow looks absolutely premium.",
-                likes: 42,
-                comments: 5,
-                time: "12m ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "1",
-                username: "cyber_architect",
-                content: "Just finalized the glassmorphic styling engines for the new system framework. The biolet sub-glow looks absolutely premium.",
-                likes: 42,
-                comments: 5,
-                time: "12m ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
-            },
-            {
-                id: "2",
-                username: "neon_builder",
-                content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
-                likes: 128,
-                comments: 14,
-                time: "2h ago",
             },
             {
                 id: "2",
@@ -509,11 +144,11 @@ const FeedPage: React.FC = () => {
 
                     {/*Stream View (Let's cook) */}
                     <div className="space-y-4">
-                        {posts.map((post) => (
-                            <div
-                                key={post.id}
-                                className="rounded-3xl border border-slate-900 bg-slate-900/20 backdrop-blur-md p-5 space-y-4 hover:border-slate-800/80 transition-all"
-                            >
+                        {posts.map((post, index) => (
+                            <React.Fragment key={post.id || index}>
+
+                            {/*standard post card */}
+                            <div className="rounded-3xl border border-slate-900 bg-slate-900/20 backdrop-blur-md p-5 space-y-4 hover:border-slate-800/80 transition-all">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="h-8 w-8 rounded-lg bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold uppercase text-xs">
@@ -528,6 +163,34 @@ const FeedPage: React.FC = () => {
 
                                 <p className="text-sm leading relaxed text-slate-300 whitespace-pre-wrap">{post.content}</p>
 
+                                {/*Media Attachment Rendering */}
+                                {post.mediaUrl && (
+                                    <div className="relative rounded-2xl overflow-hidden border border-slate-900/80 bg-slate-950 max-h-[480px] flex items-center justify-center group/media">
+                                            {/*If the media type is an image */}
+                                            {post.mediaType === "image" && (
+                                                <img
+                                                src={post.mediaUrl}
+                                                alt=""
+                                                className="w-full h-full object-cover max-h-[480px] transition-transform duration-500 group-hover/media:scale-[1.01]"
+                                                loading="lazy"
+                                                />
+                                            )}
+
+
+                                            {/*If the media type is a video */}
+                                            {post.mediaType === "video" && (
+                                                <video
+                                                    src={post.mediaUrl}
+                                                    controls
+                                                    playsInline
+                                                    className="w-full h-full object-cover max-h-[480px]"
+                                                    poster ="/video-fallback-poster.jpg"
+                                                />
+                                            )}
+                                    </div>
+                                )}
+
+
                                 <div className="flex items-center gap-6 pt-2 border-t border-slate-900/40 text-xs text-slate-500">
                                     <button className="flex items-center gap-2 hover:text-rose-400 transition-colors">
                                         <Heart size={16} />
@@ -539,11 +202,20 @@ const FeedPage: React.FC = () => {
                                     </button>
                                 </div>
                             </div>
-                        ))};
+
+                                {/*Trying to strategically inject our Friends suggestion */}
+                                {index === 1 && (
+                                    <div>
+                                        <GetFriendsDashboard isEmbedded={true} />
+                                    </div>
+                                )}
+
+                                </ React.Fragment >
+                        ))}
                     </div>
                 </main>
 
-
+                
                 {/*Right column: Discover Bar (Large Desktop only)*/}
                 <aside className="hidden lg:block py-6 border-l border-slate-900/60 pl-6 space-y-6">
                         <div className="rounded-3xl border border-slate-900 bg-slate-900/10 p-5 space-y-4">

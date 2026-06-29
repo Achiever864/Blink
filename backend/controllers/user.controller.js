@@ -1,6 +1,9 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import FriendsRecommend from "../services/friendSuggestion.js";
+import RecommendationCache from "../services/RecommendationCache.js";
+
 
 const registerUser = async (req, res) => {
     try {
@@ -105,11 +108,57 @@ const updateUserProfile = async (req, res) => {
     )
 }
 
-const getUserSuggestions = async () => {
-    
-}
+const getUserSuggestions = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const offset = Number(req.query.offset) || 0;
+        const limit = Number(req.query.limit) || 10;
+
+
+        //try accessing from cache if not fall back to database
+        let recommendations = await RecommendationCache.get(userId);
+
+        if(!recommendations){
+            recommendations = await FriendsRecommend.recommend(userId);
+            await RecommendationCache.set(
+                userId,
+                recommendations
+            );
+        }
+
+        const page = recommendations.slice(
+            offset, offset + limit
+        )
+
+        const ids = page.map(item => item.id)
+
+        const users = await User.find({
+            _id: {
+                $in: ids
+            }
+        });
+
+        const orderedUsers = ids.map(id =>
+            users.find(user =>
+                user._id.toString() === id
+            )
+        )
+        res.status(201).json({
+            users: orderedUsers,
+            hasMore: offset + limit < recommendations.length,
+            total: recommendations.length,
+            message: "Users recommendation successful"
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Error getting users"
+        });    
+    }
+};
+
+
 export {
-    getUser,
+    getUserSuggestions,
     registerUser,
     loginUser
 }
