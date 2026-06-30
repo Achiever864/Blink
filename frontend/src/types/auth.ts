@@ -9,5 +9,5 @@ export interface UserProfile {
     username: string;
     email: string;
     avatarUrl?: string;
-    createdAt: string;
+    createdAt?: string;
 }

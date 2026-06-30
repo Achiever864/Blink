@@ -14,7 +14,7 @@ interface AuthContextType{
 
 const AuthContext = createContext <AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{children: React.React.Node}> = ({ children }) => {
+export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { showStatus } = useStatus();
@@ -25,13 +25,25 @@ export const AuthProvider: React.FC<{children: React.React.Node}> = ({ children 
         setIsLoading(true);
         try{
             const res = await API.post("/login", {
-                username: credentials.username,
                 email: credentials.email,
                 password: credentials.password
             });
 
-            const { token, userProfile } = res.data;
-            localStorage.setItem("myToken", token);
+            const token = res.data.user.token;
+            const username = res.data.user.username;
+            const email = res.data.user.email;
+            const userId = res.data.user.id;
+
+            localStorage.setItem("token", token);
+            localStorage.setItem('username', username);
+            localStorage.setItem("email", email);
+            localStorage.setItem("userId", userId);
+            
+            const userProfile: UserProfile = {
+                id: userId,
+                username: username,
+                email: email
+            };
             setUser(userProfile);
 
             showStatus("Access authorized. Syncing system profile", "success");

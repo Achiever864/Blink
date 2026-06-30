@@ -10,4 +10,3 @@ redis.on("error", err =>{
 
 await redis.connect();
 
-export default redis;

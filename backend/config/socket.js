@@ -36,6 +36,7 @@ const initSocket = (server) => {
 };
 
 const getio = () => {
+    
     if (!io){
         throw new Error("Socket.io has not been initialized yet!");
     }else {

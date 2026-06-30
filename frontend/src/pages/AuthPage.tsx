@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useStatus } from "../context/StatusBarContext";
 import { useAuth } from "../context/AuthContext";
-import { redirect, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Spinner from "../components/loadSpinner";
 
 //Import your type definitions if extracted or define them locally for now

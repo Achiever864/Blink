@@ -157,8 +157,42 @@ const getUserSuggestions = async (req, res) => {
 };
 
 
+const getUserBeta = async (req, res) => { //running this in-place of the suggestion before i fix docker
+    try {
+        console.log("trying to call my name");
+        const { userId } = req.body;
+        console.log(userId);
+
+        const offset = Number(req.query.offset) || 0;
+        const limit = Number(req.query.limit) || 10;
+
+        const total = await User.countDocuments({
+            _id: { $ne: userId }
+        });
+        console.log("total:", total);
+
+        const users = await User.find({
+            _id: {$ne:userId}
+        })
+            .skip(offset)
+            .limit(limit);
+
+        res.status(200).json({
+            users,
+            hasMore: offset + users.length < total,
+            total
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
+
 export {
+    getUserBeta, //test
     getUserSuggestions,
     registerUser,
-    loginUser
+    loginUser,
+    updateUserProfile
 }

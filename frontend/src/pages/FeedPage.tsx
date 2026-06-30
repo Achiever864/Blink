@@ -6,7 +6,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import GetFriendsDashboard from "../components/getFriendsDashboard";
 
-
 interface Post {
     id: string;
     username: string;
@@ -20,6 +19,8 @@ interface Post {
 
 const FeedPage: React.FC = () => {
     const { user, logout } = useAuth();
+    const [username, setUsername] = useState<string | null>(localStorage.getItem("username") || null);
+    console.log(username);
     const [newPost, setNewPost] = useState<string>("");
     const navigate = useNavigate();
     const [posts] = useState<Post[]>([
@@ -93,7 +94,7 @@ const FeedPage: React.FC = () => {
                             </div>
                                 <div className="truncate">
                                     <p className="text-xs text-slate-500">Logged in as</p>
-                                    <p className="text-sm font-bold text-slate-200 truncate">@{user?.username || "stranger"}</p>
+                                    <p className="text-sm font-bold text-slate-200 truncate">@{username || "stranger"}</p>
                                 </div>
                             </div>
 
