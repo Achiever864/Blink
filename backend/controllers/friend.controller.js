@@ -1,13 +1,13 @@
-import User from '../models/user.model';
-import Friendship from "../models/friend.model"
+import User from '../models/user.model.js';
+import Friendship from "../models/friend.model.js"
 
 const sendRequest = async (req, res) => {
     try {
         const { requesterId, recipientId } = req.body;
 
         //check if requester and recipient exist
-        const requester = await User.findOne({ requesterId });
-        const recipient = await User.findOne({ recipientId });
+        const requester = await User.findOne({ _id: requesterId });
+        const recipient = await User.findOne({ _id: recipientId });
 
         if (!requester || !recipient) {
             return res.status(400).json({
@@ -65,7 +65,7 @@ const acceptRequest = async (req, res) => {
     }
 };
 
-const rejectRequest = async (req, res){
+const rejectRequest = async (req, res) => {
     try {
         const { requesterId, recipientId } = req.body;
 
@@ -99,7 +99,7 @@ const rejectRequest = async (req, res){
     }
 };
 
-const blockUser = async (req, res){
+const blockUser = async (req, res) => {
     try {
         const { blockee, blocker } = req.body;
         
@@ -157,7 +157,7 @@ const blockUser = async (req, res){
     }
 };
 
-const unblockUser = async (req, res){
+const unblockUser = async (req, res) => {
     try {
         const {blocker, blockee} = req.body;
 
@@ -197,6 +197,33 @@ const unblockUser = async (req, res){
             message: "User unblocked successfully",
             friendship
         })
+    } catch (error) {
+        
+    }
+};
+
+const getPendingRequest = async (req, res) => {
+    try {
+        const { recipientId } = req.body;
+
+        //check if id exist
+        const user = await User.findOne({ _id: recipientId });
+
+        if(!user){
+            return res.status(400).json({
+                message: "User does not exist"
+            });
+        }
+
+        const relation = await Friendship.find({
+                    recipient: recipientId,
+                    status: "pending"
+        }).populate(
+            "requester",
+            "username profilePicture"
+        )
+
+
     } catch (error) {
         
     }

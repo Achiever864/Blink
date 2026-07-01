@@ -92,20 +92,28 @@ const loginUser = async (req, res) => {
 }
 
 const updateUserProfile = async (req, res) => {
-    const { username, profilePicture, bio } = req.body;
-    const user = await User.findOne({ username });
+    const { userId, username, profilePicture, bio } = req.body;
+
+
+    const user = await User.findOne({ _id: userId });
 
     if(!user){
         return res.status(404).json({ message: "User not found" });
     }
 
+    const newUsername = username || user.username;
     const newProfilePicture = profilePicture || user.profilePicture;
     const newBio = bio || user.bio;
-    await user.finByIdAndUpdate(
-        user.id,
-        { profilePicture: newProfilePicture, newBio},
-        { new: true }
-    )
+    
+    user.username = newUsername;
+    user.profilePicture = newProfilePicture;
+    user.bio = newBio;
+
+    await user.save();
+    res.status(200).json({
+        message: "User Profile updated successfully",
+        user
+    })
 }
 
 const getUserSuggestions = async (req, res) => {
@@ -159,9 +167,7 @@ const getUserSuggestions = async (req, res) => {
 
 const getUserBeta = async (req, res) => { //running this in-place of the suggestion before i fix docker
     try {
-        console.log("trying to call my name");
         const { userId } = req.body;
-        console.log(userId);
 
         const offset = Number(req.query.offset) || 0;
         const limit = Number(req.query.limit) || 10;
@@ -169,7 +175,6 @@ const getUserBeta = async (req, res) => { //running this in-place of the suggest
         const total = await User.countDocuments({
             _id: { $ne: userId }
         });
-        console.log("total:", total);
 
         const users = await User.find({
             _id: {$ne:userId}

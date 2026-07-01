@@ -24,7 +24,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     const login = async (credentials: AuthFormData) => {
         setIsLoading(true);
         try{
-            const res = await API.post("/login", {
+            const res = await API.post("user/login", {
                 email: credentials.email,
                 password: credentials.password
             });
@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     const register = async (credentials: AuthFormData) => {
         setIsLoading(true);
         try {
-            const res = await API.post("/register", credentials);
+            const res = await API.post("user/register", credentials);
             const { token, userProfile } = res.data;
 
             localStorage.setItem("myToken", token);

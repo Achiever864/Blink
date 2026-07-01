@@ -5,6 +5,7 @@ import {
     Settings, Shield, Save, CheckCircle, Globe, Link2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Sidebar from "../components/sideBar";
 
 const ProfilePage: React.FC = () => {
     const { user, logout } = useAuth();
@@ -38,46 +39,8 @@ const ProfilePage: React.FC = () => {
 
             <div className="w-ful max-w-7xl grid grid-cols-1 md:grid-cols-[80px_1fr] lg:grid-cols-[240px_1fr_360px] px-4 gap-6 relative z-10">
                 {/*Left Column: same main app sidebar Navigation (I should make this into a reusable component later on) */}
-                <aside className="hidden md:flex flex-col justify-between py-6 border-r border-slate-900/60 pr-4">
-                    <div className="space-y-8">
-                        {/*Top Badge*/}
-                        <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 shadow-lg shadow-violet-600/20 lg:mx-0 mx-auto cursor-pointer"
-                            onClick={() => navigate("/feed")}
-                        >
-                            <span className="text-xl font-black text-white transform -skew-x-3">B</span>
-                            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-white" />
-                        </div>
-
-                        {/*Nav Stack */}
-                        <nav className="space-y-2">
-                            <button onClick={() => navigate("/feed")} className="flex items-center gap-4 w-full p-3 rounded-xl text-slate-400 hover:bg-slate-900/50 hover:text-slate-200 transition-all">
-                                <Home size={22} />
-                                <span className="hidden lg:inline text-sm">Timeline</span>
-                            </button>
-
-                            <button onClick={() => navigate("/message")} className="flex items-center gap-4 w-full p-3 rounded-xl text-slate-400 hover:bg-slate-900/50 hover:text-slate-200 transition-all">
-                                <MessageSquare size={22} />
-                                <span className="hidden lg:inline text-sm">Message</span>
-                            </button>
-
-                            <button className="flex items-center gap-4 w-full p-3 rounded-xl text-slate-400 hover:bg-slate-900/50 hover:text-slate-200 transition-all">
-                                <Bell size={22} />
-                                <span className="hidden lg:inline text-sm">Notifications</span>
-                            </button>
-
-                            <button className="flex items-center gap-4 w-full p-3 rounded-xl bg-violet-600/10 text-violet-400 font-semibold transition-all">
-                                <User size={22} />
-                                <span className="hidden lg:inline text-sm">Profile</span>
-                            </button>
-                        </nav>
-                    </div>
-
-                    {/*Logout segment */}
-                    <button onClick={logout} className="flex items-center gap-4 w-full p-3 rounded-xl text-rose-400 hover:bg-rose-950/20 transition-all duration-200">
-                        <LogOut size={22} />
-                        <span className="hidden lg:inline text-sm font-medium">Logout</span>
-                    </button>
-                </aside>
+                {/*Edit: Lol, I just made it into a reusable component */}
+                <Sidebar />
 
 
                 {/*Middle column: profile Interface & Form Logic*/}

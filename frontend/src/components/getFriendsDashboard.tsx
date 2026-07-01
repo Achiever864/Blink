@@ -44,7 +44,7 @@ const GetFriendsDashboard: React.FC<GetFriendsDashboardProps> = ({ isEmbedded = 
         try{
             //POST request
             console.log(user.id);
-            const res = await API.post("/getBetaUser", {
+            const res = await API.post("user/getBetaUser", {
                 userId: user.id
             }, {
                 params: {
@@ -86,12 +86,21 @@ const GetFriendsDashboard: React.FC<GetFriendsDashboardProps> = ({ isEmbedded = 
         }
     }, [user?.id, fetchNetworkBatch]);
 
-    const toggleFollow = (userId: string) => {
-        setUsers((prevUsers) =>
-        prevUsers.map((u) =>
-            u.id === userId ? {...u, isFollowing: !u.isFollowing } : u
-        )
-        );
+    const sendFriendRequest = async ( recipientId: string) => { //here for the follow/unfollow button
+        try {
+            console.log(user?.id, recipientId);
+            await API.post("/friend/send", {
+                requesterId: user?.id,
+                recipientId
+            });
+
+            setUsers((prev) =>
+            prev.map((u) =>
+                u.id === recipientId ? {...u, isFollowing: true } : u
+            ));
+        } catch (error) {
+            console.error(error);
+        }
     };
 
 return(
@@ -136,7 +145,7 @@ return(
                     </div>
 
                 <button
-                    onClick={() => toggleFollow(item.id)}
+                    onClick={() => sendFriendRequest(item.id)}
                     className={`mt-4 w-full py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-[0.97] ${
                         item.isFollowing
                             ? "bg-slate-900 text-slate-400 border border-slate-800"

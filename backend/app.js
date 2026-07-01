@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import http from "http";
 import userRouter from "./routes/user.route.js";
+import friendRoute from "./routes/friend.route.js";
 import { initSocket } from "./config/socket.js";
 
 const app = express();
@@ -16,7 +17,8 @@ app.use(helmet());
 const server = http.createServer(app);
 initSocket(server);
 
-app.use(userRouter);
+app.use("/api/user", userRouter);
+app.use("/api/friend", friendRoute);
 
 app.get("/", (req, res) => {
   res.send("Server is running");
