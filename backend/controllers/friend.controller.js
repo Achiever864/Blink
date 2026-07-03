@@ -44,10 +44,18 @@ const acceptRequest = async (req, res) => {
     try {
         const { requesterId, recipientId } = req.body;
 
-        const friend = await findOneAndUpdate(
+        const friend = await Friendship.findOneAndUpdate(
             {
-                requester: requesterId,
-                recipient: recipientId
+                $or: [
+                    {
+                        requester: requesterId,
+                        recipient: recipientId
+                    },
+                    {
+                        requester: recipientId,
+                        recipient: requesterId
+                    }
+                ]
             },
             {
                 status: "accepted"
@@ -152,7 +160,7 @@ const blockUser = async (req, res) => {
         
     } catch (error) {
         return res.status(500).json({
-            message: err.message
+            message: error.message
         });
     }
 };
@@ -198,7 +206,9 @@ const unblockUser = async (req, res) => {
             friendship
         })
     } catch (error) {
-        
+        res.status(500).json({
+            message: error.message
+        })
     }
 };
 
@@ -223,16 +233,76 @@ const getPendingRequest = async (req, res) => {
             "username profilePicture"
         )
 
+        if(!relation){
+            return res.status(200).json({
+                message: "There is no pending request."
+            })
+        }
+
+        res.status(200).json({
+            message: "Requests generated successfully.",
+            relation
+
+        })
+
 
     } catch (error) {
-        
+        res.status(500).json({
+            message: error.message
+        })
+    }
+};
+
+
+const getFriends = async (req, res) => {
+    try {
+        const {userId} = req.body;
+
+        const user = await User.findOne({ _id: userId });
+
+        //check if user exists
+        if(!user){
+            return res.status(400).json({
+                message: "User not found"
+            })
+        };
+
+        const friends = await Friendship.find({
+            $or: [
+                {
+                    recipient: userId,
+                    status: "accepted"
+                },
+                {
+                    requester: userId,
+                    status: "accepted"
+                }
+            ]
+        }).populate(
+            "requester",
+            "username profilePicture"
+        ).populate(
+            "recipient",
+            "username profilePicture"
+        );
+
+
+        res.status(200).json({
+            message: "Fetched Friends successfully",
+            friends
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        })
     }
 }
-
 export {
     sendRequest,
     acceptRequest,
     rejectRequest,
     blockUser,
-    unblockUser
+    unblockUser,
+    getPendingRequest,
+    getFriends
 };

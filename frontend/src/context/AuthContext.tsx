@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 import API from "../api/axios";
 import { useStatus } from "./StatusBarContext";
 import type { AuthFormData, UserProfile } from "../types/auth";
@@ -15,7 +15,19 @@ interface AuthContextType{
 const AuthContext = createContext <AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
-    const [user, setUser] = useState<UserProfile | null>(null);
+    const [user, setUser] = useState<UserProfile | null>(() => {
+        const token = localStorage.getItem("token");
+        const id = localStorage.getItem("userId");
+        const username = localStorage.getItem("username");
+        const email = localStorage.getItem("email");
+        const profilePicture = localStorage.getItem("profilePicture") || "";
+
+        if (token && id && username && email){
+            return { id, username, email, profilePicture };
+        }
+        return null;
+    });
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { showStatus } = useStatus();
     const navigate = useNavigate();
@@ -32,17 +44,20 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
             const token = res.data.user.token;
             const username = res.data.user.username;
             const email = res.data.user.email;
-            const userId = res.data.user.id;
+            const userId = res.data.user._id;
+            const profilePics = res.data.user.profilePicture.url || "";
 
             localStorage.setItem("token", token);
             localStorage.setItem('username', username);
             localStorage.setItem("email", email);
             localStorage.setItem("userId", userId);
+            localStorage.setItem("profilePicture", profilePics);
             
             const userProfile: UserProfile = {
                 id: userId,
                 username: username,
-                email: email
+                email: email,
+                profilePicture: profilePics
             };
             setUser(userProfile);
 
@@ -63,7 +78,11 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
             const res = await API.post("user/register", credentials);
             const { token, userProfile } = res.data;
 
-            localStorage.setItem("myToken", token);
+            localStorage.setItem("token", token);
+            localStorage.setItem("username", userProfile.username);
+            localStorage.setItem("email", userProfile.email);
+            localStorage.setItem("userId", userProfile.id);
+
             setUser(userProfile);
 
             showStatus("Account initialized! Welcome to Blink.", "success");
@@ -78,7 +97,13 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
 
     //Lets handle the logout here
     const logout = () => {
-        localStorage.removeItem("myToken");
+        //compeletely sweep out all key to avoid messy storage state (stale data pollution)
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        localStorage.removeItem("email");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("profilePicture")
+
         setUser(null);
         showStatus("Session terminated. See you soon!", "success");
         navigate("/")

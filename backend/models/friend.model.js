@@ -14,7 +14,7 @@ const friendSchema = new mongoose.Schema({
     },
 
     status: {
-        type: String || null,
+        type: String,
         enum: ["pending", "accepted",  "blocked", "friendBlocked", "pendingBlocked", null],
         default: null
     },
@@ -26,7 +26,7 @@ const friendSchema = new mongoose.Schema({
     },
 },
 {
-    timestamp: true
+    timestamps: true
 });
 
 export default mongoose.model("Friendship", friendSchema);

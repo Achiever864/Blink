@@ -1,13 +1,14 @@
 import mongoose from "mongoose";
 
-const roomSchema = new mongoose.Schema({
+const conversationSchema = new mongoose.Schema({
     roomName: {
         type: String,
         trim: true,
-        default: ""
+        default: null
     },
     isGroupChat: {
         type: Boolean,
+        required: true,
         default: false
     },
     participant: [
@@ -31,4 +32,4 @@ const roomSchema = new mongoose.Schema({
     timestamps: true
 })
 
-export default mongoose.model("Room", roomSchema);
+export default mongoose.model("Conversation", conversationSchema);

@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Home, MessageSquare, Bell, User, LogOut, Send, Search, CheckCheck, ShieldAlert, Sparkles } from "lucide-react";
+import { Home, MessageSquare, Bell, User, LogOut, Send, Search, CheckCheck, ShieldAlert, Sparkles, MessageSquarePlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/sideBar";
+import API from "../api/axios";
+import { useEffect } from "react";
+import NewChatModal from "../components/newChatModal";
 
 interface DM{
     id: string;
@@ -22,31 +25,72 @@ interface Message {
 }
 
 const MessagePage: React.FC = () => {
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
     const [activeChat, setActiveChat] = useState<string>("1");
     const [typedMessage, setTypedMessage] = useState<string>("");
-    const navigate = useNavigate();
+    const [conversations, setConversations] = useState<any[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const [conversations] = useState<DM[]>([
-        {
-            id: "1",
-            username: "cyber_architect",
-            avatarLetter: "CA",
-            lastMessage: "The Axios intercept i just fixed it right noww!!",
-            time: "2m ago",
-            unread: true,
-            online: true,
-        },
-        {
-            id: "2",
-            username: "neon_builder",
-            avatarLetter: "NB",
-            lastMessage: "Did you push the latest tailwind adjustments?? .. ahhh guyyy",
-            time: "1h ago",
-            unread: false,
-            online: false,
+    const handleStartNewChat = async(targetUserId: string) => {
+        try {
+            const response = await API.post("/conversation/create", {
+                isGroupChat: false,
+                participants: [
+                    targetUserId,
+                    user!.id
+                ]
+            });
+            console.log("Conversation Initialized: ", response.data);
+
+            fetchConversation()
+
+        } catch (error) {
+            console.error("Failed to initialize conversation:", error);
+            throw error;
         }
-    ]);
+    };
+
+    const fetchConversation = async () => {
+        console.log("trying to fetch conversation");
+        if(!user?.id) return;
+
+        try {
+            const res = await API.post("/conversation/getConversation", {
+                userId: user?.id
+            })
+
+            console.log("Fetched response:", res);
+            const mapped = res.data.conversation.map((converse: any) => {
+                //find the other person in this chat context (don't really know if this works sha but..)
+                const otherUser = converse.participant.find(
+                    (p: any) => p._id !== user?.id
+                );
+
+                //Resolve if it shows group name or the friend username
+                const chatTitle = converse.isGroupChat
+                    ? (converse.roomName || "Untitled Group")
+                    : `@${otherUser?.username || "deleted_user"}`;
+
+                //mapping the layout
+                const avatar = converse.isGroupChat
+                        ? chatTitle.substring(0,2)
+                        : (otherUser?.username?.substring(0,2) || "??");
+
+                return {
+                    conversationId: converse._id,
+                    isGroup: converse.isGroupChat,
+                    title: chatTitle,
+                    avatarLabel: avatar,
+                    latestMessage: converse.latestMessage || null,
+                    updatedAt: converse.updatedAt
+                };
+            });
+
+            setConversations(mapped);
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     const [messages, setMessages] = useState<Message[]>([
         { id: "1", sender: "cyber_architect", text: "Yo, did you look into the state synchronization bug?", timestamp: "10:14 AM" },
@@ -68,6 +112,14 @@ const MessagePage: React.FC = () => {
         setMessages([...messages, outboxMsg]);
         setTypedMessage("");
     };
+
+
+    useEffect(() => {
+            if(!user?.id) return;
+            fetchConversation();
+            
+    
+        }, [user?.id]);
 
     return(
         <div className="min-h-screen bg-slate-950 text-slate-100 flex justify-center overflow-hidden">
@@ -102,17 +154,17 @@ const MessagePage: React.FC = () => {
                         <div className="flex-1 overflow-y-auto no-scrollbar space-y-2 pr-1">
                             {conversations.map((chat) => (
                                 <button
-                                    key= {chat.id}
-                                    onClick={() => setActiveChat(chat.id)}
+                                    key= {chat.conversationId}
+                                    onClick={() => setActiveChat(chat.conversationId)}
                                     className={`w-full text-left p-3.5 rounded-2xl flex items-center gap-3.5 border transition-all ${
-                                        activeChat === chat.id
+                                        activeChat === chat.conversationId
                                             ? "bg-gradient-to-r from-violet-950/30 to-slate-900/40 border-violet-500/30 shadow-md shadow-violet-950/10"
                                             : "bg-transparent border-transparent hover:bg-slate-900/20 hover:border-slate-900"
                                     }`}
                                 >
                                     <div className="relative">
                                         <div className="h-10 w-10 rouned-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-sm font-bold text-slate-300">
-                                            {chat.avatarLetter}
+                                            {chat.avatarLabel}
                                         </div>
                                         {chat.online && (
                                             <span className="absolut -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-500 border-2 border-slate-950" />
@@ -120,16 +172,34 @@ const MessagePage: React.FC = () => {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between">
-                                            <h4 className="text-xs font-bold text-slate-200 truncate">@{chat.username}</h4>
-                                            <span className="text-[10px] text-slate-600 font-medium">{chat.time}</span>
+                                            <h4 className="text-xs font-bold text-slate-200 truncate">{chat.title}</h4>
+                                            <span className="text-[10px] text-slate-600 font-medium">{new Date(chat.updatedAt).toLocaleTimeString()}</span>
                                         </div>
                                         <p className={`text-xs truncate mt-0.5 ${chat.unread ? "text-violet-400 font-semibold" : "text-slate-500"}`}>
-                                            {chat.lastMessage}
+                                            {chat.latestMessage?.text || "No messages yet"}
                                         </p>
                                     </div>
                                 </button>
                             ))}
                         </div>
+
+                        {/*Pinned footer to open the lookup modal on click */}
+                        <div className="p-3 border-t border-slate-900/80 bg-slate-950">
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className="w-full py-3 px-4 rounded-xl bg-violet-600/10 hover:bg-violet-600 border border-violet-500/20 text-violet-400 hover:text-white text-xs font-bold flex items-center justify-center gap-2 transition-all"
+                            >
+                                <MessageSquarePlus size={15} />
+                                <span>Chat with Friends</span>
+                            </button>
+                        </div>
+
+                        {/*Modal Component Injector */}
+                        <NewChatModal
+                            isOpen={isModalOpen}
+                            onClose={() => setIsModalOpen(false)}
+                            onStartChat={handleStartNewChat}
+                        />
                     </section>
                     
 

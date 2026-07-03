@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import FriendsRecommend from "../services/friendSuggestion.js";
 import RecommendationCache from "../services/RecommendationCache.js";
+import CloudinaryService from "../services/CloudinaryService.js";
 
 
 const registerUser = async (req, res) => {
@@ -76,14 +77,7 @@ const loginUser = async (req, res) => {
 
         res.status(200).json({
             message: "Login successful",
-            user: {
-                id: user._id,
-                username: user.username,
-                email: user.email,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                token: token
-            }
+            user
         })
     } catch (error) {
         console.error("Error logging in user:", error);
@@ -92,28 +86,45 @@ const loginUser = async (req, res) => {
 }
 
 const updateUserProfile = async (req, res) => {
-    const { userId, username, profilePicture, bio } = req.body;
+    try {
+        const { userId, username, profilePicture, bio } = req.body;
+        console.log(req.file);
+
+        //hits and create the file on cloudinary and saves the url
+        const result = await CloudinaryService.upload(
+            req.file.buffer,
+            "/blink/profilePictures"
+        )
+        console.log(result);
 
 
-    const user = await User.findOne({ _id: userId });
+        const user = await User.findOne({ _id: userId });
 
-    if(!user){
-        return res.status(404).json({ message: "User not found" });
+        if(!user){
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const newUsername = username || user.username;
+        const newProfilePicture = {
+            url: result.secure_url,
+            publicId: result.public_id
+        } || user.profilePictrue;
+        const newBio = bio || user.bio;
+        
+        user.username = newUsername;
+        user.profilePicture = newProfilePicture;
+        user.bio = newBio;
+
+        await user.save();
+        res.status(200).json({
+            message: "User Profile updated successfully",
+            user
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        })
     }
-
-    const newUsername = username || user.username;
-    const newProfilePicture = profilePicture || user.profilePicture;
-    const newBio = bio || user.bio;
-    
-    user.username = newUsername;
-    user.profilePicture = newProfilePicture;
-    user.bio = newBio;
-
-    await user.save();
-    res.status(200).json({
-        message: "User Profile updated successfully",
-        user
-    })
 }
 
 const getUserSuggestions = async (req, res) => {

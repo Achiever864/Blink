@@ -4,7 +4,7 @@ const messageSchema = new mongoose.Schema(
     {
         chatId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Room",
+            ref: "Conversation",
             required: true,
             index: true  //remember to index for fast search ups on your database
         },
@@ -13,17 +13,88 @@ const messageSchema = new mongoose.Schema(
             ref: 'User',
             required: true
         },
+        
         text: {
             type: String,
-            required: [true, "Cannot send an empty message"], //learn to be using this for error handling on your model
-            trim: true
+            trim: true,
+            default: ""
         },
+
+        attachment: {
+            type: {
+                type: String,
+                enum: ["image", "video", "audio", "file"],
+                default: null
+            },
+            url: {
+                type: String,
+                default: null
+            },
+            publicId: {
+                type: String,
+                default: null
+            },
+            fileName: {
+                type: String,
+                default: null
+            },
+            mimeType: {
+                type: String,
+                default: null
+            },
+            size: {
+                type: Number,
+                default: null
+            },
+            duration: {
+                type: Number,
+                default: null
+            }
+        },
+
+        replyTo: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Message",
+            default: null
+        },
+
+        deliveredTo: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User"
+            }
+        ],
+
         readBy: [
             {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "User" //for interactivenes
+                ref: "User" //for interactiveness
             }
         ],
+
+        reactions: [
+            {
+                user: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "User"
+                },
+
+                emoji: {
+                    type: String
+                }
+            }
+        ],
+
+        //if message edited
+        isEdited: {
+            type: Boolean,
+            default: false
+        },
+
+        isDeleted: {
+            type: Boolean,
+            default: false
+        }
     },
     { timestamps: true }
 );

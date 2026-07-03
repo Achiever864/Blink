@@ -3,13 +3,12 @@ import { useAuth } from "../context/AuthContext";
 import {
     Home, MessageSquare, Bell, User, LogOut, Heart, MessageCircle, Send, Handshake
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import GetFriendsDashboard from "../components/getFriendsDashboard";
 import Sidebar from "../components/sideBar";
 
 interface Post {
     id: string;
-    username: string;
+    user: string;
     content: string;
     likes: number;
     comments: number;
@@ -19,15 +18,13 @@ interface Post {
 }
 
 const FeedPage: React.FC = () => {
-    const { user, logout } = useAuth();
-    const [username, setUsername] = useState<string | null>(localStorage.getItem("username") || null);
-    console.log(username);
+    const { user } = useAuth();
+    console.log(user);
     const [newPost, setNewPost] = useState<string>("");
-    const navigate = useNavigate();
     const [posts] = useState<Post[]>([
             {
                 id: "1",
-                username: "cyber_architect",
+                user: "cyber_architect",
                 content: "Just finalized the glassmorphic styling engines for the new system framework. The biolet sub-glow looks absolutely premium.",
                 likes: 42,
                 comments: 5,
@@ -35,7 +32,7 @@ const FeedPage: React.FC = () => {
             },
             {
                 id: "2",
-                username: "neon_builder",
+                user: "neon_builder",
                 content: "TypeScript type-safety handles edge cases beautifully before production runs. Never shipping raw JS ever again.",
                 likes: 128,
                 comments: 14,
@@ -95,10 +92,10 @@ const FeedPage: React.FC = () => {
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="h-8 w-8 rounded-lg bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold uppercase text-xs">
-                                            {post.username.substring(0,2)}
+                                            {post.user.substring(0,2)}
                                         </div>
                                         <div>
-                                            <h4 className="text-sm font-bold text-slate-200">@{post.username}</h4>
+                                            <h4 className="text-sm font-bold text-slate-200">@{post.user}</h4>
                                             <p className="text-[11px] text-slate-500">{post.time}</p>
                                         </div>
                                     </div>

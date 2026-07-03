@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import { 
     Search, UserPlus, Check, X, Flame, Radio, Sparkles, Sliders 
 } from "lucide-react";
-import Sidebar from "../components/Sidebar";
+import Sidebar from "../components/sideBar.tsx";
+import API from "../api/axios";
+import { useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
 
 interface NetworkUser {
     id: string;
@@ -18,33 +21,89 @@ const FriendsPage: React.FC = () => {
     // Search Query State
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Mock Data State for Pending Requests
-    const [pendingRequests, setPendingRequests] = useState<NetworkUser[]>([
-        { id: "req_1", username: "neon_vector", displayName: "Kai Jensen", avatarLabel: "NV", vibeMatch: 98, currentActivity: "Coding in Rust" },
-        { id: "req_2", username: "pixel_pioneer", displayName: "Maya Lin", avatarLabel: "PP", vibeMatch: 87, currentActivity: "Listening to Phonky Beats" }
-    ]);
+    //get the logged in user
+    const { user } = useAuth();
 
-    // Mock Data State for Current Circle (Friends) with Gen Z engagement mechanics
-    const [myCircle, setMyCircle] = useState<NetworkUser[]>([
-        { id: "f_1", username: "stack_overflowen", displayName: "Owen K.", avatarLabel: "SO", vibeMatch: 94, currentActivity: "🎧 Playing Cyberpunk 2077", streak: 14 },
-        { id: "f_2", username: "glitch_queen", displayName: "Amina Diop", avatarLabel: "GQ", vibeMatch: 91, currentActivity: "💻 Debugging Axios Interceptors", streak: 3 },
-        { id: "f_3", username: "null_pointer", displayName: "Liam Vance", avatarLabel: "NP", vibeMatch: 82, streak: 29 },
-        { id: "f_4", username: "lambda_boi", displayName: "Elijah Ward", avatarLabel: "LB", vibeMatch: 76, currentActivity: "💤 AFK", streak: 0 }
-    ]);
+    const fetchRequest = async() => {
+        try {
+            const res = await API.post("/friend/getPending",{
+               recipientId: user?.id,
+                }
+            );
 
-    // Mock Data for Suggestions Panel
-    const [suggestions] = useState<NetworkUser[]>([
-        { id: "s_1", username: "comp_sci_guru", displayName: "Tariq", avatarLabel: "CS", vibeMatch: 95 },
-        { id: "s_2", username: "kernel_panic", displayName: "Zoe Miller", avatarLabel: "KP", vibeMatch: 89 },
-        { id: "s_3", username: "binary_babe", displayName: "Chloe Watson", avatarLabel: "BB", vibeMatch: 73 }
-    ]);
+            const mapped = res.data.relation.map((request:any) => ({
+                id: request.requester._id,
+                username: request.requester.username,
+                avatarLabel:
+                    request.requester.username
+                        .substring(0,2)
+                        .toUpperCase(),
+
+                vibeMatch: 100,
+            }));
+
+            setPendingRequests(mapped);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const fetchFriends = async() => {
+        try {
+        const res = await API.post("/friend/getFriends", {
+           userId: user?.id,
+        });
+
+        const mapped = res.data.friends.map((friend:any) => {
+            const otherUser =
+                friend.requester._id === user?.id
+                    ? friend.recipient
+                    : friend.requester;
+            
+            return{
+                id: otherUser._id,
+                username: otherUser.username,
+                avatarLabel: otherUser.username.substring(0,2).toUpperCase(),
+                displayName: otherUser.username,
+                vibeMatch: 92,
+                streak: 0
+            }
+        });
+
+        setMyCircle(mapped);
+    } catch (error) {
+        console.log(error)
+    }
+    }
+
+    useEffect(() => {
+        if(!user?.id) return;
+        fetchRequest();
+        fetchFriends();
+
+    }, [user?.id]);
+
+    const [pendingRequests, setPendingRequests] = useState<NetworkUser[]>([]);
+    const [myCircle, setMyCircle] = useState<NetworkUser[]>([]);
+    const [suggestions, setSuggestions] = useState<NetworkUser[]>([]);
 
     // Action Handlers
-    const handleAcceptRequest = (id: string) => {
-        const accepted = pendingRequests.find(r => r.id === id);
-        if (accepted) {
-            setMyCircle([{ ...accepted, streak: 1 }, ...myCircle]);
-            setPendingRequests(pendingRequests.filter(r => r.id !== id));
+    const handleAcceptRequest = async (requestId: string) => {
+        console.log("handling accept request");
+        console.log("recipient Id:", requestId);
+        console.log("requester Id:", user?.id);
+        try {
+            const res = await API.post("/friend/accept",{
+                requesterId: requestId,
+                recipientId: user?.id
+            })
+
+            fetchRequest();
+            fetchFriends();
+
+
+        } catch (error) {
+            
         }
     };
 
