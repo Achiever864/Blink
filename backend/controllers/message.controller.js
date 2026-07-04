@@ -50,17 +50,6 @@ const sendMessage = async (req, res) => {
 
         
         io.to(chatId).emit("new-message", populatedMessage);
-        
-        // const receivers = conversation.participant.filter(
-        //     participant => participant.toString() !== sender
-        // );
-
-        // receivers.forEach(receiverId => {
-        //     io.to(receiverId.toString()).emit(
-        //         "new-message",
-        //         populatedMessage
-        //     );
-        // })
 
             return res.status(201).json({
                 message: "Message sent successfully",

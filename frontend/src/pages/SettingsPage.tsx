@@ -3,7 +3,7 @@ import {
     User, Palette, Lock, Bell, Globe, Shield, Check
 } from "lucide-react";
 import {
-    useTheme, ThemeMode
+    useTheme, type ThemeMode
 }   from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 
@@ -155,8 +155,115 @@ const SettingsPage: React.FC = () => {
                             </button>
                         </form>
                     )}
+
+                    {/*Visual Mode Rendering */}
+                    {activeTab === "appearance" && (
+                        <div className="space-y-6">
+                            <div>
+                                <h3 className="text-md font-black text-white">Visual Mode Configuration</h3>
+                                <p className="text-xs text-slate-500">Modify global color tokens across layout view containters</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                {(["light", "dark", "cyberpunk", "rose"] as ThemeMode[]).map((mode) => (
+                                    <button
+                                        key={mode}
+                                        onClick={() => setTheme(mode)}
+                                        className={`p-4 rounded-2xl border text-left flex flex-col justify-between h-28 relative group transition-all capitalize ${theme === mode ? "bg-slate-950 border-violet-500 shadow-md shadow-violet-950/40 text-white" : "bg-slate-950/40 border-slate-900 text-slate-400 hover:border-slate-800"}`}
+                                    >
+                                        <div className="flex justify-between items-start w-full">
+                                            <span className="text-xs font-bold tracking-wide">{mode} Mode</span>
+                                            {theme === mode && (
+                                                <span className="p-1 rounded-md bg-violet-500/10 border border-violet-500/30 text-violet-400">
+                                                    <Check size={10} />
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="flex gap-1.5">
+                                            <div className={`h-3 w-3 rounded-full ${mode === "light" ? "bg-slate-200" : mode === "dark" ? "bg-slate-950 border border-slate-800" : "bg-purple-950"}`} />
+                                            <div className={`h-3 w-3 rounded-full ${mode === "light"  ? "bg-purple-600" : mode === "dark" ? "bg-violet-500" : "bg-teal-400"}`} />
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/*Password Secure Refactor */}
+                    {activeTab === "security" && (
+                        <form onSubmit={handlePasswordUpdate} className="space-y-6 max-w-xl">
+                            <div>
+                                <h3 className="text-md font-black text-white ">Access Verification Keys</h3>
+                                <p className="text-xs text-slate-500">Cycle active credentials to isolate profile access channesls.</p>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-[11px] font-bold text-slate-400 font-mono">Current Access Key</label>
+                                <input 
+                                    type="text"
+                                    value={passwordData.currentPassword}
+                                    onChange={e => setPasswordData({...passwordData, currentPassword: e.target.value})}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:border-violet-500/40 outline-none"
+                                />
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-[11px] font-bold text-slate-400 font-mono">NEW ACCREDITED PASS KEY</label>
+                                <input
+                                    type="password"
+                                    value={passwordData.newPassword}
+                                    onChange={e => setPasswordData({...passwordData, newPassword: e.target.value})}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:border-violet-500/40 outline-none"
+                                />
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-[11px] font-bold text-slate-400 font-mono">Confirm New Passkey</label>
+                                <input 
+                                    type="password"
+                                    value={passwordData.confirmPassword}
+                                    onChange={e => setPasswordData({...passwordData, confirmPassword: e.target.value})}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:border-violet-500/40 outline-none" 
+                                />
+                            </div>
+
+                            <button type="submit" className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all">
+                                Update Access Credentials
+                            </button>
+                        </form>
+                    )}
+
+                    {/*Signal Alerts $ status indicators */}
+                    {activeTab === "notifications" && (
+                        <div className="space-y-6 max-w-xl">
+                            <div>
+                                <h3 className="text-md font-black text-white">Signal Routing Metrics</h3>
+                                <p className="text-xs text-slate-500">Congigure Layout parameters for alerts and peripheral statuses.</p>
+                            </div>
+
+                            <div className="space-y-4">
+                                {/*Signal Alerts */}
+                                <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-950/40 border border-slate-900">
+                                    <div className="pr-4">
+                                        <h4 className="text-xs font-bold text-slate-200">Incoming Signal Alerts</h4>
+                                        <p  className="text-[11px] text-slate-500 mt-0.5">Push peripheral desktop banners when incoming real-time direct packet data transfers land.</p>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setNotifications({...notifications, dmAlerts: !notifications.dmAlerts})}
+                                        className={`w-10 h-5 rounded-full p-0.5 transition-colors duration-200 outline-none ${notifications.dmAlerts ? "bg-violet-600" : "bg-slate-800"}`}
+                                    >
+                                        <div className={`bg-white w-4 h-4 rounded-full shadow-md transform duration-200 ease-in-out ${notifications.dmAlerts ? "translate-x-5" : "translate-x-0"}`} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </main>
             </div>
         </div>
-    )
-}
+    );
+};
+
+export default SettingsPage;

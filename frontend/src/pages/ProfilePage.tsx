@@ -68,7 +68,7 @@ const ProfilePage: React.FC = () => {
 
                             {/*View selector tabs right in the hero banner */}
                             <div className="flex bg-slate-950 border border-slate-900 rounded-xl p-1 w-full sm:w-auto">
-                                <button onClick={() => setActiveTab("settings")}
+                                <button onClick={() => navigate("/settings")}
                                         className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${activeTab === "settings" ? "bg-slate-900 text-white shadow" : "text-slate-500 hover:text-slate-300"}`}
                                     >
                                         <Settings size={13} />
