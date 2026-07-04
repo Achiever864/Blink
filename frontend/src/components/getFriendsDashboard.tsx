@@ -7,6 +7,7 @@ interface NetworkUser {
     id: string;
     username: string;
     avatarLetter: string;
+    profilePicture: string;
     mutualConnections: number;
     isFollowing: boolean;
 }
@@ -60,7 +61,8 @@ const GetFriendsDashboard: React.FC<GetFriendsDashboardProps> = ({ isEmbedded = 
                 const mappedUsers: NetworkUser[] = backendUsers.map((u: any) => ({
                     id: u.id || u._id,
                     username: u.username,
-                    avatarLetter: u.username ? u.username.charAt(0).toUpperCase() : "U",
+                    avatarLetter: u.username ? u.username.substring(0,2).toUpperCase() : "US",
+                    profilePicture: u.profilePicture?.url || "",
                     mutualConnections: u.mutualConnections || 0,
                     isFollowing: u.isFollowing || false,
                 }));
@@ -132,7 +134,10 @@ return(
 
                     <div className="flex flex-col items-center mt-2">
                         <div className="h-12 w-12 rounded-xl bg-violet-600/10 border border-violet-500/20 flex items-center justify-center text-violet-400 text-sm font-bold shadow-inner mb-3">
-                            {item.avatarLetter}
+                            {item.profilePicture ? (
+                                <img src={item.profilePicture} alt={item.username} className="w-full h-full object-cover" />
+                             ) : (item.avatarLetter)
+                            }
                         </div>
 
                         <h4 className="text-xs font-bold text-slate-200">
@@ -183,6 +188,7 @@ return(
             )}
     </div>
 </div>
-)};
+    );
+};
 
 export default GetFriendsDashboard;

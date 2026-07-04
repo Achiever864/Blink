@@ -100,14 +100,14 @@ const ProfilePage: React.FC = () => {
                     {activeTab === "activity" ? (
                         <div className="space-y-4">
                             <div className="flex items-center justify-between px-2">
-                                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Personal Transmissions</h3>
+                                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Personal Activities</h3>
                             </div>
 
 
                             {/*Empty state stream representation */}
                             <div className="rounded-3xl border border-slate-900/60 bg-slate-900/5 p-8 text-center space-y-2">
-                                <p className="text-sm text-slate-400 font-medium">No archived broadcasts found on this terminal loop.</p>
-                                <p className="text-xs text-slate-600">Transmissions you post to your stram will mirror back onto this sector.</p>
+                                <p className="text-sm text-slate-400 font-medium">No archived broadcasts found on this user profile.</p>
+                                <p className="text-xs text-slate-600">User activity will mirror back on this page.`</p>
                             </div>
                         </div>
                     ): (

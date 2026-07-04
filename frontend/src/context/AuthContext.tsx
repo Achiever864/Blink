@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 import API from "../api/axios";
 import { useStatus } from "./StatusBarContext";
+import socket from "../socket";
 import type { AuthFormData, UserProfile } from "../types/auth";
 import { useNavigate } from "react-router-dom";
 
@@ -60,7 +61,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
                 profilePicture: profilePics
             };
             setUser(userProfile);
-
+            socket.connect();
+            socket.emit("setup", userId);
             showStatus("Access authorized. Syncing system profile", "success");
         } catch(error: any){
             const errorMsg = error.response?.data?.message || "Authentication rejected: Invalid credentials.";
@@ -84,7 +86,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
             localStorage.setItem("userId", userProfile.id);
 
             setUser(userProfile);
-
+            socket.connect();
+            socket.emit("setup", userProfile.id);
             showStatus("Account initialized! Welcome to Blink.", "success");
         } catch(error: any){
             const errorMsg = error.response?.data?.message || "Registration failed. Try again";
@@ -105,6 +108,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         localStorage.removeItem("profilePicture")
 
         setUser(null);
+        socket.disconnect();
         showStatus("Session terminated. See you soon!", "success");
         navigate("/")
     };

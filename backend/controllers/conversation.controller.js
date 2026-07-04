@@ -131,7 +131,8 @@ const getMessages = async (req, res) => {
             })
         }
 
-        const messages = await Messages.find({ chatId: conversationId });
+        const messages = await Messages.find({ chatId: conversationId })
+                .populate("sender");
 
         res.status(202).json({
             message: "Messages Fetched Successfully",
