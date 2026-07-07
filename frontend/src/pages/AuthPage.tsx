@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { useStatus } from "../context/StatusBarContext";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -33,7 +33,7 @@ const AuthPage: React.FC = () => {
             //the code hits this line when the login has been completed successfully
             navigate("/feed");
         } catch(err){
-            console.error("Auth action aborted");
+            showStatus(err);
         }
         console.log("Submitting Type-Safe Data:", formData);
         //Next: to feed this directly into an axios/fetch handler
@@ -45,27 +45,23 @@ const AuthPage: React.FC = () => {
     };
 
     return (
-        <div className="relative flex min-h-screen items-center justify-center bg-slate-950 px-4 overflow-hidden">
+        <div className="relative flex min-h-screen items-center justify-center bg-brand-bg px-4 overflow-hidden text-brand-text transition-colors duration-300">
             {/*BACKGROUND BRAND GLOW EFFECTS */}
-            <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-violet-600/10 blur-[120px]" />
-            <div className="absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-fuchsia-600/10 blur-[120px]" />
+            <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full blur-[120px]" style={{background: "var(--glow)"}}/>
+            <div className="absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full blur-[120px]" style={{background: "var(--glow)"}}/>
 
 
             {/*GLASSMORPHIC CONTAINER CARD*/}
-            <div className="relative w-full max-w-md rounded-[2.5rem] border border-slate-900 bg-slate-900/40 p-8 backdrop-blur-xl md:p-10 shadow-2xl">
+            <div className="relative w-full max-w-md rounded-[2.5rem] border border-brand-border bg-brand-glass p-8 backdrop-blur-xl md:p-10 transition-colors duration-300" style={{boxShadow: "0 20px 60px var(--shadow)"}}>
 
-                {/*Brand Identity header */}
-                <div className="flex flex-col items-center text-center">
-                    <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 shadow-xl shadow-violet-600/30">
-                        <span className="text-4xl font-black text-white select-none transform -skew-x-3">B</span>
-                        <span className="absolute top-2 right-2 h-3 w-3 rounded-full bg-white animate-pulse" />
+                {/*Brand Identity header */} <div className="flex flex-col items-center text-center"> <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 shadow-xl shadow-violet-600/30"> <span className="text-4xl font-black text-white select-none transform -skew-x-3">B</span> <span className="absolute top-2 right-2 h-3 w-3 rounded-full bg-white animate-pulse" />
                     </div>
 
-                    <h2 className="mt-6 text-3xl font-extrabold tracking-tight text-white">
+                    <h2 className="mt-6 text-3xl font-extrabold tracking-tight text-brand-text">
                         {isLogin ? "Welcome back to Blink" : "Create your Blink account"}
                     </h2>
 
-                    <p className="mt-2 text-sm text-slate-400">
+                    <p className="mt-2 text-sm text-brand-text-muted">
                         {isLogin ? "Catch up on what you missed" : "Connct with friends and start sharing"}
                     </p>
                 </div>
@@ -76,14 +72,14 @@ const AuthPage: React.FC = () => {
                     {/*Userame Field (visible only during registration)*/}
                     {!isLogin && (
                         <div className="space-y-1.5">
-                            <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Full Name</label>
+                            <label className="text-xs font-semibold uppercase tracking-wider text-brand-text-muted">Full Name</label>
                             <div className="relative flex items-center">
-                                <User className="absolute left-4 text-slate-500" size={10} />
+                                <User className="absolute left-4 text-brand-text-muted" size={10} />
                                 <input 
                                     type="text"
                                     required
                                     placeholder="Igaga Adeoluwa"
-                                    className="w-full rounded-2xl border border-slate-800 bg-slate-950/60 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-600 outline-none transition-all focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                                    className="w-full rounded-2xl border border-brand-border bg-brand-bg-secoondary/70 py-3.5 pl-12 pr-4 text-sm text-brand-text placeholder:text-brand-text-muted outline-none transition-all focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/30"
                                     value={formData.username}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("username", e.target.value)}
                                 />
@@ -96,12 +92,12 @@ const AuthPage: React.FC = () => {
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Email Address</label>
                         <div className="relative flex items-center">
-                            <Mail className="absolute left-4 text-slate-500" size={18} />
+                            <Mail className="absolute left-4 text-brand-text-muted" size={18} />
                             <input
                                 type="email"
                                 required
                                 placeholder="blink@example.com"
-                                className="w-full rounded-2xl border border-slate-800 bg-slate-950/60 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-600 outline-none transition-all focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                                className="w-full rounded-2xl border border-brand-border bg-brand-bg-secoondary/70 py-3.5 pl-12 pr-4 text-sm text-brand-text placeholder:text-brand-text-muted outline-none transition-all focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/30"
                                 value={formData.email}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("email", e.target.value)}
                             />
@@ -113,16 +109,16 @@ const AuthPage: React.FC = () => {
                         <div className="flex items-center justify-between">
                             <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Password</label>
                             {isLogin && (
-                                <a href="#forgot" className="text-xs font-meddium text-violet-400 hover:underline">Forgot password?</a>
+                                <a href="#forgot" className="text-xs font-meddium text-brand-accent hover:text-brand-accent-hover hover:underline">Forgot password?</a>
                             )}
                         </div>
                         <div className="relative flex items-center">
-                            <Lock className="absolute left-4 text-slate-500" size={18} />
+                            <Lock className="absolute left-4 text-brand-text-muted" size={18} />
                             <input
                                 type={showPassword ? "text" : "password"}
                                 required
                                 placeholder="Enter Password"
-                                className="w-full rounded-2xl border border-slate-800 bg-slate-950/60 py-3.5 pl-12 pr-12 text-sm text-white placeholder-slate-600 outline-none transition-all focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                                className="w-full rounded-2xl border border-brand-border bg-brand-bg-secoondary/70 py-3.5 pl-12 pr-4 text-sm text-brand-text placeholder:text-brand-text-muted outline-none transition-all focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/30"
                                 value={formData.password}
                                 onChange ={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("password", e.target.value)}
                             />
@@ -138,7 +134,7 @@ const AuthPage: React.FC = () => {
                     <button
                     type="submit"
                     disabled = {isLoading}
-                    className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-gradiend-to-r from-violet-600 to-indigo-600 py-3.5 font-semibold text-white shadow-lg shadow-violet-600/20 hover:from-violet-500 hover:to-indigo-500 transition-all transform active:scale-[0.98] hover:scale-[1.02]">
+                    className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-gradiend-to-r from-brand-accent to-brand-accent-hover py-3.5 font-semibold text-brand-text shadow-lg shadow-violet-600/20 hover:from-violet-500 hover:to-indigo-500 transition-all transform active:scale-[0.98] hover:scale-[1.02]">
                         {isLoading ? (
                             <>
                                 <Spinner size="sm" variant="white" />
@@ -153,11 +149,11 @@ const AuthPage: React.FC = () => {
                 </form>
                 
                     {/*Interactive Toggle Footer */}
-                    <div className="mt-8 text-center text-sm text-slate-400">
+                    <div className="mt-8 text-center text-sm text-brand-text-muted">
                             {isLogin ? "New to Blink?" : "Already have an account?" }{" "}
                             <button
                             onClick={() => setIsLogin(!isLogin)}
-                            className="font-bold text-violet-400 hover:text-violet-300 hover:underline transition">
+                            className="font-bold text-brand-accent hover:text-brand-accent-hover hover:underline transition">
                                 {isLogin ? "Create an account" : "Sign in here"}
                             </button>
                     </div>

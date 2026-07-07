@@ -5,6 +5,7 @@ import http from "http";
 import userRouter from "./routes/user.route.js";
 import friendRoute from "./routes/friend.route.js";
 import messageRoute from "./routes/messages.route.js";
+import postRouter from "./routes/post.route.js";
 import { initSocket } from "./config/socket.js";
 import conversationRoute from "./routes/conversation.route.js";
 
@@ -24,7 +25,7 @@ app.use("/api/user", userRouter);
 app.use("/api/friend", friendRoute);
 app.use("/api/conversation", conversationRoute);
 app.use("/api/message", messageRoute);
-//app.use("/api/post", postRoute);
+app.use("/api/post", postRouter);
 
 app.get("/", (req, res) => {
   res.send("Server is running");

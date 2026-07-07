@@ -53,7 +53,6 @@ const GetFriendsDashboard: React.FC<GetFriendsDashboardProps> = ({ isEmbedded = 
                     limit: limit
                 }
             });
-            console.log(res);
 
             const { users: backendUsers, hasMore: backendHasMore } = res.data;
             if(backendUsers && backendUsers.length > 0){

@@ -1,11 +1,38 @@
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
 import Friendship from "../models/friend.model.js";
+import CloudinaryService from "../services/CloudinaryService.js";
 
 
-const createPost = async () => {
+const createPost = async (req, res) => {
     try{
-        const { author, text, media, visibility } = req.body;
+        const { author, text, visibility } = req.body;
+        let media = [];
+
+        if(req.files && req.files.length > 0){
+            media = await Promise.all(
+                req.files.map(async(file) => {
+                    const result = await CloudinaryService.upload(
+                        file.buffer,
+                        "/blink/posts"
+                    );
+
+                    return {
+                        url: result.secure_url,
+                        publicId: result.public_id,
+                        type: result.resource_type,
+
+                        width: result.width,
+                        height: result.height,
+
+                        duration: result.duration || null,
+                        
+                        bytes: result.bytes,
+                        format: result.format
+                    };
+                })
+            );
+        }
 
         const user = await User.findById(author);
 
@@ -23,7 +50,7 @@ const createPost = async () => {
 
         const post = await Post.create({
             author,
-            text,
+            caption: text,
             media,
             visibility
         });

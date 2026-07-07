@@ -5,18 +5,24 @@ const storage = multer.memoryStorage();
 const upload = multer({
     storage,
     limits: {
-        fileSize: 5 * 1024 * 1024 //restrict file size to 5MB
+        fileSize: 100 * 1024 * 1024 //restrict file size to 5MB
     },
 
     fileFilter(req, file, cb) {
         const allowedTypes =[
             "image/jpeg",
             "image/png",
-            "image/webp"
+            "image/webp",
+
+            //accepts video (...I mean what is a social platform without videos? lol)
+            "video/mp4",
+            "video/webm",
+            "video/quicktime",
+            "video/x-matroska"
         ];
 
         if(!allowedTypes.includes(file.mimetype)){
-            return cb(new Error("Only JPG, PNG and WebP images are allowed."))
+            return cb(new Error("Only Images (JPG, PNG, WebP, GIF) and videos (MP4, MOV, WEBM, MKV) are allowed."))
         }
 
         cb(null, true);

@@ -43,3 +43,283 @@
 
 
 /*Let us add themes to our app... integrate it*/
+@theme {
+  --color-brand-bg: var(--bg-primary);
+  --color-brand-bg-secondary: var(--bg-secondary);
+
+  --color-brand-surface: var(--surface);
+  --color-brand-surface-hover: var(--surface-hover);
+
+  --color-brand-text: var(--text-primary);
+  --color-brand-text-muted: var(--text-secondary);
+
+  --color-brand-border: var(--border);
+
+  --color-brand-accent: var(--accent);
+  --color-brand-accent-hover: var(--accent-hover);
+
+  --color-brand-success: var(--success);
+  --color-brand-danger: var(--danger);
+  --color-brand-warning: var(--warning);
+
+  --color-glow: var(--glow);
+  --color-shadow: var(--shadow);
+  --color-glass: var(--glass);
+}
+
+:root.dark{
+    /* Backgrounds */
+    --bg-primary:#020617;
+    --bg-secondary:#0f172a;
+
+    /* Surfaces */
+    --surface:#111827;
+    --surface-hover:#1f2937;
+
+    /* Text */
+    --text-primary:#f8fafc;
+    --text-secondary:#94a3b8;
+
+    /* Borders */
+    --border:#334155;
+
+    /* Accent */
+    --accent:#7c3aed;
+    --accent-hover:#8b5cf6;
+
+    /* Status */
+    --success:#22c55e;
+    --danger:#ef4444;
+    --warning:#f59e0b;
+
+    /* Effects */
+    --glow:rgba(124,58,237,.25);
+    --shadow:rgba(2,6,23,.55);
+    --glass:rgba(255,255,255,.05);
+}
+/* Light Theme */
+/* :root.light {
+  --bg-primary: #ffffff;
+  --text-primary: #1e293b;
+  --accent-color: #3b82f6; Clean Blue
+}
+
+Dark Theme
+:root.dark {
+  --bg-primary: #0f172a; Slate Dark
+  --text-primary: #f8fafc;
+  --accent-color: #818cf8; Indigo
+} */
+
+/* Cyberpunk Theme */
+:root.cyberpunk{
+    /* Backgrounds */
+    --bg-primary:#001018;
+    --bg-secondary:#062330;
+
+    /* Surfaces */
+    --surface:#0b2f3b;
+    --surface-hover:#164652;
+
+    /* Text */
+    --text-primary:#dffcff;
+    --text-secondary:#72ecff;
+
+    /* Borders */
+    --border:#00f5ff55;
+
+    /* Accent */
+    --accent:#ff007f;
+    --accent-hover:#ff4fb0;
+
+    /* Status */
+    --success:#00ffa6;
+    --danger:#ff3366;
+    --warning:#ffd60a;
+
+    /* Effects */
+    --glow:rgba(255,0,127,.30);
+    --shadow:rgba(0,18,25,.55);
+    --glass:rgba(0,245,255,.08);
+}
+
+:root.darkfury{
+    /* Backgrounds */
+    --bg-primary:#0f172a;
+    --bg-secondary:#1e293b;
+
+    /* Surfaces */
+    --surface:#334155;
+    --surface-hover:#475569;
+
+    /* Text */
+    --text-primary:#f8fafc;
+    --text-secondary:#cbd5e1;
+
+    /* Borders */
+    --border:#64748b;
+
+    /* Accent */
+    --accent:#d9dbf1;
+    --accent-hover:#eef2ff;
+
+    /* Status */
+    --success:#22c55e;
+    --danger:#ef4444;
+    --warning:#f59e0b;
+
+    /* Effects */
+    --glow:rgba(217,219,241,.25);
+    --shadow:rgba(15,23,42,.5);
+}
+
+:root.rose{
+    /* Backgrounds */
+    --bg-primary:#2a0f1c;
+    --bg-secondary:#43172d;
+
+    /* Surfaces */
+    --surface:#5c2140;
+    --surface-hover:#723055;
+
+    /* Text */
+    --text-primary:#fff7fa;
+    --text-secondary:#f9c6d4;
+
+    /* Borders */
+    --border:#a64570;
+
+    /* Accent */
+    --accent:#ff4f87;
+    --accent-hover:#ff78a5;
+
+    /* Status */
+    --success:#4ade80;
+    --danger:#fb7185;
+    --warning:#fbbf24;
+
+    /* Effects */
+    --glow:rgba(255,79,135,.28);
+    --shadow:rgba(0,0,0,.35);
+}
+
+:root.navy{
+    /* Backgrounds */
+    --bg-primary:#0d1b2a;
+    --bg-secondary:#13293d;
+
+    /* Surfaces */
+    --surface:#1b3a4b;
+    --surface-hover:#24536d;
+
+    /* Text */
+    --text-primary:#f1f5f9;
+    --text-secondary:#94c9d8;
+
+    /* Borders */
+    --border:#2f6d80;
+
+    /* Accent */
+    --accent:#38aecc;
+    --accent-hover:#67cce3;
+
+    /* Status */
+    --success:#22c55e;
+    --danger:#ef4444;
+    --warning:#f59e0b;
+
+    /* Effects */
+    --glow:rgba(56,174,204,.25);
+    --shadow:rgba(3,37,65,.4);
+}
+
+:root.megatron{
+    /* Backgrounds */
+    --bg-primary:#052b2f;
+    --bg-secondary:#0d4547;
+
+    /* Surfaces */
+    --surface:#166061;
+    --surface-hover:#20807e;
+
+    /* Text */
+    --text-primary:#ecfff8;
+    --text-secondary:#c8fff0;
+
+    /* Borders */
+    --border:#25a18e;
+
+    /* Accent */
+    --accent:#7ae582;
+    --accent-hover:#9fffcb;
+
+    /* Status */
+    --success:#22c55e;
+    --danger:#ef4444;
+    --warning:#facc15;
+
+    /* Effects */
+    --glow:rgba(122,229,130,.28);
+    --shadow:rgba(0,78,100,.4);
+}
+
+:root.funky{
+    /* Backgrounds */
+    --bg-primary:#011936;
+    --bg-secondary:#1b2a41;
+
+    /* Surfaces */
+    --surface:#324a5f;
+    --surface-hover:#465d73;
+
+    /* Text */
+    --text-primary:#f8fafc;
+    --text-secondary:#d4e5e5;
+
+    /* Borders */
+    --border:#82a3a1;
+
+    /* Accent */
+    --accent:#9fc490;
+    --accent-hover:#c0dfa1;
+
+    /* Status */
+    --success:#4ade80;
+    --danger:#f87171;
+    --warning:#facc15;
+
+    /* Effects */
+    --glow:rgba(159,196,144,.25);
+    --shadow:rgba(1,25,54,.45);
+}
+
+:root.nature{
+    /* Backgrounds */
+    --bg-primary:#091e05;
+    --bg-secondary:#123b0d;
+
+    /* Surfaces */
+    --surface:#1b4d17;
+    --surface-hover:#25651f;
+
+    /* Text */
+    --text-primary:#ecfff0;
+    --text-secondary:#a7ddb0;
+
+    /* Borders */
+    --border:#3f7f4a;
+
+    /* Accent */
+    --accent:#72e3b2;
+    --accent-hover:#9af0cb;
+
+    /* Status */
+    --success:#4ade80;
+    --danger:#ef4444;
+    --warning:#fbbf24;
+
+    /* Effects */
+    --glow:rgba(114,227,178,.25);
+    --shadow:rgba(9,30,5,.45);
+    --glass:rgba(114,227,178,.08);
+}

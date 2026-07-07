@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/sideBar";
+import { useRef } from "react";
 
 const ProfilePage: React.FC = () => {
     const { user, logout } = useAuth();
@@ -27,10 +28,22 @@ const ProfilePage: React.FC = () => {
     const handleUpdateProfile = (e: React.FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
-
-
     };
 
+    const fileInputRef = useRef(null);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        console.log("Selected file", file);
+
+        //preview
+        const previewUrl = URL.createObjectURL(file);
+        console.log(previewUrl);
+
+        //should upload to backend here hopefully this works well
+    }
     return(
         <div className="min-h-screen bg-slate-950 text-slate-100 flex justify-center overflow-hidden">
             {/*Ambient Background Glows */}
@@ -52,12 +65,24 @@ const ProfilePage: React.FC = () => {
                         {/*Profile Identity Layour */}
                         <div className="relative flex flex-col sm:flex-row items-start sm:itemss-end justify-between gap-4 mt-8">
                             <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
+
                                 {/*Avater with overlay edit trigger */}
-                                <div className="relative group h-20 w-20 rounded-2xl bg-graditent-to-tr from-violet-600 to-indigo-600 border border-violet-400/30 flex items-center justify-center text-white font-black text-2xl uppercase shadow-xl shadow-violet-950/50">
-                                    {username.substring(0,2)}
+                                <div
+                                onClick={() => fileInputRef.current.click()}
+                                className="relative group h-20 w-20 rounded-2xl bg-graditent-to-tr from-violet-600 to-indigo-600 border border-violet-400/30 flex items-center justify-center text-white font-black text-2xl uppercase shadow-xl shadow-violet-950/50">
+                                    {<img src={user?.profilePicture} alt="image" className="cover" /> || username.substring(0,2)}
                                     <div className="absolute inset-0 bg-slate-950/70 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                         <Camera size={18} className="text-slate-200" />
                                     </div>
+
+                                    {/*Trying this if it works leet us seeeeeeeeeee */}
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        ref={fileInputRef}
+                                        className="hidden"
+                                        onChange={handleImageChange}
+                                    />
                                 </div>
 
                                 <div className="pb-1">

@@ -22,9 +22,11 @@ class CloudinaryService {
         });
     }
 
-    async destroy (publicId){
+    async destroy (publicId, resourceType = "image"){
         if(!publicId) return;
-        return cloudinary.uploader.destroy(publicId);
+        return cloudinary.uploader.destroy(publicId, {
+            resource_type: resourceType
+        });
     }
 
     async replace(oldPublicId, buffer, folder, options = {}){

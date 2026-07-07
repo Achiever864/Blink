@@ -88,7 +88,6 @@ const loginUser = async (req, res) => {
 const updateUserProfile = async (req, res) => {
     try {
         const { userId, username, profilePicture, bio } = req.body;
-        console.log(req.file);
 
         //hits and create the file on cloudinary and saves the url
         const result = await CloudinaryService.upload(
@@ -99,7 +98,7 @@ const updateUserProfile = async (req, res) => {
 
 
         const user = await User.findOne({ _id: userId });
-
+        
         if(!user){
             return res.status(404).json({ message: "User not found" });
         }

@@ -5,6 +5,7 @@ import {
 import Sidebar from "../components/sideBar.tsx";
 import API from "../api/axios";
 import { useEffect } from "react";
+import { useStatus }  from "../context/StatusBarContext.tsx";
 import { useAuth } from "../context/AuthContext";
 
 interface NetworkUser {
@@ -20,7 +21,7 @@ interface NetworkUser {
 const FriendsPage: React.FC = () => {
     // Search Query State
     const [searchQuery, setSearchQuery] = useState("");
-
+    const { showStatus } = useStatus();
     //get the logged in user
     const { user } = useAuth();
 
@@ -44,7 +45,7 @@ const FriendsPage: React.FC = () => {
 
             setPendingRequests(mapped);
         } catch (error) {
-            console.log(error);
+            showStatus(error);
         }
     }
 
@@ -72,7 +73,7 @@ const FriendsPage: React.FC = () => {
 
         setMyCircle(mapped);
     } catch (error) {
-        console.log(error)
+        showStatus(error);
     }
     }
 
@@ -89,9 +90,6 @@ const FriendsPage: React.FC = () => {
 
     // Action Handlers
     const handleAcceptRequest = async (requestId: string) => {
-        console.log("handling accept request");
-        console.log("recipient Id:", requestId);
-        console.log("requester Id:", user?.id);
         try {
             const res = await API.post("/friend/accept",{
                 requesterId: requestId,
@@ -101,9 +99,9 @@ const FriendsPage: React.FC = () => {
             fetchRequest();
             fetchFriends();
 
-
+            showStatus("User Added Successfully", "success");
         } catch (error) {
-            
+            showStatus("Unable to add user");
         }
     };
 
