@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&display=swap");
 
 @keyframes slideIn {
     from{
@@ -322,4 +323,26 @@ Dark Theme
     --glow:rgba(114,227,178,.25);
     --shadow:rgba(9,30,5,.45);
     --glass:rgba(114,227,178,.08);
+}
+
+@theme {
+    --animate-bRoll: bRoll 1.6s cubic-beizer(0.4, 0, 0.6, 1) infinite;
+    --animate-dotOrbit: dotOrbit 1.6s cubic-beizer(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes bRoll {
+    0% { transform: rotate(0deg) translateY(0px); }
+    20% { transform: rotate(72deg) translateY(-2px); }
+    40% { transform: rotate(144deg) translateY(0px); }
+    60% { transform: rotate(216deg) translateY(-2px); }
+    80% { transform: rotate(288deg) translateY(0px); }
+    100% { transform: rotate(360deg) translate(0px); }
+}
+
+@keyframes dotOrbit {
+    0% { top: 12%; left: 85%; opacity: 1; transform: rotate(0deg) translate(-50%, -50%) rotate(0deg); }
+    25% { top: 10%; left: 50%; opacity: 1; transform: rotate(90deg) translate(-50%, -50%) rotate(-90deg); }
+    50% { top: 12%; left: 15%; opacity: 0.4; transform: rotate(180deg) translate(-50%, -50%) rotate(-180deg); }
+    75% { top: 82%; left: 50%; opacity: 0.6; transform: rotate(270deg) translate(-50%, -50%) rotate(-270deg); }
+    100% { top: 12%; left: 85%; opacity: 1; transform: rotate(360deg) translate(-50%, -50%) rotate(-360deg); } 
 }

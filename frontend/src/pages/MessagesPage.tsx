@@ -1,23 +1,15 @@
-import React, { act, useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import 
-    { Home, MessageSquare, Bell, User, LogOut, Send, ChevronDown, Search, CheckCheck, Paperclip, ShieldAlert, Sparkles, MessageSquarePlus }
+    { Send, ChevronDown, Search, Mic2,CheckCheck, Paperclip, MessageSquarePlus, Upload, SavePen }
     from "lucide-react";
 import Sidebar from "../components/sideBar";
 import API from "../api/axios";
 import { useEffect } from "react";
+import { useStatus } from "../context/StatusBarContext";
 import NewChatModal from "../components/newChatModal";
 import socket from "../socket";
 
-interface DM{
-    id: string;
-    username: string;
-    avatarLetter: string;
-    lastMessage: string;
-    time: string;
-    unread: boolean;
-    online: boolean;
-}
 
 interface Participant {
     _id: string;
@@ -45,8 +37,10 @@ interface Conversation {
     profilePicture?: string;
     avatarLabel: string;
     participants: Participant[];
-    latestMessage?: Message
+    latestMessage?: Message;
     updatedAt: string;
+    online?: boolean;
+    unread?: boolean;
 }
 
 interface Message {
@@ -73,10 +67,12 @@ interface Message {
     isDeleted: boolean;
     createdAt: string;
     updatedAt: string;
+    status?: "sending" | "sent" | "failed";
 }
 
 const MessagePage: React.FC = () => {
     const { user } = useAuth();
+    const showStatus = useStatus();
     const [activeChat, setActiveChat] = useState<Conversation | null>(null);
     const [typedMessage, setTypedMessage] = useState<string>("");
     const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -87,6 +83,122 @@ const MessagePage: React.FC = () => {
     const bottomRef = useRef<HTMLDivElement>(null);
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const [ showScrollButton, setShowScrollButton ] = useState(false);
+
+    
+    //audio handling
+    const [isRecording, setIsRecording] = useState(false);
+    const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioChunksRef = useRef<Blob[]>([]);
+    const [recordingDuration, setRecordingDuration] = useState(0);
+    const recordingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: true
+            });
+
+            const recorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = recorder;
+            audioChunksRef.current = [];
+
+            recorder.ondataavailable = (event) => {
+                if (event.data.size > 0){
+                    audioChunksRef.current.push(event.data);
+                }
+            };
+
+            recorder.onstop = () => {
+                const blob = new Blob(
+                    audioChunksRef.current,
+                    {
+                        type: "audio/webm"
+                    }
+                );
+                console.log("Recorded blob:", blob, " size:", blob.size, "chunks:", audioChunksRef.current.length);
+                setAudioBlob(blob);
+
+                //to stop microphone.. omor my head wan burst for here oo
+                stream.getTracks().forEach(track => track.stop());
+            };
+
+            recorder.start()
+            setRecordingDuration(0);
+            setIsRecording(true);
+
+            recordingIntervalRef.current = setInterval(() => {
+                setRecordingDuration(prev => prev + 1);
+            }, 1000);
+
+        } catch(error){
+            showStatus(`Microphone error: ${error}`, "error");
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current){
+            mediaRecorderRef.current.stop();
+            setIsRecording(false);
+        };
+
+        if (recordingIntervalRef.current){
+            clearInterval(recordingIntervalRef.current);
+            recordingIntervalRef.current = null;
+        };
+    };
+
+    const cancelRecording = () => {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive"){
+            mediaRecorderRef.current.onstop = null;
+            mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+            mediaRecorderRef.current.stop();
+        }
+        setIsRecording(false);
+        setAudioBlob(null);
+        if (recordingIntervalRef.current){
+            clearInterval(recordingIntervalRef.current);
+            recordingIntervalRef.current = null;
+        }
+    };
+
+    const formatDuration = (seconds: number) => {
+        const mins = Math.floor (seconds/60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, "0")}`;
+    }
+
+    const uploadAudio = async() => {
+        if(!audioBlob) return null;
+
+        const formData = new FormData();
+
+        const audioFile = new File(
+            [audioBlob],
+            "voice-message.webm",
+            {
+                type: "audio/webm"
+            }
+        );
+
+            formData.append(
+                "file",
+                audioFile
+            )
+
+            //I want the backend to handle the audio fully sha but lets fist do it this way
+            const res = await API.post(
+                "/post/mes",
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                }
+            );
+
+            return res.data;
+    }
 
     const handleScroll = () => {
         const el = chatContainerRef.current;
@@ -152,7 +264,8 @@ const MessagePage: React.FC = () => {
                 //mapping the layout
                 const avatar = converse.isGroupChat
                         ? chatTitle.substring(0,2)
-                        : (otherUser?.username?.substring(0,2) || "??");
+                        : (<img src={otherUser?.profilePicture?.url} alt="image" className="w-auto h-full object-cover" /> 
+                            || (otherUser?.username?.substring(0,2) || "??"));
 
                 return {
                     conversationId: converse._id,
@@ -182,24 +295,76 @@ const MessagePage: React.FC = () => {
 
     if (!activeChat) return;
 
-    if (!typedMessage.trim()) return;
+    if (!typedMessage.trim() && !audioBlob) return;
 
+    const tempId = `temp-${Date.now()}`;
+    const textToSend = typedMessage;
+    const attachmentBlob = audioBlob;
+
+    const optimisticMessage: Message = {
+        _id: tempId,
+        chatId: activeChat.conversationId,
+        sender: {
+            _id: user?.id || "",
+            username: user?.username || "You",
+            profilePicture: user?.profilePicture
+        },
+        text: textToSend,
+        attachment: attachmentBlob
+            ? {
+                type: "audio",
+                url: URL.createObjectURL(attachmentBlob),
+                publicId: ""
+            }
+            : null,
+        replyTo: null,
+        deliveredTo: [],
+        readBy: [],
+        reactions: [],
+        isEdited: false,
+        isDeleted: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        status: "sending"
+    };
+    setMessages(prev =>[...prev, optimisticMessage]);
+
+    setTypedMessage("");
+    setAudioBlob(null);
     setSendingMessage(true);
 
     try {
-        const res = await API.post("/message/send", {
-            chatId: activeChat.conversationId,
-            sender: user?.id,
-            text: typedMessage
-        });
+        const formData = new FormData();
+        formData.append("chatId", activeChat.conversationId);
+        formData.append("sender", user?.id || "");
+        formData.append("text", typedMessage);
 
-        //setMessages(prev => [...prev, res.data.newMessage]);
+        if(audioBlob){
+            const audioFile = new File(
+                [audioBlob],
+                "voice-message.webm",
+                { type: "audio/webm" }
+            );
+            formData.append("media", audioFile);
+            }
+
+        const res = await API.post("/message/send", formData);
+        const realMessage: Message = res.data.newMessage;
+
+        setMessages(prev => 
+            prev.map(msg => msg._id === tempId ? {...realMessage, status: "sent" } : msg)
+        );
 
         setTypedMessage("");
-
+        setAudioBlob(null);
         fetchConversation();
-    } catch (error) {
-        console.log(error);
+    } catch (error: any) {
+        console.log(error.response?.data || error.message);
+
+        //mark as failed instead of losing
+        setMessages(prev =>
+            prev.map(msg => msg._id === tempId ? {...msg, status: "failed" } : msg)
+        );
     } finally {
         setSendingMessage(false);
     }
@@ -228,7 +393,12 @@ const MessagePage: React.FC = () => {
             fetchConversation();
             
             socket.on("new-message", (message) => {
-                setMessages(prev => [...prev, message]);
+                setMessages(prev => {
+                    //skip re-rendering twice.. message generated from the user should not be received on the socket again
+                    if (message.sender?._id === user?.id) return prev;
+                    if (prev.some(msg => msg._id === message._id)) return prev;
+                    return [...prev, message];
+                });
             });
 
             return() => {
@@ -253,7 +423,7 @@ const MessagePage: React.FC = () => {
 
             {/*Background Ambience Accent */}
             <div className="absolute top-0 right-1/4 h-[500px] w-[500px] rounded-full bg-indigo-600/5 blur-[130px] pointer-events-none "/>
-            <div className="w-full max-w-7xl grid grid-cols-1 md: grid-cols-[80px_1fr] lg:grid-cols-[260px_1fr] px-4 gap-6 relative z-10">
+            <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-[80px_1fr] lg:grid-cols-[260px_1fr] px-4 gap-6 relative z-10">
                 {/*Sidebar Navigation */}
                 <Sidebar />
 
@@ -272,7 +442,7 @@ const MessagePage: React.FC = () => {
                                 <Search className="absolute left-4 text-slate-600" size={16} />
                                 <input type="text"
                                     placeholder="Search a friend..."
-                                    className="w-full text-xs rounded-xl border border-slate-900 bg-slate-950 py-3 pl-11 pr-4 text-white placholder-slate-600 outline-none transition-all focus:border-violet-500/40"
+                                    className="w-full text-xs rounded-xl border border-slate-900 bg-slate-950 py-3 pl-11 pr-4 text-white placeholder-slate-600 outline-none transition-all focus:border-violet-500/40"
                                     />
                             </div>
                         </div>
@@ -290,11 +460,11 @@ const MessagePage: React.FC = () => {
                                     }`}
                                 >
                                     <div className="relative">
-                                        <div className="h-10 w-10 rouned-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-sm font-bold text-slate-300">
+                                        <div className="h-10 w-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-sm font-bold text-slate-300">
                                             {chat.avatarLabel}
                                         </div>
                                         {chat.online && (
-                                            <span className="absolut -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-500 border-2 border-slate-950" />
+                                            <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-500 border-2 border-slate-950" />
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -349,7 +519,7 @@ const MessagePage: React.FC = () => {
                                     <h3 className="text-xs font-bold text-slate-200">
                                         {activeChat?.title || "Select a conversation to start chatting..."}
                                     </h3>
-                                    <p className="text-[10px] text-emerald-400 flex items-center pag-1 mt-0.5 font-medium">
+                                    <p className="text-[10px] text-emerald-400 flex items-center gap-1 mt-0.5 font-medium">
                                         <span className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse" /> Online
                                     </p>
                                 </div>
@@ -450,7 +620,15 @@ const MessagePage: React.FC = () => {
                                                 hour: "2-digit",
                                                 minute: "2-digit"
                                             })}</span>
-                                            {isMe && <CheckCheck size={11} className="text-violet-400" />}
+                                            {isMe && msg.status ==="sending" && (
+                                                <span className="text-slate-500 italic">Sending...</span>
+                                            )}
+                                            {isMe && msg.status === "failed" && (
+                                                <span className="text-red-400 font-semibold">Failed to send</span>
+                                            )}
+                                            {isMe && (msg.status === "sent" || !msg.status) && (
+                                                <CheckCheck size={11} className="text-violet-400" />
+                                            )}
                                         </div>
                                     </div>
                                 );
@@ -473,23 +651,57 @@ const MessagePage: React.FC = () => {
                         {/*Anchor Bottom Input Transmitter Form */}
                         <form onSubmit={handleSendMessage} className="pt-4 border-t border-slate-900/60 bg-slate-950">
                             <div className="relative flex items-center rounded-2xl border border-slate-900/60 bg-slate-950">
-                                <Paperclip size={12} />
-                                <input 
-                                    ref={inputRef}
-                                    disabled={!activeChat}
-                                    type="text"
-                                    placeholder="Type a message..."
-                                    className="w-full bg-transparent py-2.5 pl-4 pr-14 text-xs text-slate-200 outline-none placeholder-slate-600"
-                                    value={typedMessage}
-                                    onChange={(e) => setTypedMessage(e.target.value)}
-                                />
-                                <button
-                                    type="submit"
-                                    disabled={!typedMessage.trim() || !activeChat || sendingMessage}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-xl bg-violet-600 text-white shadow-md shadow-violet-600/20 transition-all hover:scale-[1.05] active:scale-[0.95] disabled: opacity-30 disabled:hover:scale-100 disabled:cursor-not-allowed"
-                                >
-                                    <Send size={12} />
-                                </button>
+                                {isRecording ? (
+                                    <div className="w-full flex items-center gap-3 py-2.5 pl-4 pr-14">
+                                        <span className="h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse" />
+                                        <span className="text-xs font-semibold text-red-400">Recording...</span>
+                                        <span className="text-xs text-slate-500 font-mono">{formatDuration(recordingDuration)}</span>
+                                        <button
+                                            type="button"
+                                            onClick={cancelRecording}
+                                            className="ml-auto text-[10px] text-slate-500 hover:text-slate-300 font-medium"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                ): (
+                                    <>
+                                        <button type="button" className="ml-3 text-slate-400">
+                                            <Paperclip size={20} />
+                                        </button>
+                                        <input
+                                            ref={inputRef}
+                                            disabled={!activeChat}
+                                            type="text"
+                                            placeholder="Type a message..."
+                                            className="w-full bg-transparent py-2.5 pl-4 pr-14 text-xs text-slate-200 outline-none placeholder-slate-600"
+                                            value={typedMessage}
+                                            onChange={(e) => setTypedMessage(e.target.value)}
+                                        />
+                                    </>
+                                )}
+
+                                {/* Single button that swaps between Mic and Send depending on input state */}
+                                {typedMessage.trim() || audioBlob ? (
+                                    <button
+                                        type="submit"
+                                        disabled={!activeChat || sendingMessage}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-xl bg-violet-600 text-white shadow-md shadow-violet-600/20 transition-all hover:scale-[1.05] active:scale-[0.95] disabled:opacity-30 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                                    >
+                                        <Send size={12} />
+                                    </button>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        disabled={!activeChat}
+                                        onClick={isRecording ? stopRecording : startRecording}
+                                        className={`absolute right-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-xl text-white shadow-md transition-all hover:scale-[1.05] active:scale-[0.95] disabled:opacity-30 disabled:hover:scale-100 disabled:cursor-not-allowed ${
+                                            isRecording ? "bg-red-500 shadow-red-500/20 animate-pulse" : "bg-violet-600 shadow-violet-600/20"
+                                        }`}
+                                    >
+                                        <Mic2 size={16} />
+                                    </button>
+                                )}
                             </div>
                         </form>
                     </section>

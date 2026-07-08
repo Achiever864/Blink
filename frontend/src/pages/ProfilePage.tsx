@@ -70,7 +70,7 @@ const ProfilePage: React.FC = () => {
                                 <div
                                 onClick={() => fileInputRef.current.click()}
                                 className="relative group h-20 w-20 rounded-2xl bg-graditent-to-tr from-violet-600 to-indigo-600 border border-violet-400/30 flex items-center justify-center text-white font-black text-2xl uppercase shadow-xl shadow-violet-950/50">
-                                    {<img src={user?.profilePicture} alt="image" className="cover" /> || username.substring(0,2)}
+                                    {<img src={user?.profilePicture} alt="image" className="w-full h-full object-cover" /> || username.substring(0,2)}
                                     <div className="absolute inset-0 bg-slate-950/70 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                         <Camera size={18} className="text-slate-200" />
                                     </div>

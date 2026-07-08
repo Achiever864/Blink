@@ -43,6 +43,7 @@ const FeedPage: React.FC = () => {
     const [newPost, setNewPost] = useState<string>("");
     const [posts, setPosts] = useState<Post[]>([]);
     const [loadingFeed, setLoadingFeed] = useState(true);
+    const [isPosting, setIsPosting] = useState(false);
 
 
     //mock data for active status for now shaaa
@@ -75,6 +76,8 @@ const sendNewPost = async () => {
             return;
         }
 
+        setIsPosting(true);
+
         const formData = new FormData();
 
         formData.append("author", user?.id || "");
@@ -100,6 +103,8 @@ const sendNewPost = async () => {
     console.log(res.data);
     } catch (error: any){
         showStatus(error.response?.data?.message || "Failed to create post", "error")
+    } finally {
+        setIsPosting(false);
     }
 }
 
@@ -319,11 +324,20 @@ useEffect(() => {
                             </span> */}
                             <button
                                 onClick={sendNewPost}
-                                disabled={!newPost.trim() && attachments.length === 0}
+                                disabled={isPosting || (!newPost.trim() && attachments.length === 0)}
                                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl font-bold text-white shadow-lg shadow-violet-600/10 transition-all hover:scale-[1.03] active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
                             >
-                                <span>Post</span>
-                                <Send size={12}/>
+                                {isPosting ? (
+                                    <>
+                                        <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                                        <span>Posting...</span>
+                                    </>
+                                ):(
+                                    <>
+                                        <span>Post</span>
+                                        <Send size={12}/>
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>
