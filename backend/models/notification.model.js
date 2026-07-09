@@ -1,4 +1,4 @@
-import mongoose form "mongoose";
+import mongoose from "mongoose";
 
 const notificationSchema = new mongoose.Schema({
     recipient: {
@@ -17,7 +17,7 @@ const notificationSchema = new mongoose.Schema({
         type: String,
         enum: ["friend_request", "friend_accept", "like", "comment", "message"],
         required: true
-    }
+    },
 
     //generic reference to whatefer triggered the event... love this!
     refId: {

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-    Home, MessageSquare, Bell, User, Plus, Heart, MessageCircle, ImageIcon, Paperclip, Send, Handshake, X
+    Home, Pencil, MessageSquare, Bell, User, Plus, Heart, MessageCircle, ImageIcon, Paperclip, Send, Handshake, X,
+    Trash2
 } from "lucide-react";
 import GetFriendsDashboard from "../components/getFriendsDashboard";
 import Sidebar from "../components/sideBar";
@@ -8,6 +9,7 @@ import API from "../api/axios.ts";
 import { useAuth } from "../context/AuthContext";
 import { useStatus } from "../context/StatusBarContext.tsx";
 import PostMedia from "../components/PostMedia.tsx";
+import ContextMenu from "../context/ContextMenu.tsx";
 
 interface StatusNode {
     id: string;
@@ -434,6 +436,13 @@ useEffect(() => {
                                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" /> Online
                                     </p>
                                 </div>
+
+                                <ContextMenu items={[
+                                    { label: "Edit", icon: Pencil, onClick: () => console.log("edit") },
+                                    { label: "Delete", icon: Trash2, onClick: () => console.log("delete"), danger: true }
+                                ]}>
+                                    <div className="p-4 bg-slate-900 rounded-xl">Right-click me</div>
+                                </ContextMenu>
                             </div>
                         </div>
                 </aside>

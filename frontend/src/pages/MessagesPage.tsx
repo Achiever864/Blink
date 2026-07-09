@@ -1,7 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import 
-    { Send, ChevronDown, Search, Mic2,CheckCheck, Paperclip, MessageSquarePlus, Upload, SavePen }
+    { Send, ChevronDown, Search, Mic2,CheckCheck, Paperclip, MessageSquarePlus, Upload, SavePen, X }
     from "lucide-react";
 import Sidebar from "../components/sideBar";
 import API from "../api/axios";
@@ -92,6 +92,21 @@ const MessagePage: React.FC = () => {
     const audioChunksRef = useRef<Blob[]>([]);
     const [recordingDuration, setRecordingDuration] = useState(0);
     const recordingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    //media handling
+    const [mediaFile, setMediaFile] = useState<File | null>(null);
+    const mediaInputRef = useRef<HTMLInputElement>(null);
+
+    const mediaPreviewUrl = useMemo(() => {
+        if (!mediaFile) return null;
+        return URL.createObjectURL(mediaFile);
+    }, [mediaFile]);
+
+    useEffect(() =>{
+        return () => {
+            if (mediaPreviewUrl) URL.revokeObjectURL(mediaPreviewUrl);
+        }
+    }, [mediaPreviewUrl]);
 
     const startRecording = async () => {
         try {
@@ -295,11 +310,30 @@ const MessagePage: React.FC = () => {
 
     if (!activeChat) return;
 
-    if (!typedMessage.trim() && !audioBlob) return;
+    if (!typedMessage.trim() && !audioBlob && !mediaFile) return;
 
     const tempId = `temp-${Date.now()}`;
     const textToSend = typedMessage;
     const attachmentBlob = audioBlob;
+    const attachmentFile = mediaFile;
+
+    let optimisticAttachment: Attachment | null = null;
+    
+    if (attachmentBlob){
+        optimisticAttachment = {
+            type: "audio",
+            url: URL.createObjectURL(attachmentBlob),
+            publicId: ""
+        };
+    } else if (attachmentFile){
+        optimisticAttachment = {
+            type: attachmentFile.type.startsWith("video") ? "video" : "image",
+            url: URL.createObjectURL(attachmentFile),
+            publicId: "",
+            fileName: attachmentFile.name,
+            mimeType: attachmentFile.type
+        };
+    }
 
     const optimisticMessage: Message = {
         _id: tempId,
@@ -310,13 +344,7 @@ const MessagePage: React.FC = () => {
             profilePicture: user?.profilePicture
         },
         text: textToSend,
-        attachment: attachmentBlob
-            ? {
-                type: "audio",
-                url: URL.createObjectURL(attachmentBlob),
-                publicId: ""
-            }
-            : null,
+        attachment: optimisticAttachment,
         replyTo: null,
         deliveredTo: [],
         readBy: [],
@@ -337,15 +365,17 @@ const MessagePage: React.FC = () => {
         const formData = new FormData();
         formData.append("chatId", activeChat.conversationId);
         formData.append("sender", user?.id || "");
-        formData.append("text", typedMessage);
+        formData.append("text", textToSend);
 
-        if(audioBlob){
+        if(attachmentBlob){
             const audioFile = new File(
-                [audioBlob],
+                [attachmentBlob],
                 "voice-message.webm",
                 { type: "audio/webm" }
             );
             formData.append("media", audioFile);
+            }else if(attachmentFile){
+                formData.append("media", attachmentFile);
             }
 
         const res = await API.post("/message/send", formData);
@@ -647,6 +677,27 @@ const MessagePage: React.FC = () => {
                                 <ChevronDown size={20} />
                             </button>
                         )}
+                        
+                        {/*For media attachment just above the input test  */}
+                        {mediaFile && mediaPreviewUrl && (
+                            <div className="px-4 pb-2">
+                            <div className="relative inline-block rounded-xl overflow-hidden border border-slate-800">
+                                {mediaFile.type.startsWith("video") ? (
+                                    <video src={mediaPreviewUrl} className="h-24 w-24 object-cover" muted />
+                                ) : (
+                                    <img src={mediaPreviewUrl} alt="preview" className="h-24 w-24 object-cover" />
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={() => setMediaFile(null)}
+                                    className="absolute top-1 right-1 h-5 w-5 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-red-500 transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                            </div>
+                        )}
+
 
                         {/*Anchor Bottom Input Transmitter Form */}
                         <form onSubmit={handleSendMessage} className="pt-4 border-t border-slate-900/60 bg-slate-950">
@@ -666,9 +717,24 @@ const MessagePage: React.FC = () => {
                                     </div>
                                 ): (
                                     <>
-                                        <button type="button" className="ml-3 text-slate-400">
+                                        <button 
+                                            type="button"
+                                            className="ml-3 text-slate-400"
+                                            onClick={() => mediaInputRef.current?.click()}
+                                        >
                                             <Paperclip size={20} />
                                         </button>
+                                        <input 
+                                            type="file"
+                                            ref={mediaInputRef}
+                                            accept="image/*, video/*"
+                                            hidden
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) setMediaFile(file);
+                                            }}
+                                        />
+
                                         <input
                                             ref={inputRef}
                                             disabled={!activeChat}
@@ -682,7 +748,7 @@ const MessagePage: React.FC = () => {
                                 )}
 
                                 {/* Single button that swaps between Mic and Send depending on input state */}
-                                {typedMessage.trim() || audioBlob ? (
+                                {typedMessage.trim() || audioBlob || mediaFile ? (
                                     <button
                                         type="submit"
                                         disabled={!activeChat || sendingMessage}

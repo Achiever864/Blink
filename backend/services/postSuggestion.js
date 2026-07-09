@@ -11,7 +11,7 @@ class PostRecommend{
 
         const commentCounts = await Comment.aggregate([
             { $match: { post: {$in: postIds} }},
-            { $group: {_id: "$post", count: {$num: 1} } }
+            { $group: {_id: "$post", count: {$nin: 1} } }
         ]);
 
         const commentMap = new Map(
