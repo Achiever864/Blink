@@ -2,7 +2,10 @@ import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
 import Friendship from "../models/friend.model.js";
 import CloudinaryService from "../services/CloudinaryService.js";
+import PostRecommend from "../services/postSuggestion.js";
+import RecommendationCache from "../services/RecommendationCache.js";
 
+const postRecommend = new PostRecommend();
 
 const createPost = async (req, res) => {
     try{
@@ -54,6 +57,11 @@ const createPost = async (req, res) => {
             media,
             visibility
         });
+        
+        //relax here there is something about this logic because if a post is newly made
+        //and a user cache is already active then he won't be able to get that new post but well dont
+        //think it really matters ... let us just get this shit to actually work
+        await RecommendationCache.clear("post", author);
 
         res.status(201).json({
             message: "Post created successfully",
@@ -69,6 +77,11 @@ const createPost = async (req, res) => {
 const getFeed = async (req, res) => {
     try {
         const { userId } = req.body;
+
+        const page = Math.max(parseInt(req.query.page) || 1, 1); //prevent from getting zero
+        const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+        const skip = (page - 1) * limit;
+
         const user = await User.findById(userId);
 
         if(!user){
@@ -77,37 +90,57 @@ const getFeed = async (req, res) => {
             });
         }
 
-        const friendships = await Friendship.find({
-            status: "accepted",
-            $or: [
-                { requester: userId },
-                { recipient: userId }
-            ]
-        });
+        //first get from cache yooo
+        let rankedPosts = await RecommendationCache.get('post', userId);
 
-        const friendIds = friendships.map(friend => {
-            if(friend.requester.toString() === userId){
-                return friend.recipient;
-            }
+        //so if nothing in cache we set cache
+        if (!rankedPosts){
+            rankedPosts = await postRecommend.recommend(userId);
+            await RecommendationCache.set("post", userId, rankedPosts);
+        }
 
-            return friend.requester;
-        });
+        const totalPosts = rankedPosts.length;
+        const totalPages = Math.ceil(totalPosts / limit);
 
-        friendIds.push(userId);
+        //now do the pagination here
+        const pageIds = rankedPosts
+            .slice(skip, skip + limit)
+            .map(entry => entry.id);
+        
+        if (pageIds.length === 0){
+            return res.status(200).json({
+                message: "Feed generated successfully",
+                posts: [],
+                pagination: {
+                    page,
+                    limit,
+                    totalPosts,
+                    totalPages,
+                    hasMore: false
+                }
+            });
+        }
 
         const posts = await Post.find({
-            author: {
-                $in: friendIds
-            }
-        })
-        .populate("author", "username profilePicture")
-        .sort({
-            createdAt: -1
-        });
+            _id: { $in: pageIds }
+        }).populate("author", "username profilePicture");
+
+        //why doesn't mongoose arrange in order anyways we have to fix this manually - remember Ade!
+        const postMap = new Map(posts.map(p => [p._id.toString(), p]));
+        const orderedPosts = pageIds
+            .map(id => postMap.get(id))
+            .filter(Boolean); //
 
         res.status(200).json({
             message: "Feed generated successfully",
-            posts
+            posts: orderedPosts,
+            pagination: {
+                page,
+                limit,
+                totalPosts,
+                totalPages,
+                hasMore: page < totalPages
+            }
         });
     } catch (error) {
         res.status(500).json({

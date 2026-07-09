@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../api/axios";
 import { X } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { useStatus } from "../context/StatusBarContext";
 
 interface UserProfileModalProps {
     userId: string | null;
@@ -9,7 +9,7 @@ interface UserProfileModalProps {
     onClose: () => void;
 }
 
-interface userProfile {
+interface UserProfile {
     userId: string;
     username: string;
     fullname: string;
@@ -32,31 +32,49 @@ interface userProfile {
     blockedMe: boolean;
     joinedAt: string;
     lastSeen: string;
-    online: string;
+    online: boolean;
 }
 
 
 
 const ProfileView: React.FC<UserProfileModalProps> = ({
+    userId,
     isOpen,
     onClose
 }) =>  {
     if (!isOpen) return null;
-    const [profile, setProfile] = useState<UserProfile>();
-    const user = useAuth();
-    const userId = user?.id;
+    const [profile, setProfile] = useState<UserProfile | null>(null);
+    const [loading, setLoading] = useState(false);
+    const { showStatus } = useStatus();
 
     useEffect(() => {
-        if (!userId) return;
-        fetchUser();
-    }, [userId]);
+        if (!isOpen || !userId) return;
+        const fetchUser = async() => {
+        try {
+            if (!userId) return;
+            setProfile(null);
+            setLoading(true);
 
-    const fetchUser = async() => {
-        if (!userId) return;
-        
-        const res = await API.get(`user/getProfile/${userId}`);
+            const res = await API.get(`/user/getProfile/${userId}`);
 
-        setProfile(res.data);
+            setProfile(res.data);
+        } catch (error) {
+            showStatus("unable to fetch user profile");
+        } finally{
+            setLoading(false);
+        }
+    }
+
+    fetchUser();
+    }, [isOpen, userId]);
+
+    if (loading){
+        return(
+            <div className="fixed inset-0">
+                    Loading.... Couldn't animate bear with me please
+
+            </div>
+        )
     }
 
     return(
@@ -79,7 +97,7 @@ const ProfileView: React.FC<UserProfileModalProps> = ({
                         <div className="mt-16 flex items-end justify-between">
                             <div className="h-32 w-32 rounded-3xl border-4 border-slate-950 overflow-hidden bg-slate-900 shadow-xl">
                                 <img 
-                                    src={profile?.profilePicture}
+                                    src={profile?.profilePicture?.url}
                                     alt=""
                                     className="h-full w-full object-cover"
                                 />
@@ -192,7 +210,7 @@ const ProfileView: React.FC<UserProfileModalProps> = ({
                                 Recent Post Card
                             </div>
 
-                            <div className="rounde-2xl bg-slate-900 border border-slate-800 p-5">
+                            <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5">
                                 Recent Post Card
                             </div>
                         </div>

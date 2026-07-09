@@ -204,10 +204,53 @@ const getUserBeta = async (req, res) => { //running this in-place of the suggest
     }
 };
 
+const getUserProfile = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const user = await User.findById(userId)
+            .populate("friends", "_id username profilePicture");
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        const profile = {
+            userId: user._id,
+            username: user.username,
+            fullName: user.fullName,
+            bio: user.bio,
+            occupation: user.occupation,
+            city: user.city,
+            nationality: user.nationality,
+            profilePicture: user.profilePicture,
+            coverPhoto: "",
+            friendsCount: user.friends.length,
+            postsCount: 0,
+            mutualFriends: [],
+            badges: [],
+            isFriend: false,
+            friendRequestSent: false,
+            hasBlocked: false,
+            blockedMe: false,
+            joinedAt: user.createdAt,
+            lastSeen: user.updatedAt,
+            online: false
+        };
+
+        res.status(200).json(profile);
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+}
+
 export {
     getUserBeta, //test
     getUserSuggestions,
     registerUser,
     loginUser,
-    updateUserProfile
+    updateUserProfile,
+    getUserProfile
 }

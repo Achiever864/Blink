@@ -5,7 +5,8 @@ import {
     getUserSuggestions,
     registerUser,
     loginUser,
-    updateUserProfile 
+    updateUserProfile,
+    getUserProfile
 } from "../controllers/user.controller.js";
 
 const userRouter = express.Router();
@@ -15,5 +16,6 @@ userRouter.post("/login", loginUser);
 userRouter.post("/suggestUser", getUserSuggestions);
 userRouter.patch("/update", upload.single('profilePicture'), updateUserProfile);
 userRouter.post("/getBetaUser", getUserBeta);  //run for test since the docker isn't working yet and we can't cache for now
+userRouter.get("/getProfile", getUserProfile);
 
 export default userRouter;

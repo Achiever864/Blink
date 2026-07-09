@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Children, useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 interface ContextMenuItem {
     label: string;
@@ -49,3 +49,11 @@ useEffect(() => {
 <div onContextMenu={handleContextMenu}>
     {Children}
 </div>
+
+const ContextMenu: React.FC<ContextMenuProps> = ({ children, items }) => {
+    const [open, setOpen] = useState(false);
+    const [position, setPosition] = useState({ x: 0, y: 0});
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    const handleContextMenu = (e: )
+}

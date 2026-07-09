@@ -8,6 +8,7 @@ import messageRoute from "./routes/messages.route.js";
 import postRouter from "./routes/post.route.js";
 import { initSocket } from "./config/socket.js";
 import conversationRoute from "./routes/conversation.route.js";
+import notRouter from "./routes/notification.route.js";
 
 
 const app = express();
@@ -26,6 +27,7 @@ app.use("/api/friend", friendRoute);
 app.use("/api/conversation", conversationRoute);
 app.use("/api/message", messageRoute);
 app.use("/api/post", postRouter);
+app.use("api/notifications", notRouter);
 
 app.get("/", (req, res) => {
   res.send("Server is running");
