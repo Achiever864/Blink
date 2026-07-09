@@ -11,7 +11,7 @@ class PostRecommend{
 
         const commentCounts = await Comment.aggregate([
             { $match: { post: {$in: postIds} }},
-            { $group: {_id: "$post", count: {$nin: 1} } }
+            { $group: {_id: "$post", count: {$sum: 1} } }
         ]);
 
         const commentMap = new Map(
@@ -57,7 +57,7 @@ class PostRecommend{
 
             const likeCount = post.likes?.length || 0;
             const commentCount = commentMap.get(post._id.toString()) || 0;
-            const totalEngagement = likeCount + commonCount;
+            const totalEngagement = likeCount + commentCount;
 
             scores.set(
                 post._id.toString(),
@@ -68,7 +68,7 @@ class PostRecommend{
         return scores;
     }
 
-    async authorffinityScore(userId, candidatePosts){
+    async authorAffinityScores(userId, candidatePosts){
         const user = await User.findById(userId).select("friends");
 
         if (!user) throw new Error("User not found");
@@ -115,7 +115,7 @@ class PostRecommend{
         const penalties = new Map();
 
         for (const postId of sortedPostIds){
-            const post = postById.get(psotId);
+            const post = postById.get(postId);
             if (!post) continue;
 
             const authorId = post.author.toString();
@@ -162,11 +162,11 @@ class PostRecommend{
 
         const postIds = candidatePosts.map(post => post._id);
         const commentCounts = await Comment.aggregate([
-            { $match: {psot: { $in: postIds } } },
+            { $match: {post: { $in: postIds } } },
             { $group: {_id: "$post", count: { $sum: 1 } } }
         ]);
 
-        const commmentMap = new Map(
+        const commentMap = new Map(
             commentCounts.map(c => [c._id.toString(), c.count])
         );
 

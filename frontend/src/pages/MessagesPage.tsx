@@ -8,6 +8,7 @@ import API from "../api/axios";
 import { useEffect } from "react";
 import { useStatus } from "../context/StatusBarContext";
 import NewChatModal from "../components/newChatModal";
+import AudioMessagePlayer from "../components/AudioMessagePlayer";
 import socket from "../socket";
 
 
@@ -597,6 +598,32 @@ const MessagePage: React.FC = () => {
                                                 )}
 
                                                 {msg.attachment?.type === "image" && (
+                                                    <div className="mt-2 rounded-xl overflow-hidden max-w-xs bg-slate-800/50">
+                                                        <img 
+                                                            src={msg.attachment.url}
+                                                            alt="image"
+                                                            loading="lazy"
+                                                            className="w-full max-h-[320px] object-cover transition duration-300 hover:scale-[1.02] hover:brightness-95 cursor-pointer"
+                                                            onClick={() => window.open(msg.attachment?.url, "_blank")}
+                                                        />
+                                                    </div>
+                                                )}
+
+                                                {msg.attachment?.type === "video" && (
+                                                    <video
+                                                        src={msg.attachment?.url}
+                                                        controls
+                                                        playsInline
+                                                        preload="metadata"
+                                                        className="rounded-xl mt-2 max-w-xs max-h-[320px] w-full object-cover bg-black"
+                                                    />
+                                                )}
+
+                                                {msg.attachment?.type === "audio" && (
+                                                    <AudioMessagePlayer url={msg.attachment.url} isMe={isMe} />
+                                                )}
+
+                                                {/* {msg.attachment?.type === "image" && (
                                                     <img
                                                         src={msg.attachment.url}
                                                         alt="image"
@@ -619,7 +646,7 @@ const MessagePage: React.FC = () => {
                                                     >
                                                         <source src={msg.attachment.url} />
                                                     </audio>
-                                                )}
+                                                )} */}
 
                                                 {msg.attachment?.type === "file" && (
                                                     <a 

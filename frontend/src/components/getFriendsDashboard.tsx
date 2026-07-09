@@ -45,7 +45,7 @@ const GetFriendsDashboard: React.FC<GetFriendsDashboardProps> = ({ isEmbedded = 
         try{
             //POST request
             console.log(user.id);
-            const res = await API.post("user/getBetaUser", {
+            const res = await API.post("user/suggestUser", {
                 userId: user.id
             }, {
                 params: {

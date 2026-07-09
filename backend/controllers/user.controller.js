@@ -1,10 +1,13 @@
 import User from "../models/user.model.js";
+import Friendship from "../models/friend.model.js";
+import Post from "../models/post.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import FriendsRecommend from "../services/friendSuggestion.js";
 import RecommendationCache from "../services/RecommendationCache.js";
 import CloudinaryService from "../services/CloudinaryService.js";
 
+const friendsRecommend = new FriendsRecommend();
 
 const registerUser = async (req, res) => {
     try {
@@ -134,17 +137,35 @@ const getUserSuggestions = async (req, res) => {
 
 
         //try accessing from cache if not fall back to database
-        let recommendations = await RecommendationCache.get(userId);
+        let recommendations = await RecommendationCache.get("friend", userId);
 
         if(!recommendations){
-            recommendations = await FriendsRecommend.recommend(userId);
+            recommendations = await friendsRecommend.recommend(userId);
             await RecommendationCache.set(
+                "friend",
                 userId,
                 recommendations
             );
         }
 
-        const page = recommendations.slice(
+        const friendships = await Friendship.find({
+            $or: [{ requester: userId }, { recipient: userId }],
+            status: { $in: ["accepted", "pending"] }
+        });
+
+        const excludedIds = new Set(
+            friendships.map(f => 
+                f.requester.toString() === userId.toString()
+                    ? f.recipient.toString()
+                    : f.requester.toString()
+            )
+        );
+
+        const filteredRecommendations = recommendations.filter(
+            entry => !excludedIds.has(entry.id)
+        );
+
+        const page = filteredRecommendations.slice(
             offset, offset + limit
         )
 
@@ -160,11 +181,12 @@ const getUserSuggestions = async (req, res) => {
             users.find(user =>
                 user._id.toString() === id
             )
-        )
+        ).filter(Boolean);
+
         res.status(201).json({
             users: orderedUsers,
-            hasMore: offset + limit < recommendations.length,
-            total: recommendations.length,
+            hasMore: offset + limit < filteredRecommendations.length,
+            total: filteredRecommendations.length,
             message: "Users recommendation successful"
         });
     } catch (error) {
@@ -207,6 +229,7 @@ const getUserBeta = async (req, res) => { //running this in-place of the suggest
 const getUserProfile = async (req, res) => {
     try {
         const { userId } = req.params;
+        const { viewerId } = req.query;
 
         const user = await User.findById(userId)
             .populate("friends", "_id username profilePicture");
@@ -217,6 +240,69 @@ const getUserProfile = async (req, res) => {
             });
         }
 
+        const postsCount = await Post.countDocuments({ author: userId });
+
+        let isFriend = false;
+        let friendRequestSent = false;
+        let mutualFriends = [];
+
+        if (viewerId && viewerId !== userId){
+            //chheck relationship status between viewer and profile owner ... omor
+            const friendship = await Friendship.findOne({
+                $or: [
+                    { requester: viewerId, recipient: userId },
+                    { requester: userId, recipient: viewerId }
+                ]
+            });
+
+            if (friendship){
+                isFriend = friendship.status === "accepted";
+
+                friendRequestSent =
+                    friendship.status === "pending" &&
+                    friendship.requester.toString() === viewerId;
+            }
+
+            const viewerFriendships = await Friendship.find({
+                status: "accepted",
+                $or: [{ requester: viewerId }, { recipient: viewerId }]
+            });
+
+            const viewerFriendIds = new Set(
+                viewerFriendships.map(f =>
+                    f.requester.toString() === viewerId
+                        ? f.recipient.toString()
+                        : f.requester.toString()
+                )
+            );
+
+            const ownerFriendships = await Friendship.find({
+                status: "accepted",
+                $or: [{ requester: userId }, { recipient: userId }]
+            });
+
+            const ownerFriendIds = ownerFriendships.map(f =>
+                f.requester.toString() === userId
+                    ? f.recipient.toString()
+                    : f.requester.toString()
+            );
+
+            const mutualIds = ownerFriendIds.filter(id => viewerFriendIds.has(id));
+            if (mutualIds.length > 0){
+                const mutualUsers = await User.find({
+                    _id: { $in: mutualIds }
+                }).select('username profilePicture');
+
+                mutualFriends = mutualUsers;
+            }
+        }
+
+        //now... do the overall friend count
+        const friendsCount = await Friendship.countDocuments({
+            status: "accepted",
+            $or: [{ requester: userId }, { recipient: userId}]
+        });
+
         const profile = {
             userId: user._id,
             username: user.username,
@@ -226,18 +312,18 @@ const getUserProfile = async (req, res) => {
             city: user.city,
             nationality: user.nationality,
             profilePicture: user.profilePicture,
-            coverPhoto: "",
-            friendsCount: user.friends.length,
-            postsCount: 0,
-            mutualFriends: [],
-            badges: [],
+            coverPhoto: user.coverPhoto || "",
+            friendsCount,
+            postsCount,
+            mutualFriends,
+            badges: user.badges || [],
             isFriend: false,
-            friendRequestSent: false,
-            hasBlocked: false,
+            friendRequestSent,
+            hasBlocked: false, //change this from the hardwire data later abeg
             blockedMe: false,
             joinedAt: user.createdAt,
             lastSeen: user.updatedAt,
-            online: false
+            online: false //same thing here I have not even handled the logic for online and offline user yet omor
         };
 
         res.status(200).json(profile);
