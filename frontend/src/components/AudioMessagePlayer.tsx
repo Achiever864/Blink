@@ -6,7 +6,7 @@ interface AudioMessagePlayerProps {
     isMe: boolean;
 }
 
-const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({ url, isMe}) => {
+const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({ url, isMe }) => {
     const audioRef = useRef<HTMLAudioElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -16,50 +16,49 @@ const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({ url, isMe}) => 
         const audio = audioRef.current;
         if (!audio) return;
 
-        if (isPlaying){
+        if (isPlaying) {
             audio.pause();
-        }else {
+        } else {
             audio.play();
         }
         setIsPlaying(!isPlaying);
     };
 
-    useEffect (() => {
+    useEffect(() => {
         const audio = audioRef.current;
         if (!audio) return;
 
-        const updateTime = () => setCurrentTime(audio.currentTime);
-        const setAudioDuration = () => setAudioDuration(audio.duration);
+        const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+        const handleLoadedMetadata = () => setDuration(audio.duration);
         const handleEnded = () => {
             setIsPlaying(false);
             setCurrentTime(0);
         };
 
-        audio.addEventListener("timeupdate", updateTime);
-        audio.addEventListener("loadedmetadata", setAudioDuration);
+        audio.addEventListener("timeupdate", handleTimeUpdate);
+        audio.addEventListener("loadedmetadata", handleLoadedMetadata);
         audio.addEventListener("ended", handleEnded);
 
         return () => {
-            audio.removeEventListener("timeupdate", updateTime);
-            audio.removeEventListener("loadedmetadata", setAudioDuration);
+            audio.removeEventListener("timeupdate", handleTimeUpdate);
+            audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
             audio.removeEventListener("ended", handleEnded);
         };
     }, []);
 
     const formatTime = (seconds: number) => {
         if (!seconds || isNaN(seconds)) return "0:00";
-        const mins = Math.floor(seconds/60);
+        const mins = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
         return `${mins}:${secs.toString().padStart(2, "0")}`;
     };
+
     const progressPercent = duration ? (currentTime / duration) * 100 : 0;
 
-    return(
+    return (
         <div className="flex items-center gap-2.5 mt-1 min-w-[200px]">
-            <audio src={url}
-                ref={audioRef}
-                preload="metadata"
-            />
+            <audio ref={audioRef} src={url} preload="metadata" />
+
             <button
                 type="button"
                 onClick={togglePlay}
@@ -77,11 +76,11 @@ const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({ url, isMe}) => 
             <div className="flex-1 flex flex-col gap-1">
                 <div
                     className={`h-1 rounded-full overflow-hidden cursor-pointer ${
-                        isMe? "bg-white/20" : "bg-slate-700"
+                        isMe ? "bg-white/20" : "bg-slate-700"
                     }`}
                     onClick={(e) => {
                         const audio = audioRef.current;
-                        if(!audio || !duration) return;
+                        if (!audio || !duration) return;
                         const rect = e.currentTarget.getBoundingClientRect();
                         const clickRatio = (e.clientX - rect.left) / rect.width;
                         audio.currentTime = clickRatio * duration;
@@ -89,7 +88,7 @@ const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({ url, isMe}) => 
                 >
                     <div
                         className={`h-full rounded-full transition-all ${isMe ? "bg-white" : "bg-violet-400"}`}
-                        style = {{ width: `${progressPercent}%` }}
+                        style={{ width: `${progressPercent}%` }}
                     />
                 </div>
 
@@ -98,7 +97,7 @@ const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({ url, isMe}) => 
                 </span>
             </div>
         </div>
-    )
+    );
 };
 
 export default AudioMessagePlayer;

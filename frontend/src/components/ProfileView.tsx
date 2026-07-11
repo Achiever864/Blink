@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import API from "../api/axios";
 import { X } from "lucide-react";
 import { useStatus } from "../context/StatusBarContext";
+import { useAuth } from "../context/AuthContext";
 
 interface UserProfileModalProps {
     userId: string | null;
@@ -42,48 +44,63 @@ const ProfileView: React.FC<UserProfileModalProps> = ({
     isOpen,
     onClose
 }) =>  {
-    if (!isOpen) return null;
+    const {user: currentUser} = useAuth();
+    const { showStatus } = useStatus();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(false);
-    const { showStatus } = useStatus();
+
 
     useEffect(() => {
         if (!isOpen || !userId) return;
         const fetchUser = async() => {
         try {
-            if (!userId) return;
             setProfile(null);
             setLoading(true);
 
-            const res = await API.get(`/user/getProfile/${userId}`);
+            const res = await API.get(`/user/getProfile/${userId}`, {
+                params: { viewerId: currentUser?.id }
+            });
 
             setProfile(res.data);
         } catch (error) {
-            showStatus("unable to fetch user profile");
+            showStatus("unable to fetch user profile", "error");
         } finally{
             setLoading(false);
         }
     }
 
     fetchUser();
-    }, [isOpen, userId]);
+    }, [isOpen, userId, currentUser?.id]);
 
-    if (loading){
-        return(
-            <div className="fixed inset-0">
-                    Loading.... Couldn't animate bear with me please
+    if (!isOpen) return null;
 
-            </div>
-        )
+    if (loading || !profile){
+        return createPortal(
+            <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+                <div className="flex flex-col items-center gap-3 text-slate-400">
+                    <div className="h-10 w-10 rounded-full border-2 border-slate-700 border-t-violet-500 animate-spin" />
+                    <span className="text-sm font-medium"> Loading Profile...</span>
+                </div>
+            </div>,
+            document.body
+        );
     }
 
-    return(
+     return createPortal(
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
             {/*Modal */}
             <div className="w-full max-w-4xl h-[90vh] bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
                 {/*Cover Photo */}
                 <div className="relative h-52 bg-gradient-to-r from-violet-700 via-indigo-600 to-fuchsia-600">
-                    <button className="absolute top-5 right-5 h-10 w-10 rounded-full bg-black/30 hover:bg-black/50 flex items-center justify-center"
+                    {profile.coverPhoto && (
+                        <img
+                            src={profile.coverPhoto}
+                            alt=""
+                            className="absolute inset-0 h-full w-full object-cover"
+                        />
+                    )}
+                    <button
+                        className="absolute top-5 right-5 h-10 w-10 rounded-full bg-black/30 hover:bg-black/50 flex items-center justify-center"
                         onClick={onClose}
                     >
                         <X size={22} />
@@ -96,128 +113,120 @@ const ProfileView: React.FC<UserProfileModalProps> = ({
                     <div className="px-8">
                         <div className="mt-16 flex items-end justify-between">
                             <div className="h-32 w-32 rounded-3xl border-4 border-slate-950 overflow-hidden bg-slate-900 shadow-xl">
-                                <img 
-                                    src={profile?.profilePicture?.url}
+                                <img
+                                    src={profile.profilePicture?.url}
                                     alt=""
                                     className="h-full w-full object-cover"
                                 />
                             </div>
 
                             {/*Action Button */}
-                            <div className="flex gap-3">
-                                <button className="px-5 py-2 rounded-xl border border-slate-700 hover:border-violet-500 transition">
-                                    Message
-                                </button>
+                            {profile.userId !== currentUser?.id && (
+                                <div className="flex gap-3">
+                                    <button className="px-5 py-2 rounded-xl border border-slate-700 hover:border-violet-500 transition">
+                                        Message
+                                    </button>
 
-                                <button className="px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 transition font-semibold">
-                                    Add Friend
-                                </button>
-                            </div>
+                                    {profile.isFriend ? (
+                                        <button className="px-5 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold cursor-default">
+                                            Friends
+                                        </button>
+                                    ) : profile.friendRequestSent ? (
+                                        <button className="px-5 py-2 rounded-xl bg-slate-800 text-slate-400 font-semibold cursor-default">
+                                            Request Sent
+                                        </button>
+                                    ) : (
+                                        <button className="px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 transition font-semibold">
+                                            Add Friend
+                                        </button>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         {/*User Info */}
                         <div className="mt-5">
                             <h1 className="text-3xl font-black text-white">
-                                Achiever
+                                {profile.fullname || profile.username}
                             </h1>
 
                             <p className="text-slate-500 text-sm">
-                                @achieverConcept
+                                @{profile.username}
                             </p>
 
-                            <p className="mt-4 text-slate-300 leading-relaxed max-w-2xl">
-                                Backend Engineer || AI Enthusiast || Building the future of social learning through Ariston Arena
-                            </p>
+                            {profile.bio && (
+                                <p className="mt-4 text-slate-300 leading-relaxed max-w-2xl">
+                                    {profile.bio}
+                                </p>
+                            )}
                         </div>
 
                         {/*Quick Info */}
                         <div className="flex flex-wrap gap-6 mt-5 text-sm text-slate-400">
-                            <span> Lagos, Nigeria</span>
-                            <span> University of Ibadan</span>
-                            <span> Backend Engineer </span>
-                            <span> Joined July 2026 </span>
+                            {profile.city && <span>{profile.city}</span>}
+                            {profile.occupation && <span>{profile.occupation}</span>}
+                            {profile.nationality && <span>{profile.nationality}</span>}
+                            <span>Joined {new Date(profile.joinedAt).toLocaleDateString(undefined, { month: "long", year: "numeric" })}</span>
                         </div>
 
                         {/*Stats */}
                         <div className="grid grid-cols-4 gap-4 mt-8">
                             <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 text-center">
                                 <h2 className="text-3xl font-black text-white">
-                                    248
+                                    {profile.friendsCount}
                                 </h2>
-
-                                <p className="text-xs text-slate-500 mt-1">
-                                    Friends
-                                </p>
+                                <p className="text-xs text-slate-500 mt-1">Friends</p>
                             </div>
 
                             <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 text-center">
                                 <h2 className="text-3xl font-black text-white">
-                                    124
+                                    {profile.postsCount}
                                 </h2>
-
-                                <p className="text-xs text-slate-500 mt-1">
-                                    Posts
-                                </p>
+                                <p className="text-xs text-slate-500 mt-1">Posts</p>
                             </div>
 
                             <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 text-center">
                                 <h2 className="text-3xl font-black text-white">
-                                    31
+                                    {profile.mutualFriends.length}
                                 </h2>
-
-                                <p className="text-xs text-slate-500 mt-1">
-                                    Mutual Friends
-                                </p>
+                                <p className="text-xs text-slate-500 mt-1">Mutual Friends</p>
                             </div>
 
                             <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 text-center">
-                                <h2 className="text-3xl font-black text-emerald-400">
-                                    Online
+                                <h2 className={`text-3xl font-black ${profile.online ? "text-emerald-400" : "text-slate-500"}`}>
+                                    {profile.online ? "Online" : "Offline"}
                                 </h2>
-
-                                <p className="text-xs text-slate-500 mt-1">
-                                    Status
-                                </p>
+                                <p className="text-xs text-slate-500 mt-1">Status</p>
                             </div>
-
                         </div>
 
                         <div className="flex gap-8 mt-10 border-b border-slate-800">
                             <button className="pb-4 border-b-2 border-violet-500 text-white font-semibold">
                                 Posts
                             </button>
-
                             <button className="pb-4 text-slate-500 hover:text-white">
                                 Media
                             </button>
-
                             <button className="pb-4 text-slate-500 hover:text-white">
                                 Friends
                             </button>
-
                             <button className="pb-4 text-slate-500 hover:text-white">
                                 About
                             </button>
                         </div>
 
-                        {/*Content */}
+                        {/*Content — still placeholder, needs actual post fetching */}
                         <div className="space-y-4 py-8">
-                            <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5">
-                                Recent Post Card
-                            </div>
-
-                            <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5">
-                                Recent Post Card
-                            </div>
-
-                            <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5">
-                                Recent Post Card
-                            </div>
+                            <p className="text-sm text-slate-500 text-center py-8">
+                                Recent posts will appear here once wired up.
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    )}
+        </div>,
+        document.body
+    );
+};
 
 export default ProfileView;

@@ -11,4 +11,13 @@ export interface UserProfile {
     profilePicture?: string;
     avatarUrl?: string;
     createdAt?: string;
+    dateOfBirth: string;
+    fistName: string;
+    lastName: string;
+    bio: string;
+    website: string;
+    occupation: string;
+    city: string;
+    nationality: string;
+    interests: string[];
 }

@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import React, { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 
 interface ContextMenuItem {
     label: string;
@@ -16,7 +17,7 @@ interface ContextMenuProps {
 
 const ContextMenu: React.FC<ContextMenuProps> = ({ children, items }) => {
     const [open, setOpen] = useState(false);
-    const [position, setPosition] = useState({ x: 0, y: 0});
+    const [position, setPosition] = useState({ x: 0, y: 0 });
     const menuRef = useRef<HTMLDivElement>(null);
 
     const handleContextMenu = (e: React.MouseEvent) => {
@@ -55,10 +56,10 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ children, items }) => {
             clearTimeout(timeoutId);
             window.removeEventListener("click", close);
             window.removeEventListener("keydown", handleEscape);
-        }
+        };
     }, [open]);
 
-    //keep the menu on screen even if the right click happens near an edge
+    // keep the menu on screen even if the right click happens near an edge
     useEffect(() => {
         if (!open || !menuRef.current) return;
 
@@ -68,57 +69,58 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ children, items }) => {
 
         let adjustedX = position.x;
         let adjustedY = position.y;
-        
-        if (rect.right > innerWidth){
+
+        if (rect.right > innerWidth) {
             adjustedX = innerWidth - rect.width - 8;
         }
 
-        if (rect.bottom > innerHeight){
+        if (rect.bottom > innerHeight) {
             adjustedY = innerHeight - rect.height - 8;
         }
 
-        if (adjustedX !== position.x || adjustedY !== position.y){
+        if (adjustedX !== position.x || adjustedY !== position.y) {
             setPosition({ x: adjustedX, y: adjustedY });
         }
     }, [open]);
 
-    return(
+    return (
         <div onContextMenu={handleContextMenu}>
             {children}
 
-            {open && (
+            {open && createPortal(
                 <div
                     ref={menuRef}
                     onClick={(e) => e.stopPropagation()}
-                    style={
-                        {
-                            position: 'fixed',
-                            top: position.y,
-                            left: position.x,
-                            zIndex: 1000
-                        }
-                    }
+                    style={{
+                        position: "fixed",
+                        top: position.y,
+                        left: position.x,
+                        zIndex: 1000
+                    }}
                     className="min-w-[180px] rounded-xl border border-slate-800 bg-slate-950 shadow-xl py-1.5 overflow-hidden"
                 >
                     {items.map((item, index) => {
                         const Icon = item.icon;
-                        return(
+                        return (
                             <button
                                 key={index}
                                 onClick={() => handleItemClick(item)}
                                 disabled={item.disabled}
                                 className={`w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-left transition-colors ${
                                     item.disabled
-                                        ? "text-slate-600 cursor not-allowed"
-                                        : "text-slate-200 hover:bg-slate-900" 
+                                        ? "text-slate-600 cursor-not-allowed"
+                                        : item.danger
+                                            ? "text-red-400 hover:bg-red-500/10"
+                                            : "text-slate-200 hover:bg-slate-900"
                                 }`}
                             >
                                 {Icon && <Icon size={14} />}
                                 <span>{item.label}</span>
                             </button>
-                        )
+                        );
                     })}
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

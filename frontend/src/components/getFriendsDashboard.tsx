@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { UserPlus, Check, Loader2, Sparkles } from "lucide-react";
+import { UserPlus, Check, Loader2, Sparkles, Eye } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import API from "../api/axios";
+import ContextMenu from "../context/ContextMenu";
+import ProfileView from "./ProfileView";
 
 interface NetworkUser {
     id: string;
@@ -22,6 +24,7 @@ const GetFriendsDashboard: React.FC<GetFriendsDashboardProps> = ({ isEmbedded = 
     const [offset, setOffset] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [hasMore, setHasMore] = useState<boolean>(true);
+    const [selectedUserId, setSelectedUserId] = useState<String | null>(null);
 
     const loadingRef = useRef(false);
     const scrollContainer = useRef<HTMLDivElement | null>(null);
@@ -125,50 +128,60 @@ return(
             className="flex gap-4 overflow-x-auto whitespace-nowrap w-full no-scrollbar"
         >
             {users.map((item) => (
-                <div
+                <ContextMenu
                     key={item.id}
-                    className="min-w-[250px] max-w-[250px] flex-shrink-0 rounded-2xl border border-slate-900 bg-slate-950 p-4 flex flex-col justify-between items-center text-center group hover:border-slate-800 transition-all duration-300 relative overflow-hidden"
+                    items={[
+                        {
+                            label: "View Profile",
+                            icon: Eye,
+                            onClick: () => setSelectedUserId(item.id)
+                        }
+                    ]}
                 >
-                    <div  className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-600/0 via-violet-500/20 to-violet-600/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div
+                        className="min-w-[250px] max-w-[250px] flex-shrink-0 rounded-2xl border border-slate-900 bg-slate-950 p-4 flex flex-col justify-between items-center text-center group hover:border-slate-800 transition-all duration-300 relative overflow-hidden"
+                    >
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-600/0 via-violet-500/20 to-violet-600/0 opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                    <div className="flex flex-col items-center mt-2">
-                        <div className="h-12 w-12 rounded-xl bg-violet-600/10 border border-violet-500/20 flex items-center justify-center text-violet-400 text-sm font-bold shadow-inner mb-3">
-                            {item.profilePicture ? (
-                                <img src={item.profilePicture} alt={item.username} className="w-full h-full object-cover" />
-                             ) : (item.avatarLetter)
-                            }
+                        <div className="flex flex-col items-center mt-2">
+                            <div className="h-12 w-12 rounded-xl bg-violet-600/10 border border-violet-500/20 flex items-center justify-center text-violet-400 text-sm font-bold shadow-inner mb-3">
+                                {item.profilePicture ? (
+                                    <img src={item.profilePicture} alt={item.username} className="w-full h-full object-cover" />
+                                ) : (item.avatarLetter)
+                                }
+                            </div>
+
+                            <h4 className="text-xs font-bold text-slate-200">
+                                @{item.username}
+                            </h4>
+
+                            <p className="text-[10px] text-slate-600 mt-1">
+                                {item.mutualConnections} mutual connections
+                            </p>
                         </div>
 
-                        <h4 className="text-xs font-bold text-slate-200">
-                            @{item.username}
-                        </h4>
-
-                        <p className="text-[10px] text-slate-600 mt-1">
-                            {item.mutualConnections} mutual connections
-                        </p>
-                    </div>
-
-                <button
-                    onClick={() => sendFriendRequest(item.id)}
-                    className={`mt-4 w-full py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-[0.97] ${
-                        item.isFollowing
-                            ? "bg-slate-900 text-slate-400 border border-slate-800"
-                            : "bg-white text-slate-950 hover:bg-slate-200" 
-                    }`}
-                >
-                    {item.isFollowing ? (
-                        <>
-                            <Check size={12} />
-                            <span>Connected</span>
-                        </>
-                    ) : (
-                        <>
-                            <UserPlus size={12} />
-                            <span>Connect</span>
-                        </>
-                    )}
-                </button>
-                </div>
+                    <button
+                        onClick={() => sendFriendRequest(item.id)}
+                        className={`mt-4 w-full py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-[0.97] ${
+                            item.isFollowing
+                                ? "bg-slate-900 text-slate-400 border border-slate-800"
+                                : "bg-white text-slate-950 hover:bg-slate-200" 
+                        }`}
+                    >
+                        {item.isFollowing ? (
+                            <>
+                                <Check size={12} />
+                                <span>Connected</span>
+                            </>
+                        ) : (
+                            <>
+                                <UserPlus size={12} />
+                                <span>Connect</span>
+                            </>
+                        )}
+                    </button>
+                    </div>                
+                </ContextMenu>
             ))}
 
             {isLoading && (
@@ -186,6 +199,12 @@ return(
                 </div>
             )}
     </div>
+
+    <ProfileView
+        userId={selectedUserId}
+        isOpen={selectedUserId !== null}
+        onClose={() => setSelectedUserId(null)}
+    />
 </div>
     );
 };

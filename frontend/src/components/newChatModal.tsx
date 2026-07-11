@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { X, Search, MessageCirclePlus } from "lucide-react";
+import { X, Search, MessageCirclePlus, Users, Check } from "lucide-react";
 import API from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 
@@ -15,19 +15,26 @@ interface NewChatModalProps {
     isOpen: boolean;
     onClose: () => void;
     onStartChat: (userId: string) => Promise<void>;
+    onCreateGroup: (roomName: string, participantIds: string[]) => Promise<void>;
 }
 
 const NewChatModal: React.FC<NewChatModalProps> = ({
     isOpen,
     onClose,
     onStartChat,
+    onCreateGroup,
 }) => {
     const { user } = useAuth();
 
+    const [mode, setMode] = useState<"direct" | "group">("direct");
     const [directory, setDirectory] = useState<ContactUser[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    // Group-mode only state
+    const [groupName, setGroupName] = useState("");
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         const fetchFriends = async () => {
@@ -70,6 +77,16 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
         fetchFriends();
     }, [isOpen, user]);
 
+    // Reset group-mode state whenever the modal closes, so re-opening starts fresh
+    useEffect(() => {
+        if (!isOpen) {
+            setMode("direct");
+            setGroupName("");
+            setSelectedIds(new Set());
+            setSearchQuery("");
+        }
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     const filteredContacts = directory.filter(
@@ -87,11 +104,37 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
 
         try {
             await onStartChat(userId);
-
             setSearchQuery("");
-
             onClose();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
+    const toggleSelected = (userId: string) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(userId)) {
+                next.delete(userId);
+            } else {
+                next.add(userId);
+            }
+            return next;
+        });
+    };
+
+    const handleCreateGroup = async () => {
+        if (!groupName.trim() || selectedIds.size < 2) return;
+
+        setIsSubmitting(true);
+
+        try {
+            await onCreateGroup(groupName.trim(), Array.from(selectedIds));
+            setGroupName("");
+            setSelectedIds(new Set());
+            onClose();
         } catch (error) {
             console.error(error);
         } finally {
@@ -110,19 +153,16 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
             <div className="relative z-10 w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
 
                 {/* Header */}
-
                 <div className="flex items-center justify-between p-5 border-b border-slate-800">
-
                     <div>
-
                         <h3 className="text-white font-black">
-                            Start New Chat
+                            {mode === "direct" ? "Start New Chat" : "Create Group"}
                         </h3>
-
                         <p className="text-xs text-slate-500">
-                            Select one of your friends.
+                            {mode === "direct"
+                                ? "Select one of your friends."
+                                : "Pick at least 2 friends and name your group."}
                         </p>
-
                     </div>
 
                     <button
@@ -131,109 +171,141 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
                     >
                         <X size={16} />
                     </button>
-
                 </div>
 
+                {/* Mode toggle */}
+                <div className="flex gap-2 p-4 pb-0">
+                    <button
+                        onClick={() => setMode("direct")}
+                        className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                            mode === "direct"
+                                ? "bg-violet-600 text-white"
+                                : "bg-slate-950 text-slate-500 border border-slate-800"
+                        }`}
+                    >
+                        Direct
+                    </button>
+                    <button
+                        onClick={() => setMode("group")}
+                        className={`flex-1 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                            mode === "group"
+                                ? "bg-violet-600 text-white"
+                                : "bg-slate-950 text-slate-500 border border-slate-800"
+                        }`}
+                    >
+                        <Users size={12} />
+                        Group
+                    </button>
+                </div>
+
+                {/* Group name input, only shown in group mode */}
+                {mode === "group" && (
+                    <div className="p-4 pb-0">
+                        <input
+                            value={groupName}
+                            onChange={(e) => setGroupName(e.target.value)}
+                            placeholder="Group name..."
+                            className="w-full rounded-xl bg-slate-950 border border-slate-800 py-3 px-4 text-sm outline-none focus:border-violet-500/40"
+                        />
+                    </div>
+                )}
+
                 {/* Search */}
-
                 <div className="p-4 border-b border-slate-800">
-
                     <div className="relative">
-
                         <Search
                             size={15}
                             className="absolute left-3 top-3 text-slate-500"
                         />
-
                         <input
                             value={searchQuery}
-                            onChange={(e) =>
-                                setSearchQuery(e.target.value)
-                            }
+                            onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search friend..."
                             className="w-full rounded-xl bg-slate-950 border border-slate-800 py-3 pl-10 pr-3 text-sm outline-none"
                         />
-
                     </div>
-
                 </div>
 
                 {/* Friends */}
-
-                <div className="max-h-[420px] overflow-y-auto p-3 space-y-2">
-
+                <div className="max-h-[360px] overflow-y-auto p-3 space-y-2">
                     {loading ? (
-
                         <div className="text-center py-10 text-slate-500 text-sm">
                             Loading friends...
                         </div>
-
                     ) : filteredContacts.length === 0 ? (
-
                         <div className="text-center py-10 text-slate-500 text-sm">
                             No friends found.
                         </div>
-
                     ) : (
-
                         filteredContacts.map((contact) => (
-
                             <div
                                 key={contact.id}
-                                className="flex items-center justify-between rounded-xl p-3 hover:bg-slate-800 transition"
+                                onClick={() => mode === "group" && toggleSelected(contact.id)}
+                                className={`flex items-center justify-between rounded-xl p-3 transition ${
+                                    mode === "group" ? "cursor-pointer" : ""
+                                } ${
+                                    mode === "group" && selectedIds.has(contact.id)
+                                        ? "bg-violet-600/10 border border-violet-500/30"
+                                        : "hover:bg-slate-800 border border-transparent"
+                                }`}
                             >
-
                                 <div className="flex items-center gap-3">
-
                                     {contact.profilePicture ? (
-
                                         <img
                                             src={contact.profilePicture}
                                             className="w-10 h-10 rounded-xl object-cover"
                                         />
-
                                     ) : (
-
                                         <div className="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center font-bold uppercase">
                                             {contact.avatarLabel}
                                         </div>
-
                                     )}
 
                                     <div>
-
                                         <h4 className="text-sm font-semibold">
                                             {contact.displayName}
                                         </h4>
-
                                         <p className="text-xs text-slate-500">
                                             @{contact.username}
                                         </p>
-
                                     </div>
-
                                 </div>
 
-                                <button
-                                    disabled={isSubmitting}
-                                    onClick={() =>
-                                        handleSelectContact(contact.id)
-                                    }
-                                    className="p-2 rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-40"
-                                >
-                                    <MessageCirclePlus size={14} />
-                                </button>
-
+                                {mode === "direct" ? (
+                                    <button
+                                        disabled={isSubmitting}
+                                        onClick={() => handleSelectContact(contact.id)}
+                                        className="p-2 rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-40"
+                                    >
+                                        <MessageCirclePlus size={14} />
+                                    </button>
+                                ) : (
+                                    <div className={`h-5 w-5 rounded-md flex items-center justify-center border transition-all ${
+                                        selectedIds.has(contact.id)
+                                            ? "bg-violet-600 border-violet-600"
+                                            : "border-slate-700"
+                                    }`}>
+                                        {selectedIds.has(contact.id) && <Check size={12} className="text-white" />}
+                                    </div>
+                                )}
                             </div>
-
                         ))
-
                     )}
-
                 </div>
 
+                {/* Group create button — only in group mode */}
+                {mode === "group" && (
+                    <div className="p-4 border-t border-slate-800">
+                        <button
+                            disabled={isSubmitting || !groupName.trim() || selectedIds.size < 2}
+                            onClick={handleCreateGroup}
+                            className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-30 disabled:cursor-not-allowed font-bold text-sm transition-all"
+                        >
+                            Create Group ({selectedIds.size} selected)
+                        </button>
+                    </div>
+                )}
             </div>
-
         </div>
     );
 };

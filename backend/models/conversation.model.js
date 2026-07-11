@@ -11,6 +11,11 @@ const conversationSchema = new mongoose.Schema({
         required: true,
         default: false
     },
+    groupvatar: {
+        url: { type: String, default: "" },
+        publicId: { type: String, default: "" }
+    },
+
     participant: [
         {
             type: mongoose.Schema.Types.ObjectId,

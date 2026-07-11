@@ -8,6 +8,7 @@ import ProfilePage from "./pages/ProfilePage";
 import FriendPage from "./pages/FriendPage";
 import SettingsPage from "./pages/SettingsPage";
 import { ThemeProvider } from "./context/ThemeContext";
+import NotificationsPage from "./pages/Notification";
 
 function App() {
   return (
@@ -22,7 +23,8 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/friends" element={<FriendPage />} />
             <Route path="/settings" element={<SettingsPage />} />
-          </Routes>  
+            <Route path="/notifications" element={<NotificationsPage />} />  
+            </Routes>  
         </AuthProvider>
       </StatusBarProvider>
       </ThemeProvider>

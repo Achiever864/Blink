@@ -10,7 +10,7 @@ import { useStatus } from "../context/StatusBarContext";
 import NewChatModal from "../components/newChatModal";
 import AudioMessagePlayer from "../components/AudioMessagePlayer";
 import socket from "../socket";
-
+import MessageBubble from "../components/MessageBubble";
 
 interface Participant {
     _id: string;
@@ -73,7 +73,7 @@ interface Message {
 
 const MessagePage: React.FC = () => {
     const { user } = useAuth();
-    const showStatus = useStatus();
+    const { showStatus } = useStatus();
     const [activeChat, setActiveChat] = useState<Conversation | null>(null);
     const [typedMessage, setTypedMessage] = useState<string>("");
     const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -84,7 +84,7 @@ const MessagePage: React.FC = () => {
     const bottomRef = useRef<HTMLDivElement>(null);
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const [ showScrollButton, setShowScrollButton ] = useState(false);
-
+    const [replyingTo, setReplyingTo] = useState<Message | null>(null);
     
     //audio handling
     const [isRecording, setIsRecording] = useState(false);
@@ -256,6 +256,27 @@ const MessagePage: React.FC = () => {
         }
     };
 
+    const handleReply = (msg: Message) => {
+        setReplyingTo(msg);
+        inputRef.current?.focus();
+    }
+
+    const handleCreateGroup = async (roomName: string, participantIds: string[]) => {
+        try {
+            const response = await API.post("/conversation/create", {
+                isGroupChat: true,
+                roomName,
+                participants: [...participantIds, user!.id],
+                creatorId: user!.id
+            });
+            showStatus("Group created!", "success");
+            fetchConversation();
+        } catch (error) {
+            showStatus("Failed to create group!");
+            throw error;
+        }
+    }
+
     const fetchConversation = async () => {
         console.log("trying to fetch conversation");
         if(!user?.id) return;
@@ -402,6 +423,7 @@ const MessagePage: React.FC = () => {
 };
 
     const handleOpenConversation = async (chat: any) => {
+        console.log(chat);
         setActiveChat(chat);
 
         socket.emit("join_chat", chat.conversationId);
@@ -527,6 +549,7 @@ const MessagePage: React.FC = () => {
                             isOpen={isModalOpen}
                             onClose={() => setIsModalOpen(false)}
                             onStartChat={handleStartNewChat}
+                            onCreateGroup={handleCreateGroup}
                         />
                     </section>
                     
@@ -562,135 +585,15 @@ const MessagePage: React.FC = () => {
                         ref={chatContainerRef}
                         onScroll={handleScroll}
                         className="flex-1 overflow-y-auto no-scrollbar py-6 space-y-4 pr-1">
-                            {messages.map((msg) => {
-                                const senderId =
-                                    typeof msg.sender === "string"
-                                        ? msg.sender
-                                        : msg.sender?._id;
-
-                                const isMe = senderId === user?.id;  
-                                return (
-                                    <div key={msg._id} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
-                                        <div className={`max-w-[70%] rounded-2xl px-4 py-3 text-xs leading-relaxed transition-all ${
-                                            isMe
-                                                ? "bg-violet-600 text-white rounded-tr-none font-medium shadow-md shadow-violet-600/10"
-                                                : "bg-slate-900/60 border border-slate-900 text-slate-300 rounded-tl-none"
-                                        }`}>
-                                            <div className="whitespace-pre-wrap">
-                                                {msg.isDeleted && (
-                                                        <p className="italic text-slate-500">
-                                                            ∅ This message was deleted.
-                                                        </p>
-                                                )}
-
-                                                {msg.text && (
-                                                    <p>
-                                                        {msg.text}
-
-                                                        {msg.isEdited && (
-                                                        <span className="ml-2 text-[10px]">
-                                                            edited
-                                                        </span>
-                                                        )}
-                                                    </p>
-
-                                                    
-                                                )}
-
-                                                {msg.attachment?.type === "image" && (
-                                                    <div className="mt-2 rounded-xl overflow-hidden max-w-xs bg-slate-800/50">
-                                                        <img 
-                                                            src={msg.attachment.url}
-                                                            alt="image"
-                                                            loading="lazy"
-                                                            className="w-full max-h-[320px] object-cover transition duration-300 hover:scale-[1.02] hover:brightness-95 cursor-pointer"
-                                                            onClick={() => window.open(msg.attachment?.url, "_blank")}
-                                                        />
-                                                    </div>
-                                                )}
-
-                                                {msg.attachment?.type === "video" && (
-                                                    <video
-                                                        src={msg.attachment?.url}
-                                                        controls
-                                                        playsInline
-                                                        preload="metadata"
-                                                        className="rounded-xl mt-2 max-w-xs max-h-[320px] w-full object-cover bg-black"
-                                                    />
-                                                )}
-
-                                                {msg.attachment?.type === "audio" && (
-                                                    <AudioMessagePlayer url={msg.attachment.url} isMe={isMe} />
-                                                )}
-
-                                                {/* {msg.attachment?.type === "image" && (
-                                                    <img
-                                                        src={msg.attachment.url}
-                                                        alt="image"
-                                                        className="rounded-xl mt-2 max-w-xs"
-                                                    />
-                                                )}
-
-                                                {msg.attachment?.type === "video" && (
-                                                    <video
-                                                        controls
-                                                        className="rounded-xl mt-2"
-                                                    >
-                                                        <source src={msg.attachment.url} />
-                                                    </video>
-                                                )}
-
-                                                {msg.attachment?.type === "audio" && (
-                                                    <audio 
-                                                        controls
-                                                    >
-                                                        <source src={msg.attachment.url} />
-                                                    </audio>
-                                                )} */}
-
-                                                {msg.attachment?.type === "file" && (
-                                                    <a 
-                                                    href={msg.attachment.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-violet-400 underline"
-                                                    >
-                                                        {msg.attachment.fileName}
-                                                    </a>
-                                                )}
-                                                
-
-                                                {/*I hope I did the reaction rendering properly sha.. we'll find out*/}
-                                                <div className="flex gap-1">
-                                                    {msg.reactions?.map(r => (
-                                                        <span key={r.user}>
-                                                            {r.emoji}
-                                                        </span>
-                                                    ))}
-                                                </div>
-
-
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-1 mt-1 text-[9px] text-slate-600 px-1 font-medium">
-                                            <span>{new Date(msg.createdAt).toLocaleTimeString([],{
-                                                hour: "2-digit",
-                                                minute: "2-digit"
-                                            })}</span>
-                                            {isMe && msg.status ==="sending" && (
-                                                <span className="text-slate-500 italic">Sending...</span>
-                                            )}
-                                            {isMe && msg.status === "failed" && (
-                                                <span className="text-red-400 font-semibold">Failed to send</span>
-                                            )}
-                                            {isMe && (msg.status === "sent" || !msg.status) && (
-                                                <CheckCheck size={11} className="text-violet-400" />
-                                            )}
-                                        </div>
-                                    </div>
-                                );
-                                
-                            })}
+                            {messages.map((msg) => (
+                                <MessageBubble
+                                    key={msg._id}
+                                    msg={msg}
+                                    isMe={(typeof msg.sender === "string" ? msg.sender : msg.sender?._id) === user?.id}
+                                    isGroup={activeChat?.isGroup || false}
+                                    onReply={handleReply}
+                                />
+                            ))}
 
                             <div ref={bottomRef} />
                         </div>

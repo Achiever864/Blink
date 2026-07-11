@@ -11,20 +11,38 @@ interface AuthContextType{
     login: (credentials: AuthFormData) => Promise<void>;
     register: (credentials: AuthFormData) => Promise<void>;
     logout: () => void;
+    updateUser: (updatedFields: Partial<UserProfile>) => void;
 }
 
 const AuthContext = createContext <AuthContextType | undefined>(undefined);
 
+const buildUserProfile = (raw: any): UserProfile => ({
+    id: raw._id || raw.id,
+    username: raw.username,
+    email: raw.email,
+    profilePicture: raw.profilePicture?.url || raw.profilePicture || "",
+    firstName: raw.firstName || "",
+    lastName: raw.LastName || raw.lastName || "",
+    bio: raw.bio || "",
+    website: raw.website || "",
+    occupation: raw.occupation || "",
+    nationality: raw.nationality || "",
+    city: raw.city || "",
+    dateOfBirth: raw.dateOfBirth || "",
+    interests: raw.interests || []
+});
+
 export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
     const [user, setUser] = useState<UserProfile | null>(() => {
         const token = localStorage.getItem("token");
-        const id = localStorage.getItem("userId");
-        const username = localStorage.getItem("username");
-        const email = localStorage.getItem("email");
-        const profilePicture = localStorage.getItem("profilePicture") || "";
+        const storedUser = localStorage.getItem("userProfile");
 
-        if (token && id && username && email){
-            return { id, username, email, profilePicture };
+        if (token && storedUser) {
+            try {
+                return JSON.parse(storedUser);
+            } catch {
+                return null;
+            }
         }
         return null;
     });
@@ -33,7 +51,6 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     const { showStatus } = useStatus();
     const navigate = useNavigate();
 
-    //actual request to handle login
     const login = async (credentials: AuthFormData) => {
         setIsLoading(true);
         try{
@@ -43,47 +60,37 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
             });
 
             const token = res.data.user.token;
-            const username = res.data.user.username;
-            const email = res.data.user.email;
-            const userId = res.data.user._id;
-            const profilePics = res.data.user.profilePicture.url || "";
+            const userProfile = buildUserProfile(res.data.user);
 
             localStorage.setItem("token", token);
-            localStorage.setItem('username', username);
-            localStorage.setItem("email", email);
-            localStorage.setItem("userId", userId);
-            localStorage.setItem("profilePicture", profilePics);
-            
-            const userProfile: UserProfile = {
-                id: userId,
-                username: username,
-                email: email,
-                profilePicture: profilePics
-            };
+            localStorage.setItem("userProfile", JSON.stringify(userProfile));
+
             setUser(userProfile);
             socket.connect();
-            socket.emit("setup", userId);
+            socket.emit("setup", userProfile.id);
             showStatus("Access authorized. Syncing system profile", "success");
         } catch(error: any){
             const errorMsg = error.response?.data?.message || "Authentication rejected: Invalid credentials.";
             showStatus(errorMsg, "error");
-            throw error; //let the component know it failed if needed
+            throw error;
         } finally{
             setIsLoading(false);
         }
     };
 
-    //Handle Registration
     const register = async (credentials: AuthFormData) => {
         setIsLoading(true);
         try {
             const res = await API.post("user/register", credentials);
-            const { token, userProfile } = res.data;
+
+            // Matching login's response shape (res.data.user.*) rather than a
+            // different res.data.token / res.data.userProfile shape — confirm
+            // this matches your actual register endpoint's real response.
+            const token = res.data.user.token;
+            const userProfile = buildUserProfile(res.data.user);
 
             localStorage.setItem("token", token);
-            localStorage.setItem("username", userProfile.username);
-            localStorage.setItem("email", userProfile.email);
-            localStorage.setItem("userId", userProfile.id);
+            localStorage.setItem("userProfile", JSON.stringify(userProfile));
 
             setUser(userProfile);
             socket.connect();
@@ -98,14 +105,20 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         }
     };
 
-    //Lets handle the logout here
+    // Called after a successful profile update (e.g. SettingsPage's handleProfileSave)
+    // so the rest of the app reflects new data immediately, without needing a re-login.
+    const updateUser = (updatedFields: Partial<UserProfile>) => {
+        setUser(prev => {
+            if (!prev) return prev;
+            const merged = { ...prev, ...updatedFields };
+            localStorage.setItem("userProfile", JSON.stringify(merged));
+            return merged;
+        });
+    };
+
     const logout = () => {
-        //compeletely sweep out all key to avoid messy storage state (stale data pollution)
         localStorage.removeItem("token");
-        localStorage.removeItem("username");
-        localStorage.removeItem("email");
-        localStorage.removeItem("userId");
-        localStorage.removeItem("profilePicture")
+        localStorage.removeItem("userProfile");
 
         setUser(null);
         socket.disconnect();
@@ -114,7 +127,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     };
 
     return(
-        <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
+        <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateUser }}>
             {children}
         </AuthContext.Provider>
     );

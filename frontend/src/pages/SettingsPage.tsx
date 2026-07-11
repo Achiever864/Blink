@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-    User, Palette, Lock, Bell, Globe, Shield, Check
+    User, Palette, ArrowLeft, Lock, Bell, Globe, Check, Briefcase, MapPin, Cake, Tag
 } from "lucide-react";
 import {
     useTheme, type ThemeMode
 }   from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
+import API from "../api/axios";
 
 type SettingsTab = "profile" | "appearance" | "security" | "notifications";
 
@@ -13,17 +15,37 @@ const SettingsPage: React.FC = () => {
     const { theme, setTheme } = useTheme();
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
+    const navigate = useNavigate();
 
-    //Identity Matrix & uplinks state
     const [profile, setProfile] = useState({
-        displayName: user?.displayName || "Alex Rivers",
-        username: user?.username || "cyber_architect",
-        email: user?.email || "architect@blink.dev",
-        bio: "Building the future of decentralized interfaces.",
-        website: "https://blink.dev/architect"
+        username: user?.username || "",
+        firstName: user?.firstName || "",
+        lastName: user?.LastName || "",
+        email: user?.email || "",
+        bio: user?.bio || "",
+        website: user?.website || "",
+        dateOfBirth: user?.dateOfBirth || "",
+        occupation: user?.occupation || "",
+        nationality: user?.nationality || "",
+        city: user?.city || "",
+        interests: user?.interests?.join(", ") || ""
     });
 
-    //Security state
+    const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null);
+    const profilePicPreview = useMemo(() => {
+        if (!profilePictureFile) return null;
+        return URL.createObjectURL(profilePictureFile);
+    }, [profilePictureFile]);
+
+    useEffect(() => {
+        return () => {
+            if (profilePicPreview) URL.revokeObjectURL(profilePicPreview);
+        };
+    }, [profilePicPreview]);
+
+    const [isSaving, setIsSaving] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+
     const [passwordData, setPasswordData] = useState({
         currentPassword: "",
         newPassword: "",
@@ -36,9 +58,40 @@ const SettingsPage: React.FC = () => {
         statusIndicator: true
     });
 
-    const handleProfileSave = (e: React.FormEvent) =>  {
+    const handleProfileSave = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.stringify("Syncing profile changes", profile);
+        setIsSaving(true);
+        setShowSuccess(false);
+
+        try {
+            const formData = new FormData();
+            formData.append("userId", user?.id || "");
+            formData.append("username", profile.username);
+            formData.append("firstName", profile.firstName);
+            formData.append("lastName", profile.lastName);
+            formData.append("bio", profile.bio);
+            formData.append("website", profile.website);
+            formData.append("dateOfBirth", profile.dateOfBirth);
+            formData.append("occupation", profile.occupation);
+            formData.append("nationality", profile.nationality);
+            formData.append("city", profile.city);
+            formData.append("interests", profile.interests);
+
+            if (profilePictureFile) {
+                formData.append("profilePicture", profilePictureFile);
+            }
+
+            const res = await API.post("/user/update", formData);
+            console.log("Profile updated:", res.data);
+            setShowSuccess(true);
+
+            // Refresh whatever holds the cached logged-in user here, depending on
+            // how AuthContext stores it (e.g. re-fetch /me, or merge res.data.user in).
+        } catch (error: any) {
+            console.log(error.response?.data || error.message);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handlePasswordUpdate = (e: React.FormEvent) =>  {
@@ -50,11 +103,16 @@ const SettingsPage: React.FC = () => {
         <div className="min-h-screen bg-slate-950 text-slate-200 flex justify-center py-10 px-4 md:px-8">
             <div className="w-full max-w-5xl bg-slate-900/40 border border-slate-900 rounded-3xl flex flex-col md:flex-row overflow-hidden backdrop-blur-md min-h-[70vh]">
 
-                {/*Left Navigation Rail */}
                 <aside className="w-full md:w-64 bg-slate-950/60 p-6 border-b md:border-b-0 md:border-r border-slate-900/60 flex flex-col gap-1">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="flex items-center gap-2 h-10 w-10 pl-2 rounded-3xl bg-slate-900 border border-slate-800 hover:border-violet-500/40 transition-all mb-2"
+                    >
+                        <ArrowLeft size={22} />
+                    </button>
                     <div className="mb-6 px-2">
-                        <h2 className="text-sm font-black tracking-wider text-white uppercase">Control Center</h2>
-                        <p className="text-[10px] text-slate-500 font-mono">System Configuration Matrix</p>
+                        <h2 className="text-sm font-black tracking-wider text-white uppercase">User Control Access</h2>
+                        <p className="text-[10px] text-slate-500 font-mono">Profile Configuration</p>
                     </div>
 
                     <button
@@ -62,7 +120,7 @@ const SettingsPage: React.FC = () => {
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-wide transition-all ${activeTab === "profile" ? "bg-violet-600/10 text-violet-400 border border-violet-500/20" : "text-slate-400 hover:text-slate-200 border border-transparent" }`}
                     >
                         <User size={15} />
-                        <span>Identity Matrix</span>
+                        <span>Update Profile</span>
                     </button>
 
                     <button
@@ -70,49 +128,93 @@ const SettingsPage: React.FC = () => {
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-wide transition-all ${activeTab === "appearance" ? "bg-violet-600/10 text-violet-400 border border-violet-500/20" : "text-slate-400 hover:text-slate-200 border border-transparent"}`}
                     >
                         <Palette size={15} />
-                        <span>Visual Engine</span>
+                        <span>Themes</span>
                     </button>
 
                     <button
                         onClick ={() => setActiveTab("security")}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-wide transition-all ${activeTab === 'notifications' ? "bg-violet-600/10 text-violet-4000 border border-violet-500/20" : "text-slate-400 hover:text-slate-200 border border-transparent"}`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-wide transition-all ${activeTab === 'security' ? "bg-violet-600/10 text-violet-400 border border-violet-500/20" : "text-slate-400 hover:text-slate-200 border border-transparent"}`}
+                    >
+                        <Lock size={15} />
+                        <span>Password & Security</span>
+                    </button>
+
+                    <button
+                        onClick={() => setActiveTab("notifications")}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-wide transition-all ${activeTab === 'notifications' ? "bg-violet-600/10 text-violet-400 border border-violet-500/20" : "text-slate-400 hover:text-slate-200 border border-transparent"}`}
                     >
                         <Bell size={15} />
-                        <span>Signal Filters</span>
+                        <span>Notifications</span>
                     </button>
                 </aside>
 
-                {/*Right panel workspace */}
                 <main className="flex-1 p-6 md:p-10 overflow-y-auto">
-                    {/*Identity Matrix */}
                     {activeTab === "profile" && (
                         <form onSubmit={handleProfileSave} className="space-y-6 max-w-xl">
                             <div>
-                                <h3 className="text-md font-black text-white">Identify Configuration</h3>
-                                <p className="text-xs text-slate-500">Update your profile metadata parameters</p>
+                                <h3 className="text-md font-black text-white">Update User Profile</h3>
+                                <p className="text-xs text-slate-500">Update your profile information</p>
+                            </div>
+
+                            {/* Profile picture */}
+                            <div className="flex items-center gap-4">
+                                <div className="relative h-16 w-16 rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 flex-shrink-0">
+                                    {profilePicPreview ? (
+                                        <img src={profilePicPreview} alt="preview" className="h-full w-full object-cover" />
+                                    ) : user?.profilePicture?.url ? (
+                                        <img src={user.profilePicture.url} alt="current" className="h-full w-full object-cover" />
+                                    ) : (
+                                        <div className="h-full w-full flex items-center justify-center text-slate-500 text-xs font-bold uppercase">
+                                            {profile.username.substring(0, 2)}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <label className="cursor-pointer px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-violet-500/40 text-xs font-bold text-slate-300 transition-all">
+                                    Change Photo
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        hidden
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) setProfilePictureFile(file);
+                                        }}
+                                    />
+                                </label>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-[11px] font-bold text-slate-400 font-mono"> Display Name</label>
+                                    <label className="text-[11px] font-bold text-slate-400 font-mono">First Name</label>
                                     <input
                                         type="text"
-                                        value={profile.displayName}
-                                        onChange={e => setProfile({...profile, displayName: e.target.value})}
+                                        value={profile.firstName}
+                                        onChange={e => setProfile({...profile, firstName: e.target.value})}
                                         className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:border-violet-500/40 outline-none"
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-[11px] font-bold text-slate-400 font-mono">Operator Handle</label>
-                                    <div className="relative flex items-center">
-                                        <span className="absolute left=4 text-xs font-mono text-slate-600">@</span>
-                                        <input 
-                                            type="text"
-                                            value={profile.username}
-                                            onChange={e => setProfile({...profile, username: e.target.value})}
-                                            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-4 py-2.5 text-xs text-slate-200 focus:border-violet-500/40 outline-none"
-                                        />
-                                    </div>
+                                    <label className="text-[11px] font-bold text-slate-400 font-mono">Last Name</label>
+                                    <input
+                                        type="text"
+                                        value={profile.lastName}
+                                        onChange={e => setProfile({...profile, lastName: e.target.value})}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:border-violet-500/40 outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-[11px] font-bold text-slate-400 font-mono">Operator Handle</label>
+                                <div className="relative flex items-center">
+                                    <span className="absolute left-4 text-xs font-mono text-slate-600">@</span>
+                                    <input 
+                                        type="text"
+                                        value={profile.username}
+                                        onChange={e => setProfile({...profile, username: e.target.value})}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-4 py-2.5 text-xs text-slate-200 focus:border-violet-500/40 outline-none"
+                                    />
                                 </div>
                             </div>
 
@@ -121,9 +223,69 @@ const SettingsPage: React.FC = () => {
                                 <input
                                     type="text"
                                     value={profile.email}
-                                    onChange={e => setProfile({...profile, email: e.target.value})}
                                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-400 cursor-not-allowed outline-none"
                                     disabled
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-bold text-slate-400 font-mono flex items-center gap-1.5">
+                                        <Briefcase size={11} /> Occupation
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={profile.occupation}
+                                        onChange={e => setProfile({...profile, occupation: e.target.value})}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:border-violet-500/40 outline-none"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-bold text-slate-400 font-mono flex items-center gap-1.5">
+                                        <MapPin size={11} /> City
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={profile.city}
+                                        onChange={e => setProfile({...profile, city: e.target.value})}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:border-violet-500/40 outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-bold text-slate-400 font-mono">Nationality</label>
+                                    <input
+                                        type="text"
+                                        value={profile.nationality}
+                                        onChange={e => setProfile({...profile, nationality: e.target.value})}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:border-violet-500/40 outline-none"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-bold text-slate-400 font-mono flex items-center gap-1.5">
+                                        <Cake size={11} /> Date of Birth
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={profile.dateOfBirth}
+                                        onChange={e => setProfile({...profile, dateOfBirth: e.target.value})}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:border-violet-500/40 outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-[11px] font-bold text-slate-400 font-mono flex items-center gap-1.5">
+                                    <Tag size={11} /> Interests (comma-separated)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={profile.interests}
+                                    onChange={e => setProfile({...profile, interests: e.target.value})}
+                                    placeholder="coding, music, hiking"
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:border-violet-500/40 outline-none"
                                 />
                             </div>
 
@@ -133,14 +295,16 @@ const SettingsPage: React.FC = () => {
                                     rows={3}
                                     value={profile.bio}
                                     onChange={e => setProfile({...profile, bio: e.target.value})}
+                                    maxLength={200}
                                     className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs text-slate-200 focus:border-violet-500/40 outline-none resize-none"
                                 />
+                                <p className="text-[10px] text-slate-600 text-right">{profile.bio.length}/200</p>
                             </div>
 
                             <div className="space-y-1.5">
                                 <label className="text-[11px] font-bold text-slate-400 font-mono">External Uplink (Portfolio)</label>
                                 <div className="relative flex items-center">
-                                    <Globe size={13} className="absolute left-4 text-xs text-slate-600" />
+                                    <Globe size={13} className="absolute left-4 text-slate-600" />
                                     <input 
                                         type="text"
                                         value={profile.website}
@@ -150,13 +314,24 @@ const SettingsPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <button type="submit" className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-md shadow-violet-950/20">
-                                Synchronize Profile Changes
-                            </button>
+                            <div className="flex items-center gap-4">
+                                <button
+                                    type="submit"
+                                    disabled={isSaving}
+                                    className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-md shadow-violet-950/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isSaving ? "Saving..." : "Update Changes"}
+                                </button>
+
+                                {showSuccess && (
+                                    <span className="flex items-center gap-1.5 text-xs text-emerald-400 font-bold">
+                                        <Check size={14} /> Saved
+                                    </span>
+                                )}
+                            </div>
                         </form>
                     )}
 
-                    {/*Visual Mode Rendering */}
                     {activeTab === "appearance" && (
                         <div className="space-y-6">
                             <div>
@@ -189,7 +364,6 @@ const SettingsPage: React.FC = () => {
                         </div>
                     )}
 
-                    {/*Password Secure Refactor */}
                     {activeTab === "security" && (
                         <form onSubmit={handlePasswordUpdate} className="space-y-6 max-w-xl">
                             <div>
@@ -200,7 +374,7 @@ const SettingsPage: React.FC = () => {
                             <div className="space-y-1.5">
                                 <label className="text-[11px] font-bold text-slate-400 font-mono">Current Access Key</label>
                                 <input 
-                                    type="text"
+                                    type="password"
                                     value={passwordData.currentPassword}
                                     onChange={e => setPasswordData({...passwordData, currentPassword: e.target.value})}
                                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:border-violet-500/40 outline-none"
@@ -233,7 +407,6 @@ const SettingsPage: React.FC = () => {
                         </form>
                     )}
 
-                    {/*Signal Alerts $ status indicators */}
                     {activeTab === "notifications" && (
                         <div className="space-y-6 max-w-xl">
                             <div>
@@ -242,7 +415,6 @@ const SettingsPage: React.FC = () => {
                             </div>
 
                             <div className="space-y-4">
-                                {/*Signal Alerts */}
                                 <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-950/40 border border-slate-900">
                                     <div className="pr-4">
                                         <h4 className="text-xs font-bold text-slate-200">Incoming Signal Alerts</h4>

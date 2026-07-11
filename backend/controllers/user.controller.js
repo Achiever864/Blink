@@ -90,32 +90,60 @@ const loginUser = async (req, res) => {
 
 const updateUserProfile = async (req, res) => {
     try {
-        const { userId, username, profilePicture, bio } = req.body;
-
-        //hits and create the file on cloudinary and saves the url
-        const result = await CloudinaryService.upload(
-            req.file.buffer,
-            "/blink/profilePictures"
-        )
-        console.log(result);
-
+        const { 
+            userId,
+            username,
+            profilePicture, 
+            firstName,
+            lastName,
+            bio,
+            website,
+            dateOfBirth,
+            occupation,
+            nationality,
+            city,
+            interests
+        } = req.body;
 
         const user = await User.findOne({ _id: userId });
-        
+
         if(!user){
             return res.status(404).json({ message: "User not found" });
         }
 
-        const newUsername = username || user.username;
-        const newProfilePicture = {
-            url: result.secure_url,
-            publicId: result.public_id
-        } || user.profilePictrue;
-        const newBio = bio || user.bio;
-        
-        user.username = newUsername;
-        user.profilePicture = newProfilePicture;
-        user.bio = newBio;
+        if (req.file){
+            const result = await CloudinaryService.upload(
+                req.file.buffer,
+                "/blink/profilePictures"
+            );
+
+            user.profilePicture = {
+                url: result.secure_url,
+                publicId: result.public_id
+            };
+        }
+
+        //only overwrite fields that were actually sent
+        if (username && username.trim()) user.username = username.trim();
+        if (firstName && firstName.trim()) user.firstName = firstName.trim();
+        if (lastName && lastName.trim()) user.lastName = lastName.trim();
+        if (website && website.trim()) user.website = website.trim();
+        if (dateOfBirth && dateOfBirth.trim()) user.dateOfBirth = dateOfBirth.trim();
+        if (occupation && occupation.trim()) user.occupation = occupation.trim();
+        if (nationality && nationality.trim()) user.nationality = nationality.trim();
+        if (city && city.trim()) user.city = city.trim();
+
+        if (bio !== undefined) user.bio = bio;
+
+        if (interest !== undefined){
+            //Accept either a JSON array string
+            try {
+                const parsed = JSON.parse(interests);
+                user.interests = Array.isArray(parsed) ? parsed : interests.split(",").map(i => i.trim()).filter(Boolean);
+            }catch {
+                user.interests = interests.split(",").map(i => i.trim()).filter(Boolean);
+            }
+        }
 
         await user.save();
         res.status(200).json({

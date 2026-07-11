@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
-    LastName: {
+    lastName: {
         type: String,
         trim: true
     },
@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema({
             type: String,
             default: null
         },
-        publicId: {         //this is for cloudinary to easily access medias to be deleted and stuffs
+        publicId: {
             type: String,
             default: null 
         }
@@ -89,15 +89,21 @@ const userSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true
+    },
+    website: {
+        type: String,
+        default: "",
+        trim: true
     }
 },
 {
-    timestamps: true
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-//we want to define a virtual property to generate a user full name virtually without storing in database
 userSchema.virtual('fullName').get(function () {
-    return `${this.firstName} ${this.LastName}`;
+    return `${this.firstName || ""} ${this.lastName || ""}`.trim();
 });
 
 export default mongoose.model("User", userSchema);
