@@ -167,7 +167,7 @@ const FriendsPage: React.FC = () => {
                                                 {request.avatarLabel}
                                             </div>
                                             <div>
-                                                <h4 className="text-sm font-bold text-slate-200 leading-tight">@{request.username}</h4>
+                                                <h4 className="text-sm font-bold text-slate-200 leading-tight">{request.username}</h4>
                                                 <p className="text-[11px] text-indigo-400 font-semibold">{request.vibeMatch}% Vibe Match</p>
                                             </div>
                                         </div>
@@ -217,7 +217,7 @@ const FriendsPage: React.FC = () => {
                                                 </div>
                                                 <div>
                                                     <h4 className="text-sm font-bold text-slate-200">{friend.displayName}</h4>
-                                                    <p className="text-xs text-slate-500">@{friend.username}</p>
+                                                    <p className="text-xs text-slate-500">{friend.username}</p>
                                                 </div>
                                             </div>
 
@@ -293,7 +293,7 @@ const FriendsPage: React.FC = () => {
                                             {user.avatarLabel}
                                         </div>
                                         <div>
-                                            <h4 className="text-xs font-bold text-slate-200">@{user.username}</h4>
+                                            <h4 className="text-xs font-bold text-slate-200">{user.username}</h4>
                                             <p className="text-[10px] text-violet-400 font-medium">{user.vibeMatch}% Compatibility</p>
                                         </div>
                                     </div>

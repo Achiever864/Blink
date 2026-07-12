@@ -152,7 +152,7 @@ return(
                             </div>
 
                             <h4 className="text-xs font-bold text-slate-200">
-                                @{item.username}
+                                {item.username}
                             </h4>
 
                             <p className="text-[10px] text-slate-600 mt-1">

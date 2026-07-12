@@ -10,8 +10,6 @@ const Sidebar: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const username = localStorage.getItem("username") || "stranger";
-
     const navItems = [
         {
             label: "Timeline",
@@ -85,7 +83,7 @@ const Sidebar: React.FC = () => {
                     <div className="hidden lg:flex items-center gap-3 p-2 rounded-xl bg-slate-900/30 border border-slate-900">
                         <div className="h-9 w-9 rounded-lg bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400 font-bold uppercase text-xs">
                             {user?.profilePicture ? (
-                                <img src={user?.profilePicture?.url} alt={user?.username} className="w-full h-full object-cover hidden-overflow" />
+                                <img src={user?.profilePicture} alt="US" className="w-full h-full object-cover hidden-overflow" />
                              ) : (user?.username.substring(0,2) || "US")
                             }
                         </div>
@@ -96,7 +94,7 @@ const Sidebar: React.FC = () => {
                             </p>
 
                             <p className="text-sm font-bold text-slate-200 truncate">
-                                @{username}
+                                {user?.username}
                             </p>
                         </div>
                     </div>

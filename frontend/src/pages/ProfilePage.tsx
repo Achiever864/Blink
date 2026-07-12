@@ -69,7 +69,7 @@ const ProfilePage: React.FC = () => {
                                 <div
                                 onClick={() => fileInputRef.current?.click()}
                                 className="relative group h-20 w-20 rounded-2xl bg-graditent-to-tr from-violet-600 to-indigo-600 border border-violet-400/30 flex items-center justify-center text-white font-black text-2xl uppercase shadow-xl shadow-violet-950/50">
-                                    {user?.profilePicture ? <img src={user?.profilePicture?.url} alt="image" className="w-full h-full object-cover" /> : username.substring(0,2)}
+                                    {user?.profilePicture ? <img src={user?.profilePicture} alt="image" className="w-full h-full object-cover rounded-2xl" /> : username.substring(0,2)}
                                     <div className="absolute inset-0 bg-slate-950/70 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                         <Camera size={18} className="text-slate-200" />
                                     </div>
@@ -86,7 +86,7 @@ const ProfilePage: React.FC = () => {
 
                                 <div className="pb-1">
                                     <h2 className="text-xl font-bold text-white tracking-tight">{displayName}</h2>
-                                    <p className="text-sm text-violet-400 font-medium">@{username}</p>
+                                    <p className="text-sm text-violet-400 font-medium">{username}</p>
                                 </div>
                             </div>
 
@@ -161,7 +161,7 @@ const ProfilePage: React.FC = () => {
                                         <label className="text-xs font-bold text-slate-400 uppercase tracking-wide">System Handle</label>
 
                                         <div className="relative flex items-center">
-                                            <span className="absolute left-4 text-sm font-semibold text-slate-600">@</span>
+                                            <span className="absolute left-4 text-sm font-semibold text-slate-600"></span>
                                             <input 
                                                 type="text"
                                                 value={username}

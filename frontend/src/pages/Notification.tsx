@@ -244,7 +244,7 @@ const NotificationsPage: React.FC = () => {
                                                     <div className="space-y-1">
                                                         <div className="flex items-center gap-2 flex-wrap">
                                                             <h4 className="text-xs font-bold text-slate-200 tracking-wide">
-                                                                @{log.sender.username}
+                                                                {log.sender.username}
                                                             </h4>
                                                             {!log.isRead && (
                                                                 <span className="h-1.5 w-1.5 rounded-full bg-violet-400 ring-4 ring-violet-500/10" />

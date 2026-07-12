@@ -266,7 +266,7 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
                                             {contact.displayName}
                                         </h4>
                                         <p className="text-xs text-slate-500">
-                                            @{contact.username}
+                                            {contact.username}
                                         </p>
                                     </div>
                                 </div>

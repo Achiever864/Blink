@@ -9,6 +9,7 @@ import API from "../api/axios.ts";
 import { useAuth } from "../context/AuthContext";
 import { useStatus } from "../context/StatusBarContext.tsx";
 import PostMedia from "../components/PostMedia.tsx";
+import { PostComments } from "../components/Comments.tsx";
 import ContextMenu from "../context/ContextMenu.tsx";
 import { MediaCaptureControl } from "../components/MediaCaptureControl.tsx";
 
@@ -48,6 +49,7 @@ const FeedPage: React.FC = () => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loadingFeed, setLoadingFeed] = useState(true);
     const [isPosting, setIsPosting] = useState(false);
+    const [openComments, setOpenComments] = useState<Record<string, boolean>>({});
 
     //for camera shaaa..
     const [cameraActive, setCameraActive] = useState(false);
@@ -85,6 +87,13 @@ useEffect(() => {
         );
     };
 }, [previews]);
+
+const toggleComments = (postId: string) => {
+        setOpenComments(prev => ({
+            ...prev,
+            [postId]: !prev[postId],
+        }));
+};
 
 const sendNewPost = async () => {
     try{
@@ -385,7 +394,7 @@ useEffect(() => {
                                             )}
                                         </div>
                                         <div>
-                                            <h4 className="text-sm font-bold text-slate-200">@{post.author.username}</h4>
+                                            <h4 className="text-sm font-bold text-slate-200">{post.author.username}</h4>
                                             <p className="text-[11px] text-slate-500">{new Date(post.createdAt).toLocaleString()}</p>
                                         </div>
                                     </div>
@@ -402,12 +411,22 @@ useEffect(() => {
                                         <Heart size={16} />
                                         <span>{post.likes?.length || 0}</span>
                                     </button>
-                                    <button className="flex items-center gap-2 hover:text-violet-400 transition-colors">
+                                    <button
+                                        className="flex items-center gap-2 hover:text-violet-400 transition-colors"
+                                        onClick={() => toggleComments(post._id)}
+                                    >
                                         <MessageCircle size={16} />
                                         <span>{post.comments?.length || 0}</span>
                                     </button>
                                 </div>
                             </div>
+
+                            {openComments[post._id] && (<PostComments
+                                postId={post._id}
+                                onCommentAdded={() => {
+                                    //optional callback
+                                }}
+                            />)}
 
                                 {/*Trying to strategically inject our Friends suggestion */}
                                 {index === 1 && (

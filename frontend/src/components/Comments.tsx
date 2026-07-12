@@ -141,7 +141,7 @@ export const PostComments: React.FC<PostCommentProps> = ({ postId, onCommentAdde
                                 {/*Comment Body Core */}
                                 <div className="space-y-0.5 flex-1">
                                     <div className="flex items-center gap-2">
-                                        <span className="font-bold text-slate-300">@{comment.author.username}</span>
+                                        <span className="font-bold text-slate-300">{comment.author.username}</span>
                                         <span className="text-[10px] text-slate-600 font-mono">{new Date(comment.createdAt).toLocaleDateString()}</span>
                                     </div>
                                     <p className="text-slate-400 leading-relaxed tex-[13px]">{comment.text}</p>

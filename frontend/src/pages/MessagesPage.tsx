@@ -37,7 +37,7 @@ interface Conversation {
     isGroup: boolean;
     title: string;
     profilePicture?: string;
-    avatarLabel: string;
+    avatarLabel: string | React.ReactNode;
     participants: Participant[];
     latestMessage?: Message;
     updatedAt: string;
@@ -126,6 +126,8 @@ const MessagePage: React.FC = () => {
             if (mediaPreviewUrl) URL.revokeObjectURL(mediaPreviewUrl);
         }
     }, [mediaPreviewUrl]);
+
+    
 
     const startRecording = async () => {
         try {
@@ -264,7 +266,6 @@ const MessagePage: React.FC = () => {
     }
 
     const fetchConversation = async () => {
-        console.log("trying to fetch conversation");
         if(!user?.id) return;
 
         try {
@@ -272,7 +273,6 @@ const MessagePage: React.FC = () => {
                 userId: user?.id
             })
 
-            console.log("Fetched response:", res);
             const mapped = res.data.conversation.map((converse: any) => {
                 //find the other person in this chat context (don't really know if this works sha but..)
                 const otherUser = converse.participant.find(
@@ -282,12 +282,12 @@ const MessagePage: React.FC = () => {
                 //Resolve if it shows group name or the friend username
                 const chatTitle = converse.isGroupChat
                     ? (converse.roomName || "Untitled Group")
-                    : `@${otherUser?.username || "deleted_user"}`;
+                    : `${otherUser?.username || "deleted_user"}`;
 
                 //mapping the layout
                 const avatar = converse.isGroupChat
                         ? chatTitle.substring(0,2)
-                        : (otherUser.profilePicture ? <img src={otherUser?.profilePicture?.url} alt="image" className="w-auto h-full object-cover" /> : otherUser.username.substring(0,2));
+                        : (otherUser.profilePicture ? <img src={otherUser?.profilePicture?.url} alt="image" className="w-full h-full object-cover" /> : otherUser?.username.substring(0,2));
 
                 return {
                     conversationId: converse._id,

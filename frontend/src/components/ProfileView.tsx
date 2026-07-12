@@ -151,7 +151,7 @@ const ProfileView: React.FC<UserProfileModalProps> = ({
                             </h1>
 
                             <p className="text-slate-500 text-sm">
-                                @{profile.username}
+                                {profile.username}
                             </p>
 
                             {profile.bio && (

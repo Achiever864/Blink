@@ -208,7 +208,7 @@ const SettingsPage: React.FC = () => {
                             <div className="space-y-1.5">
                                 <label className="text-[11px] font-bold text-slate-400 font-mono">Operator Handle</label>
                                 <div className="relative flex items-center">
-                                    <span className="absolute left-4 text-xs font-mono text-slate-600">@</span>
+                                    <span className="absolute left-4 text-xs font-mono text-slate-600"></span>
                                     <input 
                                         type="text"
                                         value={profile.username}
