@@ -7,5 +7,5 @@ export interface StatusNotification {
 }
 
 export interface StatusBarContextType {
-    showStatus: (message: string, type: StatusType) => void;
+    showStatus: (message: string, type?: StatusType) => void;
 }

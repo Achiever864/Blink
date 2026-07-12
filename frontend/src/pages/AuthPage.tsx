@@ -34,7 +34,7 @@ const AuthPage: React.FC = () => {
             //the code hits this line when the login has been completed successfully
             navigate("/feed");
         } catch(err){
-            showStatus(err);
+            showStatus("Unable to login!");
         }
         console.log("Submitting Type-Safe Data:", formData);
         //Next: to feed this directly into an axios/fetch handler

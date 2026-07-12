@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { X, CheckCircle2, AlertOctagon } from "lucide-react";
-//import { StatusNotification, StatusBarContextType, StatusType } from "../types/status";
+import type { StatusNotification, StatusBarContextType, StatusType } from "../types/status";
 
 const StatusBarContext = createContext<StatusBarContextType | undefined>(undefined);
 
 export const StatusBarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [notifications, setNotifications] = useState<StatusNotification[]>([]);
 
-    const showStatus = useCallback((message: string, type: StatusType) => {
+    const showStatus = useCallback((message: string, type: StatusType = "error") => {
         const id = Date.now();
         setNotifications((prev) => [...prev, { message, type, id }]);
 
@@ -34,7 +34,7 @@ export const StatusBarProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                     <div key={notif.id} className={`pointer-events-auto relative flex items-center justify-between gap-3 overflow-hidden rounded-2xl border p-4 backdrop-blur-xl transition-all duration-300 animate-slide-in shadow-2xl ${
                         isSuccess ? "border-emerald-500/20 bg-emerald-950/40 text-emerald-400 shadow-emerald-950/30": "border-rose-500/20 bg-rose-950/40 text-rose-400 shadow-rose-950/30"
                     }`}>
-                        <div className={`absolute left-0 top-0 h-full w-1 ${isSuccess ? "bg-emarald-500" : "bg-rose-500"}`} />
+                        <div className={`absolute left-0 top-0 h-full w-1 ${isSuccess ? "bg-emerald-500" : "bg-rose-500"}`} />
 
                         <div className="flex items-center gap-3">
                             {isSuccess ?(

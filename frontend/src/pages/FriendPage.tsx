@@ -45,7 +45,7 @@ const FriendsPage: React.FC = () => {
 
             setPendingRequests(mapped);
         } catch (error) {
-            showStatus(error);
+            showStatus("Unable to fetch feed!");
         }
     }
 
@@ -73,7 +73,7 @@ const FriendsPage: React.FC = () => {
 
         setMyCircle(mapped);
     } catch (error) {
-        showStatus(error);
+        showStatus("Unable to Fetch Friends!");
     }
     }
 
