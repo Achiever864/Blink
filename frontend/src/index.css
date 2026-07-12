@@ -326,8 +326,8 @@ Dark Theme
 }
 
 @theme {
-    --animate-bRoll: bRoll 1.6s cubic-beizer(0.4, 0, 0.6, 1) infinite;
-    --animate-dotOrbit: dotOrbit 1.6s cubic-beizer(0.4, 0, 0.6, 1) infinite;
+    --animate-bRoll: bRoll 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    --animate-dotOrbit: dotOrbit 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes bRoll {
