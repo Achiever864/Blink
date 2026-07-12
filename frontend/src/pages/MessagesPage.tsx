@@ -1,14 +1,14 @@
 import React, { useState, useRef, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import 
-    { Send, ChevronDown, Camera, Search, Mic2,CheckCheck, Paperclip, MessageSquarePlus, Upload, SavePen, X }
+    { Send, ChevronDown, Camera, Search, Mic2, Paperclip, MessageSquarePlus, X }
     from "lucide-react";
 import Sidebar from "../components/sideBar";
 import API from "../api/axios";
 import { useEffect } from "react";
 import { useStatus } from "../context/StatusBarContext";
 import NewChatModal from "../components/newChatModal";
-import AudioMessagePlayer from "../components/AudioMessagePlayer";
+//import AudioMessagePlayer from "../components/AudioMessagePlayer";
 import socket from "../socket";
 import {MediaCaptureControl} from "../components/MediaCaptureControl";
 import MessageBubble from "../components/MessageBubble";
@@ -48,7 +48,7 @@ interface Conversation {
 interface Message {
     _id: string;
     chatId: string;
-    sender: {
+    sender: string | {
         _id: string;
         username: string;
         profilePicture?: {
@@ -85,7 +85,7 @@ const MessagePage: React.FC = () => {
     const bottomRef = useRef<HTMLDivElement>(null);
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const [ showScrollButton, setShowScrollButton ] = useState(false);
-    const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+    const [replyingTo, setReplyingTo] = useState<Message | null>(null); //remember to add back replying To
     
     //audio handling
     const [isRecording, setIsRecording] = useState(false);
@@ -109,6 +109,12 @@ const MessagePage: React.FC = () => {
         //axios.post(post to backend here type shii..)
         setCameraActive(false);
     }
+
+    const getSenderId = (sender: Message["sender"]) =>
+        typeof sender === "string" ? sender : sender?._id;
+
+    const getSenderName = (sender: Message["sender"]) =>
+        typeof sender === "string" ? "them" : sender?.username;
 
     const mediaPreviewUrl = useMemo(() => {
         if (!mediaFile) return null;
@@ -196,38 +202,6 @@ const MessagePage: React.FC = () => {
         return `${mins}:${secs.toString().padStart(2, "0")}`;
     }
 
-    const uploadAudio = async() => {
-        if(!audioBlob) return null;
-
-        const formData = new FormData();
-
-        const audioFile = new File(
-            [audioBlob],
-            "voice-message.webm",
-            {
-                type: "audio/webm"
-            }
-        );
-
-            formData.append(
-                "file",
-                audioFile
-            )
-
-            //I want the backend to handle the audio fully sha but lets fist do it this way
-            const res = await API.post(
-                "/post/mes",
-                formData,
-                {
-                    headers: {
-                        "Content-Type": "multipart/form-data"
-                    }
-                }
-            );
-
-            return res.data;
-    }
-
     const handleScroll = () => {
         const el = chatContainerRef.current;
 
@@ -275,7 +249,7 @@ const MessagePage: React.FC = () => {
 
     const handleCreateGroup = async (roomName: string, participantIds: string[]) => {
         try {
-            const response = await API.post("/conversation/create", {
+            await API.post("/conversation/create", {
                 isGroupChat: true,
                 roomName,
                 participants: [...participantIds, user!.id],
@@ -313,8 +287,7 @@ const MessagePage: React.FC = () => {
                 //mapping the layout
                 const avatar = converse.isGroupChat
                         ? chatTitle.substring(0,2)
-                        : (<img src={otherUser?.profilePicture?.url} alt="image" className="w-auto h-full object-cover" /> 
-                            || (otherUser?.username?.substring(0,2) || "??"));
+                        : (otherUser.profilePicture ? <img src={otherUser?.profilePicture?.url} alt="image" className="w-auto h-full object-cover" /> : otherUser.username.substring(0,2));
 
                 return {
                     conversationId: converse._id,
@@ -350,6 +323,7 @@ const MessagePage: React.FC = () => {
     const textToSend = typedMessage;
     const attachmentBlob = audioBlob;
     const attachmentFile = mediaFile;
+    const replyToSend = replyingTo;
 
     let optimisticAttachment: Attachment | null = null;
     
@@ -371,6 +345,7 @@ const MessagePage: React.FC = () => {
 
     const optimisticMessage: Message = {
         _id: tempId,
+        replyTo: replyToSend,
         chatId: activeChat.conversationId,
         sender: {
             _id: user?.id || "",
@@ -379,7 +354,6 @@ const MessagePage: React.FC = () => {
         },
         text: textToSend,
         attachment: optimisticAttachment,
-        replyTo: null,
         deliveredTo: [],
         readBy: [],
         reactions: [],
@@ -400,6 +374,7 @@ const MessagePage: React.FC = () => {
         formData.append("chatId", activeChat.conversationId);
         formData.append("sender", user?.id || "");
         formData.append("text", textToSend);
+        if (replyToSend) formData.append("replyTo", replyToSend._id);
 
         if(attachmentBlob){
             const audioFile = new File(
@@ -421,6 +396,7 @@ const MessagePage: React.FC = () => {
 
         setTypedMessage("");
         setAudioBlob(null);
+        setMediaFile(null);
         fetchConversation();
     } catch (error: any) {
         console.log(error.response?.data || error.message);
@@ -431,6 +407,7 @@ const MessagePage: React.FC = () => {
         );
     } finally {
         setSendingMessage(false);
+        setReplyingTo(null);
     }
 };
 
@@ -460,7 +437,7 @@ const MessagePage: React.FC = () => {
             socket.on("new-message", (message) => {
                 setMessages(prev => {
                     //skip re-rendering twice.. message generated from the user should not be received on the socket again
-                    if (message.sender?._id === user?.id) return prev;
+                    if (getSenderId(message.sender) === user?.id) return prev;
                     if (prev.some(msg => msg._id === message._id)) return prev;
                     return [...prev, message];
                 });
@@ -640,6 +617,19 @@ const MessagePage: React.FC = () => {
                             </div>
                         )}
 
+                        {replyingTo && (
+                            <div className="px-4 pb-2 flex items-center gap-2">
+                                <div className="flex-1 rounded-xl border-l-2 border-violet-500 bg-slate-900/40 px-3 py-2">
+                                    <p className="text-[10px] text-violet-400 font-semibold">
+                                        Replying to {getSenderName(replyingTo.sender) || "message"}
+                                    </p>
+                                    <p className="text-xs text-slate-500 truncate">{replyingTo.text}</p>
+                                </div>
+                                <button type="button" onClick={() => setReplyingTo(null)} className="text-slate-500 hover:text-slate-300">
+                                    <X size={14} />
+                                </button>
+                            </div>
+                        )}
 
                         {/*Anchor Bottom Input Transmitter Form */}
                         <form onSubmit={handleSendMessage} className="pt-4 border-t border-slate-900/60 bg-slate-950">
@@ -679,6 +669,7 @@ const MessagePage: React.FC = () => {
 
                                         <div className="py-2">
                                             <button 
+                                                type="button"
                                                 onClick={() => setCameraActive(true)}
                                                 className=" p-2 rounded-xl text-slate-400 hover:bg-slate-800"
                                             >

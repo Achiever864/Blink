@@ -4,6 +4,7 @@ import { useStatus } from "../context/StatusBarContext";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../components/loadSpinner";
+import { type AuthFormData } from "../types/auth";
 
 //Import your type definitions if extracted or define them locally for now
 //import { AuthFormData } from "../types/auth.ts";

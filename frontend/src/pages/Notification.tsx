@@ -7,7 +7,6 @@ import {
     Radio, 
     CheckCheck, 
     Trash2, 
-    ArrowUpRight, 
     Layers,
     Loader2
 } from "lucide-react";
@@ -108,7 +107,7 @@ const NotificationsPage: React.FC = () => {
     const handleMarkRead = async (id: string) => {
         try {
             await API.post("/notification/markAsRead", { notificationId: id });
-            setFeed(prev => prev.map(item => item.id === id ? { ...item, isRead: true } : item));
+            setFeed(prev => prev.map(item => item._id === id ? { ...item, isRead: true } : item));
         } catch (error) {
             console.error("Failed to mark as read:", error);
         }

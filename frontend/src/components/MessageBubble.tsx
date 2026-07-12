@@ -15,23 +15,21 @@ interface Attachment {
 interface Message {
     _id: string;
     chatId: string;
-    sender: {
+    sender: string | {
         _id: string;
         username: string;
         profilePicture?: { url: string; publicId: string } | "";
     };
     text: string;
     attachment?: Attachment | null;
-    replyTo?: {
-        _id: string;
-        text: string;
-        sender: { username: string };
-        attachment?: Attachment | null;
-    } | null;
+    replyTo?: Message | null;
+    deliveredTo: string[];
+    readBy: string[];
     reactions: { user: string; emoji: string }[];
     isEdited: boolean;
     isDeleted: boolean;
     createdAt: string;
+    updatedAt: string;
     status?: "sending" | "sent" | "failed";
 }
 
@@ -44,6 +42,10 @@ interface MessageBubbleProps {
 
 const DRAG_THRESHOLD = 50; // px of drag before releasing counts as "swipe to reply"
 const MAX_DRAG = 80; // px cap so the bubble can't be dragged off-screen
+
+// sender can be a raw id string (fresh optimistic sends) or a populated object (fetched/socket messages)
+const getSenderName = (sender: Message["sender"]) =>
+    typeof sender === "string" ? "Unknown" : sender?.username || "Unknown";
 
 const attachmentPreviewLabel = (attachment?: Attachment | null) => {
     if (!attachment) return null;
@@ -118,7 +120,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, onRep
                 {/* Sender name — only shown in group chats, and never for your own messages */}
                 {isGroup && !isMe && (
                     <span className="text-[10px] font-bold text-violet-400 mb-0.5 px-1">
-                        {msg.sender.username}
+                        {getSenderName(msg.sender)}
                     </span>
                 )}
 
@@ -134,7 +136,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, onRep
                                 isMe ? "border-white/40 bg-white/10" : "border-violet-500/50 bg-slate-950/40"
                             }`}>
                                 <p className={`text-[10px] font-bold ${isMe ? "text-white/80" : "text-violet-400"}`}>
-                                    {msg.replyTo.sender?.username || "Unknown"}
+                                    {getSenderName(msg.replyTo.sender)}
                                 </p>
                                 <p className={`text-[10px] truncate ${isMe ? "text-white/60" : "text-slate-500"}`}>
                                     {msg.replyTo.text || attachmentPreviewLabel(msg.replyTo.attachment)}

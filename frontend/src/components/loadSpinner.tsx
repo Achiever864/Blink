@@ -13,7 +13,7 @@ const BLoader: React.FC<BloaderProps> = ({
 }) => {
     const sizeMap = {
         xs: { container: "w-[20px] h-[20px]", letter: "text-[18px]", dot:"w-[4px] h-[4px]" },
-        sm: { Container: "w-[28px] h-[28px]", letter: "text-[26px]", dot: "w-[5px] h-[5px]" },
+        sm: { container: "w-[28px] h-[28px]", letter: "text-[26px]", dot: "w-[5px] h-[5px]" },
         md: { container: "w-[42px] h-[42px]", letter: "text-[40px]", dot: "w-[7px] h-[7px]" },
         lg: { container: "w-[60px] h-[60px]", letter: "text-[58px]", dot: "w-[10px] h-[10px]" },
     };

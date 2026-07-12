@@ -1,19 +1,18 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
-    Home, MessageSquare, Bell, User, LogOut, Camera,
-    Settings, Shield, Save, CheckCircle, Globe, Link2
+    Camera, Settings, Shield, Save, CheckCircle, Globe, Link2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/sideBar";
 import { useRef } from "react";
 
 const ProfilePage: React.FC = () => {
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
     const navigate = useNavigate();
 
     //Tabs state: "activity" or "settings"
-    const [activeTab, setActiveTab] = useState<"activity" | "settings">("activity");
+    const [activeTab] = useState<"activity" | "settings">("activity"); //shhould add setactive tab
 
     //Form states for updating information
     const [username, setUsername] = useState(user?.username || "cyber_architect");
@@ -23,16 +22,16 @@ const ProfilePage: React.FC = () => {
 
     //UI Status states
     const [isSaving, setIsSaving] = useState(false);
-    const [showSuccess, setShowSuccess] = useState(false);
+    const [showSuccess] = useState(false); //should add setshowsuccess
 
     const handleUpdateProfile = (e: React.FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
     };
 
-    const fileInputRef = useRef(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleImageChange = (e) => {
+    const handleImageChange = (e: any) => {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -68,9 +67,9 @@ const ProfilePage: React.FC = () => {
 
                                 {/*Avater with overlay edit trigger */}
                                 <div
-                                onClick={() => fileInputRef.current.click()}
+                                onClick={() => fileInputRef.current?.click()}
                                 className="relative group h-20 w-20 rounded-2xl bg-graditent-to-tr from-violet-600 to-indigo-600 border border-violet-400/30 flex items-center justify-center text-white font-black text-2xl uppercase shadow-xl shadow-violet-950/50">
-                                    {<img src={user?.profilePicture} alt="image" className="w-full h-full object-cover" /> || username.substring(0,2)}
+                                    {user?.profilePicture ? <img src={user?.profilePicture?.url} alt="image" className="w-full h-full object-cover" /> : username.substring(0,2)}
                                     <div className="absolute inset-0 bg-slate-950/70 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                         <Camera size={18} className="text-slate-200" />
                                     </div>

@@ -2,7 +2,7 @@ import React from "react";
 
 interface MediaItem {
     url: string;
-    publicId: string;
+    public_id: string;
     type: "image" | "video";
 }
 
@@ -60,7 +60,7 @@ const PostMedia: React.FC<PostMediaProps> = ({ media }) => {
             <div className="grid grid-cols-2 gap-2 overflow-hidden rounded-3xl">
                 {media.map((item) => (
                     <MediaCard
-                        key={item.publicId}
+                        key={item.public_id}
                         item={item}
                         className="aspect-square"
                     />
@@ -97,7 +97,7 @@ const PostMedia: React.FC<PostMediaProps> = ({ media }) => {
             <div className="grid grid-cols-2 gap-2 overflow-hidden rounded-3xl">
                 {media.map((item) => (
                     <MediaCard
-                        key={item.publicId}
+                        key={item.public_id}
                         item={item}
                         className="aspect-square"
                     />
@@ -118,7 +118,7 @@ const PostMedia: React.FC<PostMediaProps> = ({ media }) => {
 
                 return (
                     <div
-                        key={item.publicId}
+                        key={item.public_id}
                         className="relative"
                     >
                         <MediaCard

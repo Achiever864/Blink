@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-    Home, Camera, Pencil, MessageSquare, Bell, User, Plus, Heart, MessageCircle, ImageIcon, Paperclip, Send, Handshake, X,
+    Camera, Pencil, Plus, Heart, MessageCircle, Paperclip, Send, X,
     Trash2
 } from "lucide-react";
 import GetFriendsDashboard from "../components/getFriendsDashboard";
@@ -25,6 +25,7 @@ interface Post {
     author: {
         _id: string;
         username: string;
+        profilePicture?: { url: string; publicId: string } | "";
     };
     text: string;
     media: {
@@ -222,9 +223,9 @@ useEffect(() => {
 
                         {/*Image Previewssss */}
                         <div>
-                            {attachments.length > 0 && (
+                            {previews.length > 0 && (
                                 <div className="mt-4 animate-slide-in">
-                                    <div className="relative overflow-hidden rounded-3xl border border-brand-border bg-brand-surface p-3 shadow-xl">
+                                    <div className="relative overflow-hidden rounded-3xl border border-slate-900 bg-slate-900/40 p-3 shadow-xl">
 
                                     <button
                                         type="button"
@@ -235,28 +236,23 @@ useEffect(() => {
                                     </button>
 
                                     <div className="mt-4 grid grid-cols-2 gap-3">
-                                        {attachments.map((file, index) => (
+                                        {previews.map((preview, index) => (
                                             <div
-                                                key={index}
+                                                key={preview.url}
                                                 className="relative overflow-hidden rounded-2xl"
                                             >
-                                                {previews.map((preview, index) => (
-                                                    <img src={preview.url} alt="preview"
-                                                        className="h-44 w-full object-cover"
-                                                    />
-                                                ))}
-
-                                                {/* <img 
-                                                    src={URL.createObjectURL(file)} 
-                                                    alt="preview" 
+                                                <img
+                                                    src={preview.url}
+                                                    alt="preview"
                                                     className="h-44 w-full object-cover"
-                                                /> */}
+                                                />
 
                                                 <button
+                                                    type="button"
                                                     onClick={() =>
                                                         setAttachments(prev =>
                                                             prev.filter((_, i) => i !== index)
-                                                        ) 
+                                                        )
                                                     }
                                                     className="absolute right-2 top-2 rounded-full bg-black/60 p-2"
                                                 >
@@ -268,11 +264,11 @@ useEffect(() => {
                                     
                                     <div className="mt-4 flex items-center justify-between">
                                         <div>
-                                            <p className="text-sm font-semibold text-brand-text">
+                                            <p className="text-sm font-semibold text-slate-200">
                                                 {attachments.length} attachment{attachments.length > 1 && "s"}
                                             </p>
 
-                                            <p className="text-xs text-brand-text-muted">
+                                            <p className="text-xs text-slate-500">
                                                 {(
                                                     attachments.reduce(
                                                         (total, file) => total + file.size,
@@ -282,25 +278,13 @@ useEffect(() => {
                                         </div>
 
                                         <button
+                                            type="button"
                                             onClick={() => setAttachments([])}
                                             className="rounded-full bg-red-500/20 p-2 text-red-400 hover:bg-red-500 hover:text-white transition"
                                         >
                                             <X size={16} />
                                         </button>
                                     </div>
-                                    {/* <div className="mt-3 flex items-center justify-between">
-                                        <div className="overflow-hidden">
-                                            <p className="truncate text-sm font-semibold text-brand-text">
-                                                {attachment.name}
-                                            </p>
-
-                                            <p className="text-xs text-brand-text-muted">
-                                                {(attachment.size / (1024 * 1024)).toFixed(2)} MB
-                                            </p>
-                                        </div>
-
-                                        <ImageIcon className="text-brand-accent" size={14} />
-                                    </div> */}
                                     </div>
                                 </div>
                             )
@@ -334,6 +318,7 @@ useEffect(() => {
                             {/*Add the camera button here */}
                             <div>
                                 <button
+                                    type="button"
                                     onClick={() => setCameraActive(true)}
                                     className="flex items-center justify-center p-2.5 rounded-xl text-slate-500 hover:text-violet-400 hover:bg-slate-900/60 border border-transparent hover:border-slate-900/80 transition-all active:scale-95 group outline-none"
                                 >
@@ -353,11 +338,9 @@ useEffect(() => {
                             <span className="text-xs text-slate-600 font-mono tracking-wide">
                                 Markdown strings supported
                             </span>
-                            
-                            {/* <span className="text-xs text-slate-600 font-medium">
-                                Markdown strings supported
-                            </span> */}
+
                             <button
+                                type="button"
                                 onClick={sendNewPost}
                                 disabled={isPosting || (!newPost.trim() && attachments.length === 0)}
                                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl font-bold text-white shadow-lg shadow-violet-600/10 transition-all hover:scale-[1.03] active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
@@ -380,6 +363,9 @@ useEffect(() => {
 
                     {/*Stream View (Let's cook) */}
                     <div className="space-y-4">
+                        {loadingFeed && posts.length === 0 && (
+                            <div className="text-xs text-slate-600 font-mono text-center py-10">Loading feed...</div>
+                        )}
                         {posts.map((post, index) => (
                             <React.Fragment key={post._id || index}>
 
@@ -387,12 +373,16 @@ useEffect(() => {
                             <div className="rounded-3xl border border-slate-900 bg-slate-900/20 backdrop-blur-md p-5 space-y-4 hover:border-slate-800/80 transition-all">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="h-8 w-8 rounded-lg bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold uppercase text-xs">
-                                            <img 
-                                                src={post.author.profilePicture.url} 
-                                                alt={post.author.username} 
-                                                className="w-full h-full object-cover rounded-lg"
-                                            />
+                                        <div className="h-8 w-8 rounded-lg bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold uppercase text-xs overflow-hidden">
+                                            {post.author.profilePicture ? (
+                                                <img
+                                                    src={typeof post.author.profilePicture === "string" ? post.author.profilePicture : post.author.profilePicture.url}
+                                                    alt={post.author.username}
+                                                    className="w-full h-full object-cover rounded-lg"
+                                                />
+                                            ) : (
+                                                <span>{post.author.username?.substring(0, 2)}</span>
+                                            )}
                                         </div>
                                         <div>
                                             <h4 className="text-sm font-bold text-slate-200">@{post.author.username}</h4>
@@ -401,33 +391,7 @@ useEffect(() => {
                                     </div>
                                 </div>
 
-                                <p className="text-sm leading relaxed text-slate-300 whitespace-pre-wrap">{post.caption}</p>
-
-                                {/*Media Attachment Rendering */}
-                                {/* {post.media.length > 0 && (
-                                    <div className="grid gap-2">
-                                        {post.media.map((item, index) => (
-                                            item.type === "image" ? (
-                                                <img
-                                                    src={item.url}
-                                                    key={index}
-                                                    alt="image"
-                                                    className="rounded-2xl"
-                                                    loading="lazy"
-                                                />
-                                            ) : (
-                                                <video
-                                                    src={item.url}
-                                                    key={index}
-                                                    controls
-                                                    playsInline
-                                                    className="rounded-2xl"
-                                                    poster="/video-fallbck-poster.jpg"
-                                                />
-                                            )
-                                        ))}
-                                    </div>
-                                )} */}
+                                <p className="text-sm leading-relaxed text-slate-300 whitespace-pre-wrap">{post.text}</p>
 
                                 {/*Media...Ok great i get it now */}
                                 <PostMedia media={post.media} />
@@ -440,7 +404,7 @@ useEffect(() => {
                                     </button>
                                     <button className="flex items-center gap-2 hover:text-violet-400 transition-colors">
                                         <MessageCircle size={16} />
-                                        <span>{post.commentsCount}</span>
+                                        <span>{post.comments.length}</span>
                                     </button>
                                 </div>
                             </div>

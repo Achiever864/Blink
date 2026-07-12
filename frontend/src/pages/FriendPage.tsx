@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { 
-    Search, UserPlus, Check, X, Flame, Radio, Sparkles, Sliders 
+    Search, UserPlus, Check, X, Flame, Radio, Sliders 
 } from "lucide-react";
 import Sidebar from "../components/sideBar.tsx";
 import API from "../api/axios";
@@ -86,12 +86,12 @@ const FriendsPage: React.FC = () => {
 
     const [pendingRequests, setPendingRequests] = useState<NetworkUser[]>([]);
     const [myCircle, setMyCircle] = useState<NetworkUser[]>([]);
-    const [suggestions, setSuggestions] = useState<NetworkUser[]>([]);
+    const [suggestions] = useState<NetworkUser[]>([]);  //should add setsuggestion sha
 
     // Action Handlers
     const handleAcceptRequest = async (requestId: string) => {
         try {
-            const res = await API.post("/friend/accept",{
+            await API.post("/friend/accept",{
                 requesterId: requestId,
                 recipientId: user?.id
             })

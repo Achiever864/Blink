@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Camera, Video, RotateCw, Trash2, Check, X, ShieldAlert, Sparkles } from "lucide-react";
+import { Camera, Video, RotateCw, Trash2, Check, X, ShieldAlert } from "lucide-react";
 import { useStatus } from "../context/StatusBarContext";
 
 interface MediaCaptureControlProps {
@@ -7,7 +7,7 @@ interface MediaCaptureControlProps {
     onClose: () => void;
 }
 
-type FilterType = "none" | "grayscale" | "sepia" | "vinatage" | "invert";
+type FilterType = "none" | "grayscale" | "sepia" | "vintage" | "invert";
 
 export const MediaCaptureControl: React.FC<MediaCaptureControlProps> = ({
     onCaptureComplete,
@@ -29,7 +29,7 @@ export const MediaCaptureControl: React.FC<MediaCaptureControlProps> = ({
     const videoRef = useRef<HTMLVideoElement>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const videoChunksRef = useRef<Blob[]>([]);
-    const durationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const durationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const { showStatus } = useStatus();
 
@@ -151,7 +151,7 @@ export const MediaCaptureControl: React.FC<MediaCaptureControlProps> = ({
                     let filterString = "";
                     if (activeFilter === "grayscale") filterString = "grayscale(100%)";
                     if (activeFilter === "sepia") filterString = "sepia(100%)";
-                    if (activeFilter === "vinatage") filterString = "sepia(50%) contrast(120%) hue-rotate(-20deg)";
+                    if (activeFilter === "vintage") filterString = "sepia(50%) contrast(120%) hue-rotate(-20deg)";
                     if (activeFilter === "invert") filterString = "invert(100%)";
                     ctx.filter = filterString;
 
@@ -186,7 +186,7 @@ export const MediaCaptureControl: React.FC<MediaCaptureControlProps> = ({
     const getFilterCSS = () => {
         if (activeFilter === "grayscale") return "grayscale";
         if (activeFilter === "sepia") return "sepia";
-        if (activeFilter === "vinatage") return "sepia-[0.5] contrast-125 hue-rotate-[-20deg]";
+        if (activeFilter === "vintage") return "sepia-[0.5] contrast-125 hue-rotate-[-20deg]";
         if (activeFilter === "invert") return "invert";
         return "";
     };
