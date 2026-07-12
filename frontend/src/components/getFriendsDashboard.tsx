@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { UserPlus, Check, Loader2, Sparkles, Eye } from "lucide-react";
+import { UserPlus, Check, Loader2, Eye } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import API from "../api/axios";
 import ContextMenu from "../context/ContextMenu";
@@ -24,7 +24,7 @@ const GetFriendsDashboard: React.FC<GetFriendsDashboardProps> = ({ isEmbedded = 
     const [offset, setOffset] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [hasMore, setHasMore] = useState<boolean>(true);
-    const [selectedUserId, setSelectedUserId] = useState<String | null>(null);
+    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
     const loadingRef = useRef(false);
     const scrollContainer = useRef<HTMLDivElement | null>(null);
