@@ -1,7 +1,7 @@
 import React, { useState, useRef, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import 
-    { Send, ChevronDown, Search, Mic2,CheckCheck, Paperclip, MessageSquarePlus, Upload, SavePen, X }
+    { Send, ChevronDown, Camera, Search, Mic2,CheckCheck, Paperclip, MessageSquarePlus, Upload, SavePen, X }
     from "lucide-react";
 import Sidebar from "../components/sideBar";
 import API from "../api/axios";
@@ -10,6 +10,7 @@ import { useStatus } from "../context/StatusBarContext";
 import NewChatModal from "../components/newChatModal";
 import AudioMessagePlayer from "../components/AudioMessagePlayer";
 import socket from "../socket";
+import {MediaCaptureControl} from "../components/MediaCaptureControl";
 import MessageBubble from "../components/MessageBubble";
 
 interface Participant {
@@ -97,6 +98,17 @@ const MessagePage: React.FC = () => {
     //media handling
     const [mediaFile, setMediaFile] = useState<File | null>(null);
     const mediaInputRef = useRef<HTMLInputElement>(null);
+
+    const [cameraActive, setCameraActive] = useState(false);
+
+    const handleMediaDispatched = (file: File, type: "image" | "video") => {
+        const dataNode = new FormData();
+        dataNode.append("file", file);
+        dataNode.append("resource_type", type);
+
+        //axios.post(post to backend here type shii..)
+        setCameraActive(false);
+    }
 
     const mediaPreviewUrl = useMemo(() => {
         if (!mediaFile) return null;
@@ -649,7 +661,7 @@ const MessagePage: React.FC = () => {
                                     <>
                                         <button 
                                             type="button"
-                                            className="ml-3 text-slate-400"
+                                            className="ml-3 p-2 rounded-xl text-slate-400 hover:bg-slate-800"
                                             onClick={() => mediaInputRef.current?.click()}
                                         >
                                             <Paperclip size={20} />
@@ -664,6 +676,22 @@ const MessagePage: React.FC = () => {
                                                 if (file) setMediaFile(file);
                                             }}
                                         />
+
+                                        <div className="py-2">
+                                            <button 
+                                                onClick={() => setCameraActive(true)}
+                                                className=" p-2 rounded-xl text-slate-400 hover:bg-slate-800"
+                                            >
+                                                <Camera size={20} />
+                                            </button>
+
+                                            {cameraActive && (
+                                                <MediaCaptureControl 
+                                                onCaptureComplete={handleMediaDispatched} 
+                                                onClose={() => setCameraActive(false)} 
+                                                />
+                                            )}
+                                        </div>
 
                                         <input
                                             ref={inputRef}

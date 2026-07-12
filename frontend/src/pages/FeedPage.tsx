@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-    Home, Pencil, MessageSquare, Bell, User, Plus, Heart, MessageCircle, ImageIcon, Paperclip, Send, Handshake, X,
+    Home, Camera, Pencil, MessageSquare, Bell, User, Plus, Heart, MessageCircle, ImageIcon, Paperclip, Send, Handshake, X,
     Trash2
 } from "lucide-react";
 import GetFriendsDashboard from "../components/getFriendsDashboard";
@@ -10,6 +10,7 @@ import { useAuth } from "../context/AuthContext";
 import { useStatus } from "../context/StatusBarContext.tsx";
 import PostMedia from "../components/PostMedia.tsx";
 import ContextMenu from "../context/ContextMenu.tsx";
+import { MediaCaptureControl } from "../components/MediaCaptureControl.tsx";
 
 interface StatusNode {
     id: string;
@@ -47,6 +48,19 @@ const FeedPage: React.FC = () => {
     const [loadingFeed, setLoadingFeed] = useState(true);
     const [isPosting, setIsPosting] = useState(false);
 
+    //for camera shaaa..
+    const [cameraActive, setCameraActive] = useState(false);
+
+    const handleMediaDispatched = (file: File, type: "image" | "video") => {
+        console.log("Ready to hit API endpoint  with filename:", file.name, file.type);
+
+        const dataNode = new FormData();
+        dataNode.append("file", file);
+        dataNode.append("resource_type", type);
+
+        //API.POST() BLAH BLAH
+        setCameraActive(false);
+    }
 
     //mock data for active status for now shaaa
     const activeStatuses: StatusNode[] = [
@@ -293,6 +307,7 @@ useEffect(() => {
                             }
                         </div>
                         <div className="flex justify-between items-center pt-3 border-t border-slate-900">
+                            <div className="flex">
                             <button
                                 type="button"
                                 onClick={() => fileInputRef.current?.click()}
@@ -303,7 +318,6 @@ useEffect(() => {
                                         className="transform group-hover:rotate-12 group-hover:scale-105 transition-transform duration-200"
                                     />
                             </button>
-
                             <input
                                 ref={fileInputRef}
                                 multiple
@@ -316,6 +330,25 @@ useEffect(() => {
                                     setAttachments((prev) => [...prev, ...files]);
                                 }}
                             />
+
+                            {/*Add the camera button here */}
+                            <div>
+                                <button
+                                    onClick={() => setCameraActive(true)}
+                                    className="flex items-center justify-center p-2.5 rounded-xl text-slate-500 hover:text-violet-400 hover:bg-slate-900/60 border border-transparent hover:border-slate-900/80 transition-all active:scale-95 group outline-none"
+                                >
+                                    <Camera size={14} />
+                                </button>
+
+                                {cameraActive && (
+                                    <MediaCaptureControl
+                                        onCaptureComplete={handleMediaDispatched}
+                                        onClose={() => setCameraActive(false)}
+                                    />
+                                )}
+                            </div>
+                            </div>
+
 
                             <span className="text-xs text-slate-600 font-mono tracking-wide">
                                 Markdown strings supported

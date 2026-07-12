@@ -20,7 +20,7 @@ const SettingsPage: React.FC = () => {
     const [profile, setProfile] = useState({
         username: user?.username || "",
         firstName: user?.firstName || "",
-        lastName: user?.LastName || "",
+        lastName: user?.lastName || "",
         email: user?.email || "",
         bio: user?.bio || "",
         website: user?.website || "",

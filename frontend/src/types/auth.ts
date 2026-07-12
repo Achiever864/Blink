@@ -12,7 +12,7 @@ export interface UserProfile {
     avatarUrl?: string;
     createdAt?: string;
     dateOfBirth: string;
-    fistName: string;
+    firstName: string;
     lastName: string;
     bio: string;
     website: string;
