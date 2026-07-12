@@ -400,11 +400,11 @@ useEffect(() => {
                                 <div className="flex items-center gap-6 pt-2 border-t border-slate-900/40 text-xs text-slate-500">
                                     <button className="flex items-center gap-2 hover:text-rose-400 transition-colors">
                                         <Heart size={16} />
-                                        <span>{post.likes.length}</span>
+                                        <span>{post.likes?.length || 0}</span>
                                     </button>
                                     <button className="flex items-center gap-2 hover:text-violet-400 transition-colors">
                                         <MessageCircle size={16} />
-                                        <span>{post.comments.length}</span>
+                                        <span>{post.comments?.length || 0}</span>
                                     </button>
                                 </div>
                             </div>
