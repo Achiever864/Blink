@@ -6,6 +6,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/sideBar";
 import { useRef } from "react";
+import API from "../api/axios";
 
 const ProfilePage: React.FC = () => {
     const { user } = useAuth();
@@ -31,7 +32,7 @@ const ProfilePage: React.FC = () => {
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleImageChange = (e: any) => {
+    const handleImageChange = async (e: any) => {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -40,8 +41,11 @@ const ProfilePage: React.FC = () => {
         //preview
         const previewUrl = URL.createObjectURL(file);
         console.log(previewUrl);
+        const formData = new FormData();
+        formData.append("profilePicture", file);
 
-        //should upload to backend here hopefully this works well
+        await API.patch("/user/update", formData);
+        console.log('uploaded')
     }
     return(
         <div className="min-h-screen bg-slate-950 text-slate-100 flex justify-center overflow-hidden">
@@ -59,7 +63,7 @@ const ProfilePage: React.FC = () => {
                 <main className="py-6 overflow-y-auto max-h-screen no-scrollbar space-y-6">
                     {/*Hero Header Banner Card */}
                     <div className="relative rounded-3xl border border-slate-900 bg-slate-900/10 backdrop-blur-md overflow-hidden p-6 pb-4">
-                        <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-violet-900/40 via-indigo-900/20 to-transparent border-b border-slate-900/40" />
+                        <div className="absolute top-0 left-0 w-full h-24 to-transparent" />
 
                         {/*Profile Identity Layour */}
                         <div className="relative flex flex-col sm:flex-row items-start sm:itemss-end justify-between gap-4 mt-8">
@@ -68,7 +72,7 @@ const ProfilePage: React.FC = () => {
                                 {/*Avater with overlay edit trigger */}
                                 <div
                                 onClick={() => fileInputRef.current?.click()}
-                                className="relative group h-20 w-20 rounded-2xl bg-graditent-to-tr from-violet-600 to-indigo-600 border border-violet-400/30 flex items-center justify-center text-white font-black text-2xl uppercase shadow-xl shadow-violet-950/50">
+                                className="relative group h-20 w-20 rounded-2xl border border-violet-400/30 flex items-center justify-center text-white font-black text-2xl uppercase shadow-xl shadow-violet-950/50">
                                     {user?.profilePicture ? <img src={user?.profilePicture} alt="image" className="w-full h-full object-cover rounded-2xl" /> : username.substring(0,2)}
                                     <div className="absolute inset-0 bg-slate-950/70 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                         <Camera size={18} className="text-slate-200" />
