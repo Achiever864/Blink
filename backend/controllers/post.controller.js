@@ -125,7 +125,7 @@ const getFeed = async (req, res) => {
             _id: { $in: pageIds }
         }).populate("author", "username profilePicture");
 
-        //why doesn't mongoose arrange in order anyways we have to fix this manually - remember Ade!
+        //why doesn't mongoose arrange in order?? anyways we have to fix this manually - remember Ade!
         const postMap = new Map(posts.map(p => [p._id.toString(), p]));
         const orderedPosts = pageIds
             .map(id => postMap.get(id))

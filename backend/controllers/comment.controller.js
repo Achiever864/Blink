@@ -1,9 +1,10 @@
 import Comment from "../models/comment.model.js";
 import Post from "../models/post.model.js";
+import { incrementCommentCount, decrementCommentCount } from "../util/commentCount.js";
 
 const createComment = async (req, res) => {
     try{
-        const { postId, content, parentCommentId } = req.body;
+        const { postId, content, userId, parentCommentId } = req.body;
 
         const post = await Post.findById(postId);
         if(!post){
@@ -12,10 +13,12 @@ const createComment = async (req, res) => {
 
         const comment = await Comment.create({
             content,
-            user: req.user.id,
+            user: userId,
             post: postId,
             parentComment: parentCommentId || null,
         });
+
+        incrementCommentCount(postId); //increase comment count
 
         return res.status(201).json({
             message: "Comment created successfully",
@@ -28,13 +31,13 @@ const createComment = async (req, res) => {
 
 const getPostComments = async (req, res) => {
     try {
-        const { postId } = req.params;
+        const { postId } = req.query;
 
         const comments = await Comment.find({ post: postId })
-            .populate("user", 'username avaterLeter')
+            .populate("user", 'username profilePicture')
             .sort({ createdAt: -1 });
         
-        return res.status(200).json({ commens });
+        return res.status(200).json({ comments });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
@@ -56,13 +59,15 @@ const deleteComment = async (req, res) => {
 
         await comment.deleteOne();
 
+        decrementCommentCount(comment.post); //decrement the count
+
         return res.status(200).json({ message: "Comment deleted" });
     } catch(error) {
         return res.status(500).json({ message: error.message });
     }
 };
 
-const toggleLikeComment = async (req, res){
+const toggleLikeComment = async (req, res) => {
     try {
         const { commentId } = req.params;
 
@@ -90,4 +95,11 @@ const toggleLikeComment = async (req, res){
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
+}
+
+export {
+    createComment,
+    getPostComments,
+    deleteComment,
+    toggleLikeComment
 }

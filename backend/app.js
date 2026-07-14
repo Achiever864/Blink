@@ -9,6 +9,7 @@ import postRouter from "./routes/post.route.js";
 import { initSocket } from "./config/socket.js";
 import conversationRoute from "./routes/conversation.route.js";
 import notRouter from "./routes/notification.route.js";
+import commentRoute from "./routes/comment.route.js";
 
 
 const app = express();
@@ -24,6 +25,7 @@ initSocket(server);
 
 app.use("/api/user", userRouter);
 app.use("/api/friend", friendRoute);
+app.use("/api/comment", commentRoute);
 app.use("/api/conversation", conversationRoute);
 app.use("/api/message", messageRoute);
 app.use("/api/post", postRouter);

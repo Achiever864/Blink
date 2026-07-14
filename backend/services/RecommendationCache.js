@@ -2,7 +2,7 @@ import redis from "../config/redis.js";
 
 class RecommendationCache {
     key(type, userId){
-        return `recommendations: ${type}:${userId}`;
+        return `recommendations:${type}:${userId}`;
     }
 
     async get(type, userId){
@@ -22,7 +22,7 @@ class RecommendationCache {
     }
 
     async clear(type, userId){
-        await redis.del(this.key(userId));
+        await redis.del(this.key(type, userId));
     }
 }
 

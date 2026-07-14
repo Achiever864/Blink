@@ -1,6 +1,7 @@
 import Conversation from "../models/conversation.model.js";
 import Messages from "../models/message.model.js";
 import User from '../models/user.model.js';
+import { getio } from "../config/socket.js";
 
 const createChat = async(req, res) => {
     try {
@@ -153,9 +154,18 @@ const getMessages = async (req, res) => {
         }
 
         const messages = await Messages.find({ chatId: conversationId })
-                .populate("sender");
+            .populate("sender", "username profilePicture")
+            .populate({
+                path: "replyTo",
+                select: "text attachment sender isDeleted",
+                populate: {
+                    path: "sender",
+                    select: "username profilePicture"
+                }
+            })
+            .sort({ createdAt: 1 });
 
-        res.status(202).json({
+        res.status(200).json({
             message: "Messages Fetched Successfully",
             messages
         })
@@ -168,7 +178,7 @@ const getMessages = async (req, res) => {
 
 const addParticipants = async (req, res) => {
     try {
-        const { conversationId, requesterId, userId } = req.body;
+        const { conversationId, requesterId, userIds } = req.body;
         const conversation = await Conversation.findById(conversationId);
 
         if (!conversation){
@@ -356,7 +366,7 @@ const demoteAdmin = async (req, res) => {
         }
 
         conversation.groupAdmins = conversation.groupAdmins.filter(
-            id => id.toString !== userId
+            id => id.toString() !== userId
         );
         await conversation.save();
 

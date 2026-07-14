@@ -10,7 +10,7 @@ import { useAuth } from "../context/AuthContext";
 import { useStatus } from "../context/StatusBarContext.tsx";
 import PostMedia from "../components/PostMedia.tsx";
 import { PostComments } from "../components/Comments.tsx";
-import ContextMenu from "../context/ContextMenu.tsx";
+// import ContextMenu from "../context/ContextMenu.tsx";
 import { MediaCaptureControl } from "../components/MediaCaptureControl.tsx";
 
 interface StatusNode {
@@ -26,16 +26,16 @@ interface Post {
     author: {
         _id: string;
         username: string;
-        profilePicture?: { url: string; publicId: string } | "";
+        profilePicture?: { url: string; publicId: string };
     };
-    text: string;
+    caption: string;
     media: {
         url: string;
-        public_id: string;
-        type: "image" | "video";
+        publicId: string;
+        type: "image" | "video" | "audio" | "file";
     }[];
     likes: string[];
-    comments: string[];
+    commentsCount: number;
     createdAt: string;
 }
 
@@ -49,7 +49,7 @@ const FeedPage: React.FC = () => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loadingFeed, setLoadingFeed] = useState(true);
     const [isPosting, setIsPosting] = useState(false);
-    const [openComments, setOpenComments] = useState<Record<string, boolean>>({});
+    const [openPostId, setOpenPostId] = useState<string | null>(null);
 
     //for camera shaaa..
     const [cameraActive, setCameraActive] = useState(false);
@@ -73,85 +73,115 @@ const FeedPage: React.FC = () => {
         { id: "s4", username: "neonVector", avatar: "NV",  hasUnread: false, isOnline: false}
     ];
 
-const previews = useMemo(() => {
-    return attachments.map(file => ({
-        file,
-        url: URL.createObjectURL(file)
-    }));
-}, [attachments]);
+    const toggleLike = async (postId: string) => {
+        if (!user?.id) return;
 
-useEffect(() => {
-    return () => {
-        previews.forEach(preview =>
-            URL.revokeObjectURL(preview.url)
-        );
-    };
-}, [previews]);
-
-const toggleComments = (postId: string) => {
-        setOpenComments(prev => ({
-            ...prev,
-            [postId]: !prev[postId],
+        setPosts(prev => prev.map(post => {
+            if (post._id !== postId) return post;
+            const alreadyLiked = post.likes.includes(user.id);
+            return {
+                ...post,
+                likes: alreadyLiked
+                    ? post.likes.filter(id => id !== user.id)
+                    : [...post.likes, user.id]
+            };
         }));
-};
 
-const sendNewPost = async () => {
-    try{
-        if(!newPost.trim() && attachments.length === 0) {
-            showStatus("Post cannot be empty", "error");
-            return;
+        try {
+            await API.post("/post/like", { postId, userId: user.id });
+        } catch (error: any) {
+            setPosts(prev => prev.map(post => {
+                if (post._id !== postId) return post;
+                const alreadyLiked = post.likes.includes(user.id);
+                return {
+                    ...post,
+                    likes: alreadyLiked
+                        ? post.likes.filter(id => id !== user.id)
+                        : [...post.likes, user.id]
+                };
+            }));
+            showStatus(error.response?.data?.message || "Failed to like post", "error");
         }
+    };
 
-        setIsPosting(true);
+    const previews = useMemo(() => {
+        return attachments.map(file => ({
+            file,
+            url: URL.createObjectURL(file)
+        }));
+    }, [attachments]);
 
-        const formData = new FormData();
+    useEffect(() => {
+        return () => {
+            previews.forEach(preview =>
+                URL.revokeObjectURL(preview.url)
+            );
+        };
+    }, [previews]);
 
-        formData.append("author", user?.id || "");
-        formData.append("text", newPost.trim());
-        formData.append("visibility", "public");
+    const toggleComments = (postId: string) => {
+        setOpenPostId(prev => (prev === postId ? null : postId));
+    };
 
-        if(attachments.length > 0){
-            attachments.forEach(file => {
-                formData.append("media", file);
-            })
+    const sendNewPost = async () => {
+        try {
+            if (!newPost.trim() && attachments.length === 0) {
+                showStatus("Post cannot be empty", "error");
+                return;
+            }
+
+            setIsPosting(true);
+
+            const formData = new FormData();
+
+            formData.append("author", user?.id || "");
+            formData.append("caption", newPost.trim());
+            formData.append("visibility", "public");
+
+            if (attachments.length > 0) {
+                attachments.forEach(file => {
+                    formData.append("media", file);
+                });
+            }
+
+            const res = await API.post("/post/create", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                },
+            });
+
+            showStatus("Post created successfully!", "success");
+            setNewPost("");
+            setAttachments([]);
+
+            // Prepend the newly created post so it shows immediately without a refetch
+            if (res.data?.post) {
+                setPosts(prev => [res.data.post, ...prev]);
+            }
+        } catch (error: any) {
+            showStatus(error.response?.data?.message || "Failed to create post", "error");
+        } finally {
+            setIsPosting(false);
         }
+    };
 
-        const res = await API.post("/post/create", formData, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            },
-        });
+    const fetchFeed = async () => {
+        try {
+            setLoadingFeed(true);
+            const res = await API.post("/post/getFeed", {
+                userId: user?.id,
+            });
+            setPosts(res.data.posts);
+        } catch (error: any) {
+            showStatus(error.response?.data?.message || "Failed to load feed", "error");
+        } finally {
+            setLoadingFeed(false);
+        }
+    };
 
-    showStatus("Post created successfully!", "success");
-    setNewPost("");
-    setAttachments([]);
-
-    console.log(res.data);
-    } catch (error: any){
-        showStatus(error.response?.data?.message || "Failed to create post", "error")
-    } finally {
-        setIsPosting(false);
-    }
-}
-
-const fetchFeed = async () => {
-    try {
-        setLoadingFeed(true);
-        const res = await API.post("/post/getFeed", {
-            userId: user?.id,
-        })
-        setPosts(res.data.posts);
-        console.log(res.data);
-    } catch (error: any){
-        showStatus(error.response?.data?.message || "Failed to load feed", "error");
-    } finally {
-        setLoadingFeed(false);
-    }
-}
-
-useEffect(() => {
-    fetchFeed();
-}, []);
+    useEffect(() => {
+        fetchFeed();
+    }, []);
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-100 flex justify-center overflow-hidden">
@@ -344,9 +374,9 @@ useEffect(() => {
                             </div>
 
 
-                            <span className="text-xs text-slate-600 font-mono tracking-wide">
-                                Markdown strings supported
-                            </span>
+                            {/* <span className="text-xs text-slate-600 font-mono tracking-wide">
+                            
+                            </span> */}
 
                             <button
                                 type="button"
@@ -375,68 +405,86 @@ useEffect(() => {
                         {loadingFeed && posts.length === 0 && (
                             <div className="text-xs text-slate-600 font-mono text-center py-10">Loading feed...</div>
                         )}
-                        {posts.map((post, index) => (
-                            <React.Fragment key={post._id || index}>
+                        {posts.map((post, index) => {
+                            const isLiked = user?.id ? post.likes.includes(user.id) : false;
+                            return (
+                                <React.Fragment key={post._id || index}>
 
-                            {/*standard post card */}
-                            <div className="rounded-3xl border border-slate-900 bg-slate-900/20 backdrop-blur-md p-5 space-y-4 hover:border-slate-800/80 transition-all">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-8 w-8 rounded-lg bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold uppercase text-xs overflow-hidden">
-                                            {post.author.profilePicture ? (
-                                                <img
-                                                    src={typeof post.author.profilePicture === "string" ? post.author.profilePicture : post.author.profilePicture.url}
-                                                    alt={post.author.username}
-                                                    className="w-full h-full object-cover rounded-lg"
-                                                />
-                                            ) : (
-                                                <span>{post.author.username?.substring(0, 2)}</span>
-                                            )}
+                                {/*standard post card */}
+                                <div className="rounded-3xl border border-slate-900 bg-slate-900/20 backdrop-blur-md p-5 space-y-4 hover:border-slate-800/80 transition-all">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-8 w-8 rounded-lg bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold uppercase text-xs overflow-hidden">
+                                                {post.author?.profilePicture?.url ? (
+                                                    <img
+                                                        src={post.author.profilePicture.url}
+                                                        alt={post.author.username}
+                                                        className="w-full h-full object-cover rounded-lg"
+                                                    />
+                                                ) : (
+                                                    <span>{post.author?.username?.substring(0, 2) || "??"}</span>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <h4 className="text-sm font-bold text-slate-200">{post.author?.username || "Unknown"}</h4>
+                                                <p className="text-[11px] text-slate-500">{new Date(post.createdAt).toLocaleString()}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h4 className="text-sm font-bold text-slate-200">{post.author.username}</h4>
-                                            <p className="text-[11px] text-slate-500">{new Date(post.createdAt).toLocaleString()}</p>
-                                        </div>
+                                    </div>
+
+                                    <p className="text-sm leading-relaxed text-slate-300 whitespace-pre-wrap break-words">{post.caption}</p>
+
+                                    {/*Media...Ok great i get it now */}
+                                    <PostMedia media={post.media} />
+
+
+                                    <div className="flex items-center gap-6 pt-2 border-t border-slate-900/40 text-xs text-slate-500">
+                                        <button
+                                            onClick={() => toggleLike(post._id)}
+                                            className={`flex items-center gap-2 transition-colors ${
+                                                isLiked ? "text-rose-400" : "text-slate-500 hover:text-rose-400"
+                                            }`}
+                                        >
+                                            <Heart
+                                                size={16}
+                                                className={isLiked ? "fill-rose-400 stroke-rose-400" : "fill-none"}
+                                            />
+                                            <span>{post.likes?.length ?? 0}</span>
+                                        </button>
+                                        <button
+                                            className="flex items-center gap-2 hover:text-violet-400 transition-colors"
+                                            onClick={() => toggleComments(post._id)}
+                                        >
+                                            <MessageCircle size={16} />
+                                            <span>{post.commentsCount ?? 0}</span>
+                                        </button>
                                     </div>
                                 </div>
 
-                                <p className="text-sm leading-relaxed text-slate-300 whitespace-pre-wrap">{post.text}</p>
-
-                                {/*Media...Ok great i get it now */}
-                                <PostMedia media={post.media} />
-
-
-                                <div className="flex items-center gap-6 pt-2 border-t border-slate-900/40 text-xs text-slate-500">
-                                    <button className="flex items-center gap-2 hover:text-rose-400 transition-colors">
-                                        <Heart size={16} />
-                                        <span>{post.likes?.length || 0}</span>
-                                    </button>
-                                    <button
-                                        className="flex items-center gap-2 hover:text-violet-400 transition-colors"
-                                        onClick={() => toggleComments(post._id)}
-                                    >
-                                        <MessageCircle size={16} />
-                                        <span>{post.comments?.length || 0}</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            {openComments[post._id] && (<PostComments
-                                postId={post._id}
-                                onCommentAdded={() => {
-                                    //optional callback
-                                }}
-                            />)}
-
-                                {/*Trying to strategically inject our Friends suggestion */}
-                                {index === 1 && (
-                                    <div>
-                                        <GetFriendsDashboard isEmbedded={true} />
-                                    </div>
+                                {openPostId === post._id && (
+                                    <PostComments
+                                        postId={post._id}
+                                        onCommentAdded={() => {
+                                            // bump the count locally so it updates without a refetch
+                                            setPosts(prev => prev.map(p =>
+                                                p._id === post._id
+                                                    ? { ...p, commentsCount: (p.commentsCount ?? 0) + 1 }
+                                                    : p
+                                            ));
+                                        }}
+                                    />
                                 )}
 
-                                </ React.Fragment >
-                        ))}
+                                    {/*Trying to strategically inject our Friends suggestion */}
+                                    {index === 1 && (
+                                        <div>
+                                            <GetFriendsDashboard isEmbedded={true} />
+                                        </div>
+                                    )}
+
+                                </React.Fragment>
+                            );
+                        })}
                     </div>
                 </main>
 
@@ -453,12 +501,12 @@ useEffect(() => {
                                     </p>
                                 </div>
 
-                                <ContextMenu items={[
+                                {/* <ContextMenu items={[
                                     { label: "Edit", icon: Pencil, onClick: () => console.log("edit") },
                                     { label: "Delete", icon: Trash2, onClick: () => console.log("delete"), danger: true }
                                 ]}>
                                     <div className="p-4 bg-slate-900 rounded-xl">Right-click me</div>
-                                </ContextMenu>
+                                </ContextMenu> */}
                             </div>
                         </div>
                 </aside>

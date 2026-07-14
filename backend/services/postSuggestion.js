@@ -154,9 +154,14 @@ class PostRecommend{
         );
 
         const candidatePosts = await Post.find({
-            author: { $in: [...friendIds, userId] },
-            visibility: { $ne: "private" }
-        }).limit(200); //well.. we want to cap candidate pool for performance before scoring
+            $or: [
+                { visibility: "public" },
+                { visibility: "friends", author: { $in: friendIds } },
+                { author: userId }
+            ]
+        })
+        .sort({ createdAt: -1 })
+        .limit(200);  //we want to cap at 200 for performance before scoring
 
         if (candidatePosts.length === 0) return [];
 

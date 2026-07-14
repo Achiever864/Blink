@@ -12,6 +12,12 @@ interface Attachment {
     duration?: number;
 }
 
+interface Participant {
+    _id: string;
+    username: string;
+    profilePicture?: { url: string; publicId: string } | "";
+}
+
 interface Message {
     _id: string;
     chatId: string;
@@ -37,15 +43,22 @@ interface MessageBubbleProps {
     msg: Message;
     isMe: boolean;
     isGroup: boolean;
+    participants: Participant[];
     onReply: (msg: Message) => void;
 }
 
 const DRAG_THRESHOLD = 50; // px of drag before releasing counts as "swipe to reply"
 const MAX_DRAG = 80; // px cap so the bubble can't be dragged off-screen
 
-// sender can be a raw id string (fresh optimistic sends) or a populated object (fetched/socket messages)
-const getSenderName = (sender: Message["sender"]) =>
-    typeof sender === "string" ? "Unknown" : sender?.username || "Unknown";
+// sender can be a raw id string (unpopulated reference, common on nested replyTo.sender)
+// or a populated object (top-level sender, fresh optimistic sends). When it's a raw
+// string, fall back to resolving it against the conversation's known participants,
+// since the backend doesn't currently nest-populate replyTo.sender.
+const getSenderName = (sender: Message["sender"], participants: Participant[]) => {
+    if (typeof sender !== "string") return sender?.username || "Unknown";
+    const match = participants.find((p) => p._id === sender);
+    return match?.username || "Unknown";
+};
 
 const attachmentPreviewLabel = (attachment?: Attachment | null) => {
     if (!attachment) return null;
@@ -58,7 +71,7 @@ const attachmentPreviewLabel = (attachment?: Attachment | null) => {
     }
 };
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, onReply }) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, participants, onReply }) => {
     const [dragX, setDragX] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
     const startXRef = useRef(0);
@@ -79,7 +92,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, onRep
         if (!isDragging) return;
 
         const delta = e.clientX - startXRef.current;
-        // Only allow dragging rightward (positive delta), clamp at MAX_DRAG
         const clamped = Math.min(Math.max(delta, 0), MAX_DRAG);
         setDragX(clamped);
     };
@@ -96,7 +108,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, onRep
 
     return (
         <div className="relative">
-            {/* Reply icon revealed behind the bubble as it's dragged */}
             <div
                 className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-violet-600/20 transition-opacity"
                 style={{ opacity: replyProgress }}
@@ -113,14 +124,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, onRep
                 style={{
                     transform: `translateX(${dragX}px)`,
                     transition: isDragging ? "none" : "transform 0.2s ease-out",
-                    touchAction: "pan-y" // allow vertical scroll, we handle horizontal ourselves
+                    touchAction: "pan-y"
                 }}
                 className={`flex flex-col cursor-grab active:cursor-grabbing ${isMe ? "items-end" : "items-start"}`}
             >
-                {/* Sender name — only shown in group chats, and never for your own messages */}
                 {isGroup && !isMe && (
                     <span className="text-[10px] font-bold text-violet-400 mb-0.5 px-1">
-                        {getSenderName(msg.sender)}
+                        {getSenderName(msg.sender, participants)}
                     </span>
                 )}
 
@@ -130,13 +140,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, onRep
                         : "bg-slate-900/60 border border-slate-900 text-slate-300 rounded-tl-none"
                 }`}>
                     <div className="whitespace-pre-wrap">
-                        {/* Quoted reply preview, if this message is replying to another */}
                         {msg.replyTo && (
                             <div className={`mb-2 pl-2 border-l-2 rounded-r-md py-1 px-2 ${
                                 isMe ? "border-white/40 bg-white/10" : "border-violet-500/50 bg-slate-950/40"
                             }`}>
                                 <p className={`text-[10px] font-bold ${isMe ? "text-white/80" : "text-violet-400"}`}>
-                                    {getSenderName(msg.replyTo.sender)}
+                                    {getSenderName(msg.replyTo.sender, participants)}
                                 </p>
                                 <p className={`text-[10px] truncate ${isMe ? "text-white/60" : "text-slate-500"}`}>
                                     {msg.replyTo.text || attachmentPreviewLabel(msg.replyTo.attachment)}
@@ -151,7 +160,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, onRep
                         )}
 
                         {msg.text && (
-                            <p>
+                            <p className="break-words">
                                 {msg.text}
                                 {msg.isEdited && (
                                     <span className="ml-2 text-[10px]">edited</span>

@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Send, CornerDownRight, Loader2, MessageSquare } from "lucide-react";
 import { useStatus } from "../context/StatusBarContext";
+import API from "../api/axios";
+import { useAuth } from "../context/AuthContext";
 
 interface Comment {
     _id: string;
-    author: {
+    user: {
         username: string;
-        profilePicture?: { url: string };
+        profilePicture?: { url: string } | string;
     };
-    text: string;
+    content: string;
     createdAt: string;
 }
 
@@ -22,41 +24,32 @@ export const PostComments: React.FC<PostCommentProps> = ({ postId, onCommentAdde
     const [newComment, setNewComment] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
+    const { user } = useAuth();
     const { showStatus } = useStatus();
 
     useEffect(() => {
-        const fetchComments = async () => {
+        const fetchComments = async (postId: string) => {
             setIsLoading(true);
-            try{
-                //load to backend API.POST
-                //setComments(res.data);
+            try {
+                const res = await API.get(`/comment/get?postId=${postId}`);
+                console.log("fetched comment", res.data);
 
-                //Mock data to visualize instantly
-                setTimeout(() => {
-                    setComments([
-                        {
-                            _id: "c1",
-                            author: { username: "dev_nexus", profilePicture: { url: "" } },
-                            text: "This architecture is quite lovely. Are you using an offscreen context buffer for this pipeline?",
-                            createdAt: new Date(Date.now() - 3600000).toISOString(),
-                        },
-                        {
-                            _id: "c2",
-                            author: { username: "matrix_runner", profilePicture: {url: ""} },
-                            text: "Loving the slate neon details here!",
-                            createdAt: new Date(Date.now() - 7200000).toISOString(),
-                        },
-                    ]);
-                    setIsLoading(false);
-                }, 800);
+                const list = Array.isArray(res.data)
+                    ? res.data
+                    : Array.isArray(res.data?.comments)
+                        ? res.data.comments
+                        : [];
+
+                setComments(list);
             } catch (err) {
                 showStatus("Failed to load comments!");
+                setComments([]);
+            } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchComments();
+        fetchComments(postId);
     }, [postId]);
 
     const handlePostComment = async (e: React.FormEvent) => {
@@ -64,35 +57,43 @@ export const PostComments: React.FC<PostCommentProps> = ({ postId, onCommentAdde
         if (!newComment.trim() || isSubmitting) return;
 
         setIsSubmitting(true);
-        try{
-            //hit backend here too
+        try {
+            const res = await API.post("/comment/create", {
+                postId: postId,
+                userId: user?.id,
+                content: newComment
+            });
+            const saved = res.data.comment;
 
-            //mock local state append
-            const mockNewComment: Comment = {
-                _id: Math.random().toString(),
-                author: { username: "current_user", profilePicture: { url: ""} },
-                text: newComment,
-                createdAt: new Date().toISOString(),
+            const createdComment: Comment = {
+                _id: saved._id,
+                user: {
+                    username: user?.username || "You",
+                    profilePicture: user?.profilePicture || undefined
+                },
+                content: saved.content,
+                createdAt: saved.createdAt,
             };
 
-            setTimeout(() => {
-                setComments((prev) => [mockNewComment, ...prev]);
-                setNewComment("");
-                setIsSubmitting(false);
-                if (onCommentAdded) onCommentAdded();
-            }, 600);
-        } catch(err){
-            showStatus("Transmission Failed");
+            setComments((prev) => [createdComment, ...prev]);
+            setNewComment("");
+            if (onCommentAdded) onCommentAdded();
+        } catch (err) {
+            showStatus("Comment failed to send!");
+        } finally {
             setIsSubmitting(false);
         }
     };
 
+    const getAvatarUrl = (profilePicture?: { url: string } | string) => {
+        if (!profilePicture) return "";
+        return typeof profilePicture === "string" ? profilePicture : profilePicture.url;
+    };
+
     return (
         <div className="mt-2 ml-4 md:ml-8 rounded-2xl border border-slate-900/60 bg-slate-950/40 p-4 space-y-4 shadow-inner relative overflow-hidden transition-all duration-300 animate-fadeIn">
-            {/*Corner link accent line */}
             <div className="absolute top-0 left-0 bottom-0 w-0.5 bg-gradient-to-b from-violet-500/20 to-transparent pointer-events-none" />
 
-            {/** Input terminal Form */}
             <form onSubmit={handlePostComment} className="flex items-center gap-2 relative">
                 <div className="absolute left-3 text-slate-600">
                     <CornerDownRight size={14} />
@@ -107,9 +108,9 @@ export const PostComments: React.FC<PostCommentProps> = ({ postId, onCommentAdde
                 <button
                     type="submit"
                     disabled={!newComment.trim() || isSubmitting}
-                    className="absolute righht-2 p-1.5 rounded-lg text-slate-500 hover:text-violet-400 disabled:opacity-20 disabled:hover:text-slate-500 transition-colors outline-none"
+                    className="absolute right-2 p-1.5 rounded-lg text-slate-500 hover:text-violet-400 disabled:opacity-20 disabled:hover:text-slate-500 transition-colors outline-none"
                 >
-                    {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14}  />}
+                    {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                 </button>
             </form>
 
@@ -127,24 +128,22 @@ export const PostComments: React.FC<PostCommentProps> = ({ postId, onCommentAdde
                 ) : (
                     <div className="space-y-3 max-h-[320px] overflow-y-auto no-scrollbar pr-1">
                         {comments.map((comment) => (
-                            <div key={comment._id} className="flex gap_3 text-xs border-b border-slate-900/30 pb-3 last:border-0 last:pb-0">
+                            <div key={comment._id} className="flex gap-3 text-xs border-b border-slate-900/30 pb-3 last:border-0 last:pb-0">
 
-                                {/*Micro avatar container */}
                                 <div className="h-6 w-6 rounded-md bg-slate-900 border border-slate-800 flex items-center justify-center text-[9px] uppercase font-mono font-bold text-violet-400 flex-shrink-0">
-                                    {comment.author.profilePicture?.url ? (
-                                        <img src={comment.author.profilePicture.url} alt="" className="w-full h-full object-cover rouned-md" />
+                                    {getAvatarUrl(comment.user?.profilePicture) ? (
+                                        <img src={getAvatarUrl(comment.user?.profilePicture)} alt="" className="w-full h-full object-cover rounded-md" />
                                     ) : (
-                                        <span>{comment.author.username.substring(0,2)}</span>
+                                        <span>{comment.user?.username?.substring(0, 2) || "??"}</span>
                                     )}
                                 </div>
 
-                                {/*Comment Body Core */}
                                 <div className="space-y-0.5 flex-1">
                                     <div className="flex items-center gap-2">
-                                        <span className="font-bold text-slate-300">{comment.author.username}</span>
+                                        <span className="font-bold text-slate-300">{comment.user?.username || "Unknown"}</span>
                                         <span className="text-[10px] text-slate-600 font-mono">{new Date(comment.createdAt).toLocaleDateString()}</span>
                                     </div>
-                                    <p className="text-slate-400 leading-relaxed tex-[13px]">{comment.text}</p>
+                                    <p className="text-slate-400 leading-relaxed text-[13px]">{comment.content}</p>
                                 </div>
                             </div>
                         ))}

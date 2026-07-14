@@ -66,10 +66,15 @@ const sendMessage = async (req, res) => {
 
         //populate sender for frontend omor!
         const populatedMessage = await Message.findById(message._id)
-            .populate(
-                "sender",
-                "username profilePicture"
-            );
+        .populate("sender", "username profilePicture")
+        .populate({
+            path: "replyTo",
+            select: "text attachment sender isDeleted",
+            populate: {
+                path: "sender",
+                select: "username profilePicture"
+            }
+        });
 
         
         io.to(chatId).emit("new-message", populatedMessage);
