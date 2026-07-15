@@ -195,8 +195,58 @@ const likePost = async (req, res) => {
     }
 };
 
+const getUserPosts = async (req, res) => {
+    try {
+        const { userId, viewerId } = req.body;
+
+        const page = Math.max(parseInt(req.query.page) || 1, 1);
+        const limit = Math.min(parseInt(req.query.limit) || 12, 50);
+        const skip = (page - 1) * limit;
+
+        const user = await User.findById(userId).select("_id");
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found!"
+            });
+        }
+
+        // Own profile → see everything. Someone else's profile → public only
+        // (extend later to include "friends"-visibility posts if viewerId is a friend).
+        const visibilityFilter =
+            viewerId && viewerId === userId
+                ? {}
+                : { visibility: "public" };
+
+        const [posts, totalPosts] = await Promise.all([
+            Post.find({ author: userId, ...visibilityFilter })
+                .populate("author", "username profilePicture")
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit),
+            Post.countDocuments({ author: userId, ...visibilityFilter })
+        ]);
+
+        res.status(200).json({
+            message: "Posts fetched successfully",
+            posts,
+            pagination: {
+                page,
+                limit,
+                totalPosts,
+                totalPages: Math.ceil(totalPosts / limit),
+                hasMore: page * limit < totalPosts
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
+
 export {
     createPost,
     getFeed,
-    likePost
+    likePost,
+    getUserPosts
 };

@@ -12,7 +12,7 @@ const conversationSchema = new mongoose.Schema({
         default: false
     },
     groupvatar: {
-        url: { type: String, default: "" },
+        url: { type: String, default: "https://res.cloudinary.com/dxagtjaiy/image/upload/v1782975000/groupcloud.jpg" },
         publicId: { type: String, default: "" }
     },
 

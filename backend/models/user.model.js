@@ -6,7 +6,6 @@ const userSchema = new mongoose.Schema({
         required: [true, "Username is required"],
         unique: true,
         trim: true,
-        lowercase: true,
         index: true,
         minlength: [3, "Username must be at least 3 characters long"],
         maxlength: [30, "Username cannot exced 30 characters"]
@@ -36,7 +35,7 @@ const userSchema = new mongoose.Schema({
     profilePicture: {
         url: {
             type: String,
-            default: null
+            default: "https://res.cloudinary.com/dxagtjaiy/image/upload/v1782975000/userCloud.jpg"
         },
         publicId: {
             type: String,

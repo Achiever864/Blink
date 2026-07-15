@@ -80,8 +80,8 @@ const SettingsPage: React.FC = () => {
             if (profilePictureFile) {
                 formData.append("profilePicture", profilePictureFile);
             }
-
-            const res = await API.post("/user/update", formData);
+            console.log("Form Data: ", formData);
+            const res = await API.patch("/user/update", formData);
             console.log("Profile updated:", res.data);
             setShowSuccess(true);
 
@@ -161,7 +161,7 @@ const SettingsPage: React.FC = () => {
                                 <div className="relative h-16 w-16 rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 flex-shrink-0">
                                     {profilePicPreview ? (
                                         <img src={profilePicPreview} alt="preview" className="h-full w-full object-cover" />
-                                    ) : user?.profilePicture?.url ? (
+                                    ) : user?.profilePicture ? (
                                         <img src={user.profilePicture.url} alt="current" className="h-full w-full object-cover" />
                                     ) : (
                                         <div className="h-full w-full flex items-center justify-center text-slate-500 text-xs font-bold uppercase">

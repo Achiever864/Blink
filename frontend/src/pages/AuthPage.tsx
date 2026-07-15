@@ -5,11 +5,14 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../components/loadSpinner";
 import { type AuthFormData } from "../types/auth";
+import OnboardingModal, {type OnboardingData} from "../components/OnboardingModal";
+import API from "../api/axios";
 
 const AuthPage: React.FC = () => {
     const [isLogin, setIsLogin] = useState<boolean>(true);
     const { login, register, isLoading } = useAuth();
     const navigate = useNavigate();
+    const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const { showStatus } = useStatus();
     const [formData, setFormData] = useState({
@@ -25,15 +28,29 @@ const AuthPage: React.FC = () => {
         try{
             if(isLogin) {
                 await login({email: formData.email, password: formData.password });
+                navigate("/feed");
             } else {
                 await register(formData);
-            }
-
-            navigate("/feed");
+                setShowOnboarding(true);
+            };
         } catch(err){
-            showStatus("Unable to login!");
+            showStatus(isLogin ? "Unable to login!" : "Registration Failed!");
         }
     };
+
+    const handleModalClose = async (skipped?: boolean, data?: OnboardingData) => {
+        if (!skipped && data){
+            console.log("collected onboarding data:", data);
+            const res = await API.patch("/user/update", {
+                data
+            })
+
+            console.log("Updated:", res.data);
+        }
+
+        setShowOnboarding(false);
+        navigate("/feed");
+    }
 
     const handleInputChange = (key: keyof AuthFormData, value: string): void => {
         setFormData((prev) => ({...prev, [key]: value}));
@@ -189,6 +206,11 @@ const AuthPage: React.FC = () => {
                             </button>
                     </div>
             </div>
+
+            <OnboardingModal
+                isOpen={showOnboarding}
+                onClose={handleModalClose}
+            />
         </div>
     )
 };

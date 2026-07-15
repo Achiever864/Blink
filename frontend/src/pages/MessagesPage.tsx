@@ -286,8 +286,8 @@ const MessagePage: React.FC = () => {
 
                 //mapping the layout
                 const avatar = converse.isGroupChat
-                        ? chatTitle.substring(0,2)
-                        : (otherUser.profilePicture ? <img src={otherUser?.profilePicture?.url} alt="image" className="w-full h-full object-cover" /> : otherUser?.username.substring(0,2));
+                        ? (converse.groupvatar?.url ? <img src={converse.groupvatar.url} alt="image" className="w-full h-full object-cover rounded-xl" /> : chatTitle.substring(0,2))
+                        : (otherUser.profilePicture ? <img src={otherUser?.profilePicture?.url} alt="image" className="w-full h-full object-cover rounded-xl" /> : otherUser?.username.substring(0,2));
 
                 return {
                     conversationId: converse._id,

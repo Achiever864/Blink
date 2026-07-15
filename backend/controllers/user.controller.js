@@ -104,7 +104,7 @@ const updateUserProfile = async (req, res) => {
             city,
             interests
         } = req.body;
-
+    
         const user = await User.findOne({ _id: userId });
 
         if(!user){
@@ -135,7 +135,7 @@ const updateUserProfile = async (req, res) => {
 
         if (bio !== undefined) user.bio = bio;
 
-        if (interest !== undefined){
+        if (interests){
             //Accept either a JSON array string
             try {
                 const parsed = JSON.parse(interests);
