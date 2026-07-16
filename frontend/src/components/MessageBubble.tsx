@@ -15,7 +15,7 @@ interface Attachment {
 interface Participant {
     _id: string;
     username: string;
-    profilePicture?: { url: string; publicId: string } | "";
+    profilePicture?: string;
 }
 
 interface Message {
@@ -24,7 +24,7 @@ interface Message {
     sender: string | {
         _id: string;
         username: string;
-        profilePicture?: { url: string; publicId: string } | "";
+        profilePicture?: string;
     };
     text: string;
     attachment?: Attachment | null;

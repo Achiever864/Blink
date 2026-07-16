@@ -162,7 +162,7 @@ const SettingsPage: React.FC = () => {
                                     {profilePicPreview ? (
                                         <img src={profilePicPreview} alt="preview" className="h-full w-full object-cover" />
                                     ) : user?.profilePicture ? (
-                                        <img src={user.profilePicture.url} alt="current" className="h-full w-full object-cover" />
+                                        <img src={user.profilePicture} alt="current" className="h-full w-full object-cover" />
                                     ) : (
                                         <div className="h-full w-full flex items-center justify-center text-slate-500 text-xs font-bold uppercase">
                                             {profile.username.substring(0, 2)}

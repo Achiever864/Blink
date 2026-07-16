@@ -10,10 +10,7 @@ export interface UserProfile {
     id: string;
     username: string;
     email: string;
-    profilePicture?: {
-        url: string;
-        publicId: string;
-    };
+    profilePicture?: string;
     avatarUrl?: string;
     createdAt?: string;
     dateOfBirth: string;

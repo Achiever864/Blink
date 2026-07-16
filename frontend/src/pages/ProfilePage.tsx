@@ -139,7 +139,7 @@ const ProfilePage: React.FC = () => {
                                 {/*Avatar — read-only here, editing lives in Settings now */}
                                 <div className="relative h-20 w-20 rounded-2xl border border-violet-400/30 flex items-center justify-center text-white font-black text-2xl uppercase shadow-xl shadow-violet-950/50 overflow-hidden">
                                     {user?.profilePicture ? (
-                                        <img src={user.profilePicture.url} alt="profile" className="w-full h-full object-cover rounded-2xl" />
+                                        <img src={user.profilePicture} alt="profile" className="w-full h-full object-cover rounded-2xl" />
                                     ) : (
                                         <span>{user?.username?.substring(0, 2) || "??"}</span>
                                     )}
