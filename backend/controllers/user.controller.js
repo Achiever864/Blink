@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import FriendsRecommend from "../services/friendSuggestion.js";
 import RecommendationCache from "../services/RecommendationCache.js";
 import CloudinaryService from "../services/CloudinaryService.js";
+import messageModel from "../models/message.model.js";
 
 const friendsRecommend = new FriendsRecommend();
 
@@ -357,6 +358,24 @@ const getUserProfile = async (req, res) => {
         res.status(200).json(profile);
     } catch (error) {
         res.status(500).json({message: error.message});
+    }
+};
+
+const getUserOnlineStatus = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const user = await User.findById(userId).select("isOnline lastSeen");
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json({
+            isOnline: user.isOnline,
+            lastSeen: user.lastSeen
+        });
+    } catch(error) {
+        res.status(500).json({ message: error.message })
     }
 }
 

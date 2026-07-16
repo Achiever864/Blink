@@ -1,7 +1,7 @@
 import Notification from "../models/notification.model.js";
 import { getio } from "../config/socket.js";
 
-const createNotification = async ({ recipient, sender,type, refId, refModel, text}) => {
+const createNotification = async ({ recipient, sender, type, refId, refModel, text}) => {
     //avoid self oooo
     if (recipient.toString() === sender.toString()) return null;
 

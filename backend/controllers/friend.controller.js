@@ -1,5 +1,6 @@
 import User from '../models/user.model.js';
 import Friendship from "../models/friend.model.js"
+import { createNotification } from './notification.controller.js';
 
 const sendRequest = async (req, res) => {
     try {
@@ -28,6 +29,16 @@ const sendRequest = async (req, res) => {
             status: "pending"
         });
 
+        //send notification to the user
+        await createNotification({
+            recipient: recipientId,
+            sender: requesterId,
+            type: "friend_request",
+            refId: friend._id,
+            refModel: "Friendship",
+            text: `${requester.username} sent you a friend request.`
+        }).catch(err => console.error("Notification failed:", err.message));
+
         res.status(201).json({
             message: "Friend request created successfully",
             friend
@@ -45,31 +56,33 @@ const acceptRequest = async (req, res) => {
         const { requesterId, recipientId } = req.body;
 
         const friend = await Friendship.findOneAndUpdate(
-            {
-                $or: [
-                    {
-                        requester: requesterId,
-                        recipient: recipientId
-                    },
-                    {
-                        requester: recipientId,
-                        recipient: requesterId
-                    }
-                ]
-            },
-            {
-                status: "accepted"
-            }
+            { $or: [{ requester: requesterId, recipient: recipientId }, { requester: recipientId, recipient: requesterId }] },
+            { status: "accepted" },
+            { new: true }
         );
 
-        res.status(201).json({
+        if (!friend) {
+            return res.status(404).json({ message: "Friend request not found" });
+        }
+
+        const recipient = await User.findById(recipientId).select("username");
+
+        //send notification here too
+        await createNotification({
+            recipient: requesterId,
+            sender: recipientId,
+            type: "friend_accept",
+            refId: friend._id,
+            refModel: "Friendship",
+            text: `${recipient?.username || "Someone"} accepted your friend request.`
+        }).catch(err => console.error("Notification failed:", err.message));
+
+        res.status(200).json({
             message: "Friend added successfully",
             friend
         });
     } catch (error) {
-        res.status(500).json({
-            message: error.message
-        })
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -97,6 +110,8 @@ const rejectRequest = async (req, res) => {
         }
         
         friendship.status = null;
+        await friendship.save();
+
         res.status(200).json({
             message: "The user was rejected."
         })
@@ -110,58 +125,43 @@ const rejectRequest = async (req, res) => {
 const blockUser = async (req, res) => {
     try {
         const { blockee, blocker } = req.body;
-        
-        if (blockee === blocker){
-            return res.status(400).json({
-                message: "You cannot block yourself"
-            });
+
+        if (blockee === blocker) {
+            return res.status(400).json({ message: "You cannot block yourself" });
         }
 
         let friendship = await Friendship.findOne({
             $or: [
-                {
-                    requester: blockee,
-                    recipient: blocker
-                },
-                {
-                    requester: blockeee,
-                    recipient: blocker
-                }
+                { requester: blockee, recipient: blocker },
+                { requester: blocker, recipient: blockee }
             ]
         });
 
-        if(!friendship) {
+        if (!friendship) {
             friendship = await Friendship.create({
                 requester: blocker,
                 recipient: blockee,
                 status: "blocked",
                 blockedBy: blocker
             });
+        } else {
+            if (friendship.status === "accepted") {
+                friendship.status = "friendBlocked";
+            } else if (friendship.status === "pending") {
+                friendship.status = "pendingBlocked";
+            } else {
+                friendship.status = "blocked";
+            }
+            friendship.blockedBy = blocker;
+            await friendship.save();
         }
 
-        return res.status(201).json({
-            message: "User blocked successfully"
+        return res.status(200).json({
+            message: "User blocked successfully",
+            friendship
         });
-
-        //what if relationship exists
-        if (friendship.status === "accepted"){
-            friendship.status = "friendBlocked";
-        } else if(friendship.status == "pending"){
-            friendship.status = "pendingBlocked";
-        }
-
-        friendship.blockedBy = blocker;
-
-        await friendship.save();
-
-        return res.status(201).json({
-            message: "User blocked successfully."
-        });
-        
     } catch (error) {
-        return res.status(500).json({
-            message: error.message
-        });
+        return res.status(500).json({ message: error.message });
     }
 };
 
@@ -201,7 +201,7 @@ const unblockUser = async (req, res) => {
 
         await friendship.save();
 
-        return res.status(500).json({
+        return res.status(200).json({
             message: "User unblocked successfully",
             friendship
         })
