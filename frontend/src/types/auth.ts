@@ -1,5 +1,7 @@
-export interface AuthFormData{
+export interface AuthFormData {
     username?: string;
+    firstName?: string;
+    lastName?: string;
     email: string;
     password: string;
 }

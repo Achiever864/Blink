@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-    Camera, Pencil, Plus, Heart, MessageCircle, Paperclip, Send, X,
-    Trash2
+    Camera, Plus, Heart, MessageCircle, Paperclip, Send, X
 } from "lucide-react";
 import GetFriendsDashboard from "../components/getFriendsDashboard";
 import Sidebar from "../components/sideBar";
@@ -32,7 +31,7 @@ interface Post {
     media: {
         url: string;
         publicId: string;
-        type: "image" | "video" | "audio" | "file";
+        type: "image" | "video";
     }[];
     likes: string[];
     commentsCount: number;

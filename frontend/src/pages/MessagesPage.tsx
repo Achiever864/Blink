@@ -581,6 +581,7 @@ const MessagePage: React.FC = () => {
                                     isMe={(typeof msg.sender === "string" ? msg.sender : msg.sender?._id) === user?.id}
                                     isGroup={activeChat?.isGroup || false}
                                     onReply={handleReply}
+                                    participants={activeChat?.participants || []}
                                 />
                             ))}
 
