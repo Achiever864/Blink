@@ -345,7 +345,7 @@ export const MediaCaptureControl: React.FC<MediaCaptureControlProps> = ({
                                         className="flex items-center gap-1.5 px-5 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-violet-600/10 transition-all hover:scale-[1.01] active:scale-[0.99] outline-none font-mono"
                                     >
                                         <Check size={13} />
-                                        Process & Send
+                                        Done
                                     </button>
                                 </div>
                             </div>

@@ -50,17 +50,19 @@ const FeedPage: React.FC = () => {
     const [isPosting, setIsPosting] = useState(false);
     const [openPostId, setOpenPostId] = useState<string | null>(null);
 
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+
+    const mainRef = useRef<HTMLElement | null>(null);
+    const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
     //for camera shaaa..
     const [cameraActive, setCameraActive] = useState(false);
 
-    const handleMediaDispatched = (file: File, type: "image" | "video") => {
+    const handleMediaDispatched = (file: File) => {
         console.log("Ready to hit API endpoint  with filename:", file.name, file.type);
-
-        const dataNode = new FormData();
-        dataNode.append("file", file);
-        dataNode.append("resource_type", type);
-
-        //API.POST() BLAH BLAH
+        setAttachments(prev => [...prev, file]);
         setCameraActive(false);
     }
 
@@ -164,23 +166,73 @@ const FeedPage: React.FC = () => {
         }
     };
 
-    const fetchFeed = async () => {
+    const fetchFeed = async (pageNumber = 1) => {
         try {
-            setLoadingFeed(true);
-            const res = await API.post("/post/getFeed", {
+            pageNumber === 1
+             ? setLoadingFeed(true)
+             : setLoadingMore(true);
+
+            const res = await API.post(`/post/getFeed?page=${pageNumber}&limit=10`, {
                 userId: user?.id,
             });
-            setPosts(res.data.posts);
+
+            if(pageNumber === 1){
+                setPosts(res.data.posts);
+            } else {
+                setPosts(prev => [...prev, ...res.data.posts]);
+            }
+
+            setHasMore(res.data.pagination.hasMore);
+            setPage(res.data.pagination.page);
         } catch (error: any) {
             showStatus(error.response?.data?.message || "Failed to load feed", "error");
         } finally {
             setLoadingFeed(false);
+            setLoadingMore(false);
         }
     };
 
     useEffect(() => {
-        fetchFeed();
+        if (user?.id){
+            fetchFeed(1);
+        }
     }, []);
+
+    const loadMore = () => {
+        if (!loadingMore && hasMore){
+            fetchFeed(page + 1);
+        }
+    }
+
+    //intersection observer for infinite scrolling
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const firstEntry = entries[0];
+
+                if(firstEntry.isIntersecting && hasMore && !loadingMore){
+                    loadMore();
+                }
+            },
+            {
+                root: mainRef.current,
+                rootMargin: "200px",
+                threshold: 0.1,
+            }
+        );
+
+        const currentRef = loadMoreRef.current;
+        if (currentRef){
+            observer.observe(currentRef);
+        }
+
+        return () => {
+            if (currentRef){
+                observer.unobserve(currentRef);
+            }
+        };
+    }, [hasMore, loadingMore, page]);
+
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-100 flex justify-center overflow-hidden">
@@ -193,7 +245,10 @@ const FeedPage: React.FC = () => {
                 <Sidebar />
 
                 {/*Middle column: infinite scroll part */}
-                <main className="py-6 overflow-y-auto max-h-screen no-scrollbar space-y-6">
+                <main
+                    className="py-6 overflow-y-auto max-h-screen no-scrollbar space-y-6"
+                    ref={mainRef}
+                >
                     <div className="w-full bg-slate-950/40 p-4 border-b border-slate-900/60 rounded-3xl">
                         <div className="flex items-center justify-between mb-3 px-1">
                             <h3 className="text-xs font-black tracking-wider text-slate-400 font-mono uppercase">Active Status</h3>
@@ -353,7 +408,6 @@ const FeedPage: React.FC = () => {
                                 }}
                             />
 
-                            {/*Add the camera button here */}
                             <div>
                                 <button
                                     type="button"
@@ -484,6 +538,21 @@ const FeedPage: React.FC = () => {
                                 </React.Fragment>
                             );
                         })}
+                    </div>
+
+                    {/*Sentinel element... */}
+                    <div ref={loadMoreRef} className="h-10 flex items-center justify-center">
+                        {loadingMore && (
+                            <div className="text-xs text-slate-600 font-mono">
+                                Loading more posts...
+                            </div>
+                        )}
+
+                        {!hasMore && posts.length > 0 && (
+                            <div className="text-xs text-slate-700 font-mono">
+                                You've reached the end of the feed.
+                            </div>
+                        )}
                     </div>
                 </main>
 
