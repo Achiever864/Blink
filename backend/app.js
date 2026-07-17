@@ -29,7 +29,7 @@ app.use("/api/comment", commentRoute);
 app.use("/api/conversation", conversationRoute);
 app.use("/api/message", messageRoute);
 app.use("/api/post", postRouter);
-app.use("api/notifications", notRouter);
+app.use("/api/notifications", notRouter);
 
 app.get("/", (req, res) => {
   res.send("Server is running");

@@ -83,7 +83,7 @@ const Sidebar: React.FC = () => {
                     <div className="hidden lg:flex items-center gap-3 p-2 rounded-xl bg-slate-900/30 border border-slate-900">
                         <div className="h-9 w-9 rounded-lg bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400 font-bold uppercase text-xs">
                             {user?.profilePicture ? (
-                                <img src={user?.profilePicture} alt="US" className="w-full h-full object-cover hidden-overflow" />
+                                <img src={user?.profilePicture} alt="US" className="w-full h-full object-cover hidden-overflow rounded-lg" />
                              ) : (user?.username.substring(0,2) || "US")
                             }
                         </div>
@@ -101,7 +101,7 @@ const Sidebar: React.FC = () => {
 
             <button
                 onClick={logout}
-                className="flex items-center gap-4 w-full p-3 rounded-xl text-rose-400 hover:bg-rose-950/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center gap-4 w-full p-3 text-rose-400 hover:bg-rose-950/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
                 <LogOut size={22} />
                 <span className="hidden lg:inline text-sm font-medium">

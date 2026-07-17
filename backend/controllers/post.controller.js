@@ -4,6 +4,8 @@ import Friendship from "../models/friend.model.js";
 import CloudinaryService from "../services/CloudinaryService.js";
 import PostRecommend from "../services/postSuggestion.js";
 import RecommendationCache from "../services/RecommendationCache.js";
+import { isLikeMilestone } from "../util/likeMilestones.js";
+import { createNotification } from "./notification.controller.js";
 
 const postRecommend = new PostRecommend();
 
@@ -180,6 +182,20 @@ const likePost = async (req, res) => {
         }
 
         await post.save();
+        const likesCount = post.likes.length;
+
+        if (!alreadyLiked && isLikeMilestone(likesCount)){
+            createNotification({
+                recipient: post.author,
+                sender: userId,
+                type: post._id,
+                refId: post._id,
+                refModel: "Post",
+                text: likesCount === 1
+                    ? "Your post got its first like!"
+                    : `Congratulations. Your post reached ${likesCount} likes!`
+            }).catch(err => console.error("Notification failed:", err.message));
+        }
 
         res.status(200).json({
             message: alreadyLiked

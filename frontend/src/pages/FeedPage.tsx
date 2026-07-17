@@ -134,7 +134,7 @@ const FeedPage: React.FC = () => {
             const formData = new FormData();
 
             formData.append("author", user?.id || "");
-            formData.append("caption", newPost.trim());
+            formData.append("text", newPost.trim());
             formData.append("visibility", "public");
 
             if (attachments.length > 0) {

@@ -27,7 +27,7 @@ const notificationSchema = new mongoose.Schema({
 
     refModel: {
         type: String,
-        enum: ["Post", "Message", "Friendship"],
+        enum: ["Post", "Message", "Friendship", "Comment"],
         required: false
     },
 

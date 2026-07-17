@@ -385,5 +385,6 @@ export {
     registerUser,
     loginUser,
     updateUserProfile,
-    getUserProfile
+    getUserProfile,
+    getUserOnlineStatus
 }

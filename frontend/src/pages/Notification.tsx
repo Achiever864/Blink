@@ -63,7 +63,7 @@ const NotificationsPage: React.FC = () => {
 
         try {
             const res = await API.post(
-                "/notification/getNotifications",
+                "/notifications/getNotification",
                 { userId: user.id },
                 { params: { page: pageNum, limit: 20 } }
             );

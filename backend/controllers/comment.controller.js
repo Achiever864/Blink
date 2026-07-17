@@ -1,6 +1,8 @@
 import Comment from "../models/comment.model.js";
 import Post from "../models/post.model.js";
+import User from "../models/user.model.js";
 import { incrementCommentCount, decrementCommentCount } from "../util/commentCount.js";
+import { createNotification } from "./notification.controller.js";
 
 const createComment = async (req, res) => {
     try{
@@ -18,7 +20,17 @@ const createComment = async (req, res) => {
             parentComment: parentCommentId || null,
         });
 
-        incrementCommentCount(postId); //increase comment count
+        await incrementCommentCount(postId);
+
+        const commenter = await User.findById(userId).select("username");
+        createNotification({
+            recipient: post.author,
+            sender: userId,
+            type: "comment",
+            refId: post._id,
+            refModel: "Post",
+            text: `${commenter?.username || "Someone"} commented on your post.`
+        }).catch(err => console.error("Notification failed:", err.message));
 
         return res.status(201).json({
             message: "Comment created successfully",
@@ -49,17 +61,16 @@ const deleteComment = async (req, res) => {
         const comment = await Comment.findById(commentId);
 
         if(!comment){
-            return res.status(400).jsoon({ message: "Comment not found" });
+            return res.status(400).json({ message: "Comment not found" });
         }
 
-        //ensure ownership
         if (comment.user.toString() !== req.user.id){
             return res.status(403).json({ message: "Unauthorized. Cannot perform this operation." });
         }
 
         await comment.deleteOne();
 
-        decrementCommentCount(comment.post); //decrement the count
+        await decrementCommentCount(comment.post);
 
         return res.status(200).json({ message: "Comment deleted" });
     } catch(error) {

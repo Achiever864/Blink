@@ -36,9 +36,8 @@ const FriendsPage: React.FC = () => {
                 id: request.requester._id,
                 username: request.requester.username,
                 avatarLabel:
-                    request.requester.username
-                        .substring(0,2)
-                        .toUpperCase(),
+                    request.requester
+                        .profilePicture?.url,
 
                 vibeMatch: 100,
             }));
@@ -64,7 +63,7 @@ const FriendsPage: React.FC = () => {
             return{
                 id: otherUser._id,
                 username: otherUser.username,
-                avatarLabel: otherUser.username.substring(0,2).toUpperCase(),
+                avatarLabel: otherUser.profilePicture?.url,
                 displayName: otherUser.username,
                 vibeMatch: 92,
                 streak: 0
@@ -164,7 +163,7 @@ const FriendsPage: React.FC = () => {
                                     <div key={request.id} className="rounded-2xl border border-indigo-500/10 bg-gradient-to-br from-indigo-950/10 via-slate-900/20 to-slate-900/40 backdrop-blur-md p-4 flex items-center justify-between group">
                                         <div className="flex items-center gap-3">
                                             <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold text-sm uppercase shadow-md shadow-indigo-950/50">
-                                                {request.avatarLabel}
+                                                <img src={request.avatarLabel} alt="yo" className="h-full w-full object-cover rounded-xl" />
                                             </div>
                                             <div>
                                                 <h4 className="text-sm font-bold text-slate-200 leading-tight">{request.username}</h4>
@@ -213,7 +212,7 @@ const FriendsPage: React.FC = () => {
                                         <div className="flex items-start justify-between">
                                             <div className="flex items-center gap-3">
                                                 <div className="h-10 w-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 font-bold text-sm uppercase group-hover:border-violet-500/30 transition-colors">
-                                                    {friend.avatarLabel}
+                                                    <img src={friend.avatarLabel} alt="image" className="w-full h-full object-cover rounded-xl" />
                                                 </div>
                                                 <div>
                                                     <h4 className="text-sm font-bold text-slate-200">{friend.displayName}</h4>
@@ -290,7 +289,7 @@ const FriendsPage: React.FC = () => {
                                 <div key={user.id} className="p-3 rounded-xl bg-slate-900/10 border border-slate-900 flex items-center justify-between hover:border-slate-800/80 transition-all">
                                     <div className="flex items-center gap-3">
                                         <div className="h-8 w-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-xs text-slate-400 font-bold uppercase">
-                                            {user.avatarLabel}
+                                            <img src={user.avatarLabel} alt="image" className="w-full h-full object-cover rounded-xl" />
                                         </div>
                                         <div>
                                             <h4 className="text-xs font-bold text-slate-200">{user.username}</h4>

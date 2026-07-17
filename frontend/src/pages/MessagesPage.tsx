@@ -1,17 +1,17 @@
 import React, { useState, useRef, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import 
-    { Send, ChevronDown, Camera, Search, Mic2, Paperclip, MessageSquarePlus, X }
+    { Send, Smile, ChevronDown, Camera, Search, Mic2, Paperclip, MessageSquarePlus, X }
     from "lucide-react";
 import Sidebar from "../components/sideBar";
 import API from "../api/axios";
 import { useEffect } from "react";
 import { useStatus } from "../context/StatusBarContext";
 import NewChatModal from "../components/newChatModal";
-//import AudioMessagePlayer from "../components/AudioMessagePlayer";
 import socket from "../socket";
 import {MediaCaptureControl} from "../components/MediaCaptureControl";
 import MessageBubble from "../components/MessageBubble";
+import EmojiPicker from "emoji-picker-react";
 
 interface Participant {
     _id: string;
@@ -36,9 +36,11 @@ interface Conversation {
     profilePicture?: string;
     avatarLabel: string | React.ReactNode;
     participants: Participant[];
+    otherUserId?: string;
     latestMessage?: Message;
     updatedAt: string;
     online?: boolean;
+    lastSeen?: string;
     unread?: boolean;
 }
 
@@ -79,7 +81,7 @@ const MessagePage: React.FC = () => {
     const bottomRef = useRef<HTMLDivElement>(null);
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const [ showScrollButton, setShowScrollButton ] = useState(false);
-    const [replyingTo, setReplyingTo] = useState<Message | null>(null); //remember to add back replying To
+    const [replyingTo, setReplyingTo] = useState<Message | null>(null);
     
     //audio handling
     const [isRecording, setIsRecording] = useState(false);
@@ -94,13 +96,12 @@ const MessagePage: React.FC = () => {
     const mediaInputRef = useRef<HTMLInputElement>(null);
 
     const [cameraActive, setCameraActive] = useState(false);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
     const handleMediaDispatched = (file: File, type: "image" | "video") => {
         const dataNode = new FormData();
         dataNode.append("file", file);
         dataNode.append("resource_type", type);
-
-        //axios.post(post to backend here type shii..)
         setCameraActive(false);
     }
 
@@ -109,6 +110,21 @@ const MessagePage: React.FC = () => {
 
     const getSenderName = (sender: Message["sender"]) =>
         typeof sender === "string" ? "them" : sender?.username;
+
+    const formatLastSeen = (lastSeen?: string) => {
+        if (!lastSeen) return "Offline";
+        const diffMs = Date.now() - new Date(lastSeen).getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+
+        if (diffMins < 1) return "Last seen just now";
+        if (diffMins < 60) return `Last seen ${diffMins}m ago`;
+
+        const diffHours = Math.floor(diffMins / 60);
+        if (diffHours < 24) return `Last seen ${diffHours}h ago`;
+
+        const diffDays = Math.floor(diffHours / 24);
+        return `Last seen ${diffDays}d ago`;
+    };
 
     const mediaPreviewUrl = useMemo(() => {
         if (!mediaFile) return null;
@@ -120,8 +136,6 @@ const MessagePage: React.FC = () => {
             if (mediaPreviewUrl) URL.revokeObjectURL(mediaPreviewUrl);
         }
     }, [mediaPreviewUrl]);
-
-    
 
     const startRecording = async () => {
         try {
@@ -146,10 +160,7 @@ const MessagePage: React.FC = () => {
                         type: "audio/webm"
                     }
                 );
-                console.log("Recorded blob:", blob, " size:", blob.size, "chunks:", audioChunksRef.current.length);
                 setAudioBlob(blob);
-
-                //to stop microphone.. omor my head wan burst for here oo
                 stream.getTracks().forEach(track => track.stop());
             };
 
@@ -200,38 +211,28 @@ const MessagePage: React.FC = () => {
 
     const handleScroll = () => {
         const el = chatContainerRef.current;
-
         if (!el) return;
-
-        const distanceFromBottom =
-            el.scrollHeight - el.scrollTop - el.clientHeight;
-
+        const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
         setShowScrollButton(distanceFromBottom > 250);
     }
 
     const shouldAutoScroll = () => {
         const el = chatContainerRef.current;
-
         if (!el) return true;
-
         const distance = el.scrollHeight - el.scrollTop - el.clientHeight;
-
         return distance < 150;
     };
 
     const handleStartNewChat = async(targetUserId: string) => {
         try {
-            const response = await API.post("/conversation/create", {
+            await API.post("/conversation/create", {
                 isGroupChat: false,
                 participants: [
                     targetUserId,
                     user!.id
                 ]
             });
-            console.log("Conversation Initialized: ", response.data);
-
             fetchConversation()
-
         } catch (error) {
             console.error("Failed to initialize conversation:", error);
             throw error;
@@ -259,6 +260,16 @@ const MessagePage: React.FC = () => {
         }
     }
 
+    // Fetch the current online/lastSeen snapshot for a single user
+    const fetchOnlineStatus = async (userId: string) => {
+        try {
+            const res = await API.get(`/user/getOnlineStatus/${userId}`);
+            return { online: res.data.isOnline as boolean, lastSeen: res.data.lastSeen as string };
+        } catch {
+            return { online: false, lastSeen: undefined };
+        }
+    };
+
     const fetchConversation = async () => {
         if(!user?.id) return;
 
@@ -268,17 +279,14 @@ const MessagePage: React.FC = () => {
             })
 
             const mapped = res.data.conversation.map((converse: any) => {
-                //find the other person in this chat context (don't really know if this works sha but..)
                 const otherUser = converse.participant.find(
                     (p: any) => p._id !== user?.id
                 );
 
-                //Resolve if it shows group name or the friend username
                 const chatTitle = converse.isGroupChat
                     ? (converse.roomName || "Untitled Group")
                     : `${otherUser?.username || "deleted_user"}`;
 
-                //mapping the layout
                 const avatar = converse.isGroupChat
                         ? (converse.groupvatar?.url ? <img src={converse.groupvatar.url} alt="image" className="w-full h-full object-cover rounded-xl" /> : chatTitle.substring(0,2))
                         : (otherUser.profilePicture ? <img src={otherUser?.profilePicture?.url} alt="image" className="w-full h-full object-cover rounded-xl" /> : otherUser?.username.substring(0,2));
@@ -289,6 +297,7 @@ const MessagePage: React.FC = () => {
                     title: chatTitle,
                     avatarLabel: avatar,
                     participants: converse.participant,
+                    otherUserId: converse.isGroupChat ? undefined : otherUser?._id,
                     profilePicture:
                         converse.isGroupChat
                             ? ""
@@ -298,7 +307,23 @@ const MessagePage: React.FC = () => {
                 };
             });
 
-            setConversations(mapped);
+            // Attach live online/lastSeen for each direct (non-group) chat
+            const withStatus: Conversation[] = await Promise.all(
+                mapped.map(async (chat: Conversation) => {
+                    if (chat.isGroup || !chat.otherUserId) return chat;
+                    const status = await fetchOnlineStatus(chat.otherUserId);
+                    return { ...chat, online: status.online, lastSeen: status.lastSeen };
+                })
+            );
+
+            setConversations(withStatus);
+
+            // Keep the currently open chat's header in sync too
+            setActiveChat(prev => {
+                if (!prev) return prev;
+                const updated = withStatus.find(c => c.conversationId === prev.conversationId);
+                return updated || prev;
+            });
         } catch (error) {
             console.log(error);
         }
@@ -395,7 +420,6 @@ const MessagePage: React.FC = () => {
     } catch (error: any) {
         console.log(error.response?.data || error.message);
 
-        //mark as failed instead of losing
         setMessages(prev =>
             prev.map(msg => msg._id === tempId ? {...msg, status: "failed" } : msg)
         );
@@ -406,7 +430,6 @@ const MessagePage: React.FC = () => {
 };
 
     const handleOpenConversation = async (chat: any) => {
-        console.log(chat);
         setActiveChat(chat);
 
         socket.emit("join_chat", chat.conversationId);
@@ -430,15 +453,36 @@ const MessagePage: React.FC = () => {
             
             socket.on("new-message", (message) => {
                 setMessages(prev => {
-                    //skip re-rendering twice.. message generated from the user should not be received on the socket again
                     if (getSenderId(message.sender) === user?.id) return prev;
                     if (prev.some(msg => msg._id === message._id)) return prev;
                     return [...prev, message];
                 });
             });
 
+            // Live presence updates — update both the sidebar list and the
+            // open chat's header without needing a refetch.
+            socket.on("user-online", ({ userId }: { userId: string }) => {
+                setConversations(prev =>
+                    prev.map(c => c.otherUserId === userId ? { ...c, online: true } : c)
+                );
+                setActiveChat(prev =>
+                    prev && prev.otherUserId === userId ? { ...prev, online: true } : prev
+                );
+            });
+
+            socket.on("user-offline", ({ userId, lastSeen }: { userId: string; lastSeen: string }) => {
+                setConversations(prev =>
+                    prev.map(c => c.otherUserId === userId ? { ...c, online: false, lastSeen } : c)
+                );
+                setActiveChat(prev =>
+                    prev && prev.otherUserId === userId ? { ...prev, online: false, lastSeen } : prev
+                );
+            });
+
             return() => {
                 socket.off("new-message");
+                socket.off("user-online");
+                socket.off("user-offline");
             }
         }, [user?.id]);
 
@@ -460,20 +504,16 @@ const MessagePage: React.FC = () => {
             {/*Background Ambience Accent */}
             <div className="absolute top-0 right-1/4 h-[500px] w-[500px] rounded-full bg-indigo-600/5 blur-[130px] pointer-events-none "/>
             <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-[80px_1fr] lg:grid-cols-[260px_1fr] px-4 gap-6 relative z-10">
-                {/*Sidebar Navigation */}
                 <Sidebar />
 
-                {/*messaging subsystem platform ??? What!! */}
                 <main className="py-6 grid grid-cols-1 lg:grid-cols-[340px_1fr] overflow-hidden max-h-screen">
 
-                    {/*Left Inner Panel: conversation directory */}
                     <section className="border-r border-slate-900/60 pr-4 flex flex-col h-full overflow-hidden">
                         <div className="mb-4 space-y-4">
                             <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
                                 Chats
                             </h1>
 
-                            {/*Search Terminal Bar*/}
                             <div className="relative flex items-center">
                                 <Search className="absolute left-4 text-slate-600" size={16} />
                                 <input type="text"
@@ -483,7 +523,6 @@ const MessagePage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/*List Stream  */}
                         <div className="flex-1 overflow-y-auto no-scrollbar space-y-2 pr-1">
                             {conversations.map((chat) => (
                                 <button
@@ -516,7 +555,6 @@ const MessagePage: React.FC = () => {
                             ))}
                         </div>
 
-                        {/*Pinned footer to open the lookup modal on click */}
                         <div className="p-3 border-t border-slate-900/80 bg-slate-950">
                             <button
                                 onClick={() => setIsModalOpen(true)}
@@ -527,7 +565,6 @@ const MessagePage: React.FC = () => {
                             </button>
                         </div>
 
-                        {/*Modal Component Injector */}
                         <NewChatModal
                             isOpen={isModalOpen}
                             onClose={() => setIsModalOpen(false)}
@@ -537,7 +574,6 @@ const MessagePage: React.FC = () => {
                     </section>
                     
 
-                    {/*Right Inner Panel: Active Message System */}
                     <section className="flex flex-col h-full pl-6 overflow-hidden relative">
 
                         {/*Header Identity Bar */}
@@ -556,14 +592,20 @@ const MessagePage: React.FC = () => {
                                     <h3 className="text-xs font-bold text-slate-200">
                                         {activeChat?.title || "Select a conversation to start chatting..."}
                                     </h3>
-                                    <p className="text-[10px] text-emerald-400 flex items-center gap-1 mt-0.5 font-medium">
-                                        <span className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse" /> Online
-                                    </p>
+                                    {activeChat && !activeChat.isGroup && (
+                                        <p className={`text-[10px] flex items-center gap-1 mt-0.5 font-medium ${
+                                            activeChat.online ? "text-emerald-400" : "text-slate-500"
+                                        }`}>
+                                            <span className={`h-1 w-1 rounded-full ${
+                                                activeChat.online ? "bg-emerald-400 animate-pulse" : "bg-slate-600"
+                                            }`} />
+                                            {activeChat.online ? "Online" : formatLastSeen(activeChat.lastSeen)}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </div>
 
-                        {/*Chat History Flow Containe*/}
                         <div 
                         ref={chatContainerRef}
                         onScroll={handleScroll}
@@ -582,7 +624,6 @@ const MessagePage: React.FC = () => {
                             <div ref={bottomRef} />
                         </div>
                         
-                        {/*Down button to get to latest chat */}
                         {showScrollButton && (
                             <button
                                 onClick={() => scrollToBottom()}
@@ -592,7 +633,6 @@ const MessagePage: React.FC = () => {
                             </button>
                         )}
                         
-                        {/*For media attachment just above the input test  */}
                         {mediaFile && mediaPreviewUrl && (
                             <div className="px-4 pb-2">
                             <div className="relative inline-block rounded-xl overflow-hidden border border-slate-800">
@@ -626,7 +666,6 @@ const MessagePage: React.FC = () => {
                             </div>
                         )}
 
-                        {/*Anchor Bottom Input Transmitter Form */}
                         <form onSubmit={handleSendMessage} className="pt-4 border-t border-slate-900/60 bg-slate-950">
                             <div className="relative flex items-center rounded-2xl border border-slate-900/60 bg-slate-950">
                                 {isRecording ? (
@@ -679,6 +718,19 @@ const MessagePage: React.FC = () => {
                                             )}
                                         </div>
 
+                                        {/*try adding the emoji picker here first */}
+                                        <Smile
+                                            onClick={() => setShowEmojiPicker(prev => !prev)}
+                                        />
+
+                                        {showEmojiPicker && (
+                                            <EmojiPicker
+                                                onEmojiClick={(emoji) =>
+                                                    setTypedMessage(prev => prev + emoji.emoji)
+                                                }
+                                            />
+                                        )}
+
                                         <input
                                             ref={inputRef}
                                             disabled={!activeChat}
@@ -691,7 +743,6 @@ const MessagePage: React.FC = () => {
                                     </>
                                 )}
 
-                                {/* Single button that swaps between Mic and Send depending on input state */}
                                 {typedMessage.trim() || audioBlob || mediaFile ? (
                                     <button
                                         type="submit"
