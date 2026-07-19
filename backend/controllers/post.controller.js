@@ -260,9 +260,51 @@ const getUserPosts = async (req, res) => {
     }
 };
 
+const getReels = async (req, res) => {
+    try {
+        const page = Math.max(parseInt(req.query.page) || 1, 1);
+        const limit = Math.min(parseInt(req.query.limit) || 10, 30); //cap at 30
+        const skip = (page - 1) * limit;
+
+        const reelFilter = {
+            visibility: "public",
+            media: {
+                $elemMatch: {
+                    type: "video",
+                    duration: { $lte: 300 }
+                }
+            }
+        };
+
+        const [posts, totalPosts] = await Promise.all([
+            Post.find(reelFilter)
+                .populate("author", "username profilePicture")
+                .sort({ createdAt: -1})
+                .skip(skip)
+                .limit(limit),
+            Post.countDocuments(reelFilter)
+        ]);
+
+        res.status(200).json({
+            message: "Reels fetched successfully",
+            reels: posts,
+            pagination: {
+                page,
+                limit,
+                totalPosts,
+                totalPages: Math.ceil(totalPosts/limit),
+                hasMore: page * limit < totalPosts
+            }
+        });
+    } catch (error) {
+       res.status(500).json({ message: error.message }); 
+    }
+}
+
 export {
     createPost,
     getFeed,
     likePost,
-    getUserPosts
+    getUserPosts,
+    getReels
 };

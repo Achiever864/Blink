@@ -9,7 +9,7 @@ import { useAuth } from "../context/AuthContext";
 import { useStatus } from "../context/StatusBarContext.tsx";
 import PostMedia from "../components/PostMedia.tsx";
 import { PostComments } from "../components/Comments.tsx";
-// import ContextMenu from "../context/ContextMenu.tsx";
+//import ContextMenu from "../context/ContextMenu.tsx";
 import { MediaCaptureControl } from "../components/MediaCaptureControl.tsx";
 
 interface StatusNode {
@@ -235,24 +235,28 @@ const FeedPage: React.FC = () => {
 
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 flex justify-center overflow-hidden">
+        <div className="min-h-screen bg-brand-bg text-brand-text flex justify-center md:overflow-hidden">
             {/*global backgroung glows.. i really should remove all glows later sha */}
-            <div className="absolute top-0 left-1/4 h-[600px] w-[600px] rounded-full bg-violet-600/5 blur-[150px] pointer-events-none" />
+            <div className="absolute top-0 left-1/4 h-[600px] w-[600px] px-2 sm:px-4 rounded-full bg-brand-accent/5 blur-[150px] pointer-events-none" />
 
-            <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-[80px_1fr] lg:grid-cols-[260px_1fr_360px] px-4 gap-6 relative z-10">
+            <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-[80px_minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)_360px] px-2 sm:px-4 lg:px-6 gap-3 lg:gap-6 relative z-10">
 
                 {/*This contains the left SideBar for Navigating through the app */}
-                <Sidebar />
+                <div className="contents">
+                    <div className="sticky top-0 z-30 bg-brand-bg md:static md:bg-transparent">
+                    <Sidebar />
+                </div>
+                </div>
 
                 {/*Middle column: infinite scroll part */}
                 <main
-                    className="py-6 overflow-y-auto max-h-screen no-scrollbar space-y-6"
+                    className="py-4 sm:py-6 md:overflow-y-auto md:max-h-screen no-scrollbar space-y-4 sm:space-y-6 w-full min-w-0"
                     ref={mainRef}
                 >
-                    <div className="w-full bg-slate-950/40 p-4 border-b border-slate-900/60 rounded-3xl">
+                    <div className="w-full bg-brand-bg/40 p-4 border-b border-brand-border/60 rounded-2xl sm:rounded-3xl">
                         <div className="flex items-center justify-between mb-3 px-1">
-                            <h3 className="text-xs font-black tracking-wider text-slate-400 font-mono uppercase">Active Status</h3>
-                            <span className="text-[10px] bg-slate-900 px-2 py-0.5 rounded-md font-mono text-slate-600">
+                            <h3 className="text-xs font-black tracking-wider text-brand-text-muted font-mono uppercase">Active Status</h3>
+                            <span className="text-[10px] bg-brand-surface px-2 py-0.5 rounded-md font-mono text-brand-text-muted">
                                 {activeStatuses.length} active
                             </span>
                         </div>
@@ -261,16 +265,16 @@ const FeedPage: React.FC = () => {
                             {/*First element: current operator add link */}
                             <div className="flex flex-col items-center flex-shrink-0 cursor-pointer group">
                                 <div className="relative">
-                                    <div className="h-12 w-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-xs text-slate-500 font-bold group-hover:border-slate-700 transition-all">
+                                    <div className="h-12 w-12 rounded-full bg-brand-surface border border-brand-border flex items-center justify-center text-xs text-brand-text-muted font-bold group-hover:border-slate-700 transition-all">
                                         ME
                                     </div>
 
                                     {/*Pinned Add Plus Icon Badge */}
-                                    <div className="absolute bottom-0 right-0 p-0.5 rounded-full bg-violet-600 text-white border-2 border-slate-950 group-hover:scale-110 transition-transform">
+                                    <div className="absolute bottom-0 right-0 p-0.5 rounded-full bg-brand-accent text-white border-2 border-slate-950 group-hover:scale-110 transition-transform">
                                         <Plus size={10} strokeWidth={3} />
                                     </div>
                                 </div>
-                                <span className="text-[10px] font-mono mt-1.5 text-slate-500 group-hover:text-slate-300 transition-colors">My Status</span>
+                                <span className="text-[10px] font-mono mt-1.5 text-brand-text-muted group-hover:text-brand-text transition-colors">My Status</span>
                             </div>
 
                             {/*Mapped Friends Channels */}
@@ -280,10 +284,10 @@ const FeedPage: React.FC = () => {
                                         <div className={`p-[2px] rounded-full transition-all group-hover:scale-105 ${
                                             status.hasUnread
                                                 ? "bg-gradient-to-tr from-violet-600 via-indigo-500 to-teal-400 animation-pulse"
-                                                : "border border-slate-800/80 bg-transparent"
+                                                : "border border-brand-border/80 bg-transparent"
                                         }`}>
                                             {/*Inner Avatar Frame */}
-                                            <div className="h-11 w-11 rounded-full bg-slate-950 border border-slate-900/40 flex items-center justify-center text-xs text-slate-300 font-black uppercase group-hover:text-white transition-colors">
+                                            <div className="h-11 w-11 rounded-full bg-brand-bg border border-brand-border/40 flex items-center justify-center text-xs text-brand-text font-black uppercase group-hover:text-white transition-colors">
                                                 {status.avatar}
                                             </div>
                                         </div>
@@ -295,7 +299,7 @@ const FeedPage: React.FC = () => {
                                     </div>
 
                                     {/*Friend Name Display Text */}
-                                    <span className="text-[10px] font-mono mt-1.5 text-slate-400 max-w-[64px] truncate text-center group-hover:text-slate-200 transition-colors">
+                                    <span className="text-[10px] font-mono mt-1.5 text-brand-text-muted max-w-[64px] truncate text-center group-hover:text-brand-text transition-colors">
                                         {status.username}
                                     </span>
                                 </div>
@@ -306,9 +310,9 @@ const FeedPage: React.FC = () => {
 
 
                     {/*Feed composer box */}
-                    <div className="rounded-3xl border border-slate-900 bg-slate-950 p-4 shadow-xl focus-within:border-violet-500/40 transition-all">
+                    <div className="rounded-3xl border border-brand-border bg-brand-bg p-3 sm:p-4 shadow-xl focus-within:border-violet-500/40 transition-all">
                         <textarea 
-                            className="w-full bg-transparent resize-none text-sm text-slate-200 placeholder-slate-600 outline-none min-h-[80px]"
+                            className="w-full bg-transparent resize-none text-sm text-brand-text placeholder-slate-600 outline-none min-h-[80px]"
                             placeholder="What's on your mind..."
                             value={newPost}
                             onChange={(e) => setNewPost(e.target.value)}
@@ -318,7 +322,7 @@ const FeedPage: React.FC = () => {
                         <div>
                             {previews.length > 0 && (
                                 <div className="mt-4 animate-slide-in">
-                                    <div className="relative overflow-hidden rounded-3xl border border-slate-900 bg-slate-900/40 p-3 shadow-xl">
+                                    <div className="relative overflow-hidden rounded-3xl border border-brand-border bg-brand-surface/40 p-3 shadow-xl">
 
                                     <button
                                         type="button"
@@ -328,7 +332,7 @@ const FeedPage: React.FC = () => {
                                         <X size={16} />
                                     </button>
 
-                                    <div className="mt-4 grid grid-cols-2 gap-3">
+                                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         {previews.map((preview, index) => (
                                             <div
                                                 key={preview.url}
@@ -357,11 +361,11 @@ const FeedPage: React.FC = () => {
                                     
                                     <div className="mt-4 flex items-center justify-between">
                                         <div>
-                                            <p className="text-sm font-semibold text-slate-200">
+                                            <p className="text-sm font-semibold text-brand-text">
                                                 {attachments.length} attachment{attachments.length > 1 && "s"}
                                             </p>
 
-                                            <p className="text-xs text-slate-500">
+                                            <p className="text-xs text-brand-text-muted">
                                                 {(
                                                     attachments.reduce(
                                                         (total, file) => total + file.size,
@@ -383,12 +387,12 @@ const FeedPage: React.FC = () => {
                             )
                             }
                         </div>
-                        <div className="flex justify-between items-center pt-3 border-t border-slate-900">
+                        <div className="flex justify-between items-center pt-3 border-t border-brand-border">
                             <div className="flex">
                             <button
                                 type="button"
                                 onClick={() => fileInputRef.current?.click()}
-                                className="flex items-center justify-center p-2.5 rounded-xl text-slate-500 hover:text-violet-400 hover:bg-slate-900/60 border border-transparent hover:border-slate-900/80 transition-all active:scale-95 group outline-none"
+                                className="flex items-center justify-center p-2.5 rounded-xl text-brand-text-muted hover:text-brand-accent hover:bg-brand-surface-hover/60 border border-transparent hover:border-brand-border/80 transition-all active:scale-95 group outline-none"
                                 title="Attach files or media payloads"
                             >
                                     <Paperclip size={15}
@@ -412,7 +416,7 @@ const FeedPage: React.FC = () => {
                                 <button
                                     type="button"
                                     onClick={() => setCameraActive(true)}
-                                    className="flex items-center justify-center p-2.5 rounded-xl text-slate-500 hover:text-violet-400 hover:bg-slate-900/60 border border-transparent hover:border-slate-900/80 transition-all active:scale-95 group outline-none"
+                                    className="flex items-center justify-center p-2.5 rounded-xl text-brand-text-muted hover:text-brand-accent hover:bg-brand-surface-hover/60 border border-transparent hover:border-brand-border/80 transition-all active:scale-95 group outline-none"
                                 >
                                     <Camera size={14} />
                                 </button>
@@ -427,7 +431,7 @@ const FeedPage: React.FC = () => {
                             </div>
 
 
-                            {/* <span className="text-xs text-slate-600 font-mono tracking-wide">
+                            {/* <span className="text-xs text-brand-text-muted font-mono tracking-wide">
                             
                             </span> */}
 
@@ -435,7 +439,7 @@ const FeedPage: React.FC = () => {
                                 type="button"
                                 onClick={sendNewPost}
                                 disabled={isPosting || (!newPost.trim() && attachments.length === 0)}
-                                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl font-bold text-white shadow-lg shadow-violet-600/10 transition-all hover:scale-[1.03] active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-brand-accent to-brand-accent-hover rounded-xl font-bold text-white shadow-lg shadow-violet-600/10 transition-all hover:scale-[1.03] active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
                             >
                                 {isPosting ? (
                                     <>
@@ -456,7 +460,7 @@ const FeedPage: React.FC = () => {
                     {/*Stream View (Let's cook) */}
                     <div className="space-y-4">
                         {loadingFeed && posts.length === 0 && (
-                            <div className="text-xs text-slate-600 font-mono text-center py-10">Loading feed...</div>
+                            <div className="text-xs text-brand-text-muted font-mono text-center py-10">Loading feed...</div>
                         )}
                         {posts.map((post, index) => {
                             const isLiked = user?.id ? post.likes.includes(user.id) : false;
@@ -464,7 +468,7 @@ const FeedPage: React.FC = () => {
                                 <React.Fragment key={post._id || index}>
 
                                 {/*standard post card */}
-                                <div className="rounded-3xl border border-slate-900 bg-slate-900/20 backdrop-blur-md p-5 space-y-4 hover:border-slate-800/80 transition-all">
+                                <div className="rounded-3xl border border-brand-border bg-brand-surface/20 backdrop-blur-md p-4 sm:p-5 space-y-4 hover:border-brand-border/80 transition-all">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
                                             <div className="h-8 w-8 rounded-lg bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold uppercase text-xs overflow-hidden">
@@ -479,23 +483,23 @@ const FeedPage: React.FC = () => {
                                                 )}
                                             </div>
                                             <div>
-                                                <h4 className="text-sm font-bold text-slate-200">{post.author?.username || "Unknown"}</h4>
-                                                <p className="text-[11px] text-slate-500">{new Date(post.createdAt).toLocaleString()}</p>
+                                                <h4 className="text-sm font-bold text-brand-text">{post.author?.username || "Unknown"}</h4>
+                                                <p className="text-[11px] text-brand-text-muted">{new Date(post.createdAt).toLocaleString()}</p>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <p className="text-sm leading-relaxed text-slate-300 whitespace-pre-wrap break-words">{post.caption}</p>
+                                    <p className="text-sm leading-relaxed text-brand-text whitespace-pre-wrap break-words">{post.caption}</p>
 
                                     {/*Media...Ok great i get it now */}
                                     <PostMedia media={post.media} />
 
 
-                                    <div className="flex items-center gap-6 pt-2 border-t border-slate-900/40 text-xs text-slate-500">
+                                    <div className="flex items-center gap-6 pt-2 border-t border-brand-border/40 text-xs text-brand-text-muted">
                                         <button
                                             onClick={() => toggleLike(post._id)}
                                             className={`flex items-center gap-2 transition-colors ${
-                                                isLiked ? "text-rose-400" : "text-slate-500 hover:text-rose-400"
+                                                isLiked ? "text-rose-400" : "text-brand-text-muted hover:text-rose-400"
                                             }`}
                                         >
                                             <Heart
@@ -505,7 +509,7 @@ const FeedPage: React.FC = () => {
                                             <span>{post.likes?.length ?? 0}</span>
                                         </button>
                                         <button
-                                            className="flex items-center gap-2 hover:text-violet-400 transition-colors"
+                                            className="flex items-center gap-2 hover:text-brand-accent transition-colors"
                                             onClick={() => toggleComments(post._id)}
                                         >
                                             <MessageCircle size={16} />
@@ -543,13 +547,13 @@ const FeedPage: React.FC = () => {
                     {/*Sentinel element... */}
                     <div ref={loadMoreRef} className="h-10 flex items-center justify-center">
                         {loadingMore && (
-                            <div className="text-xs text-slate-600 font-mono">
+                            <div className="text-xs text-brand-text-muted font-mono">
                                 Loading more posts...
                             </div>
                         )}
 
                         {!hasMore && posts.length > 0 && (
-                            <div className="text-xs text-slate-700 font-mono">
+                            <div className="text-xs text-brand-text-muted font-mono">
                                 You've reached the end of the feed.
                             </div>
                         )}
@@ -558,12 +562,12 @@ const FeedPage: React.FC = () => {
 
                 
                 {/*Right column: Discover Bar (Large Desktop only)*/}
-                <aside className="hidden lg:block py-6 border-l border-slate-900/60 pl-6 space-y-6">
-                        <div className="rounded-3xl border border-slate-900 bg-slate-900/10 p-5 space-y-4">
-                            <h3 className="text-sm font-bold text-slate-200 tracking-wide">System Activity</h3>
+                <aside className="hidden lg:block py-6 border-l border-brand-border/60 pl-6 space-y-6">
+                        <div className="rounded-3xl border border-brand-border bg-brand-surface/10 p-5 space-y-4">
+                            <h3 className="text-sm font-bold text-brand-text tracking-wide">System Activity</h3>
                             <div className="space-y-3">
-                                <div className="text-xs p-3 rounded-xl bg-slate-950/60 border border-slate-900">
-                                    <p className="text-slate-400 font-medium">Status: </p>
+                                <div className="text-xs p-3 sm:p-4 rounded-xl bg-brand-bg/60 border border-brand-border">
+                                    <p className="text-brand-text-muted font-medium">Status: </p>
                                     <p className="text-emerald-400 font-bold mt-1 flex items-center gap-1.5">
                                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" /> Online
                                     </p>
@@ -573,7 +577,7 @@ const FeedPage: React.FC = () => {
                                     { label: "Edit", icon: Pencil, onClick: () => console.log("edit") },
                                     { label: "Delete", icon: Trash2, onClick: () => console.log("delete"), danger: true }
                                 ]}>
-                                    <div className="p-4 bg-slate-900 rounded-xl">Right-click me</div>
+                                    <div className="p-4 bg-brand-surface rounded-xl">Right-click me</div>
                                 </ContextMenu> */}
                             </div>
                         </div>
