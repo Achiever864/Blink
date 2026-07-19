@@ -242,11 +242,7 @@ const FeedPage: React.FC = () => {
             <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-[80px_minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)_360px] px-2 sm:px-4 lg:px-6 gap-3 lg:gap-6 relative z-10">
 
                 {/*This contains the left SideBar for Navigating through the app */}
-                <div className="contents">
-                    <div className="sticky top-0 z-30 bg-brand-bg md:static md:bg-transparent">
-                    <Sidebar />
-                </div>
-                </div>
+                <Sidebar />
 
                 {/*Middle column: infinite scroll part */}
                 <main
