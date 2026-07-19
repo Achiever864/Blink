@@ -118,7 +118,7 @@ const ProfilePage: React.FC = () => {
     }, [user?.id]);
 
     return(
-        <div className="min-h-screen bg-brand-bg text-brand-text flex justify-center overflow-hidden">
+        <div className="relative min-h-screen bg-brand-bg text-brand-text flex justify-center overflow-hidden">
             {/*Ambient Background Glows */}
             <div className="absolute top-0 right-1/4 h-[500px] w-[500px] rounded-full bg-brand-accent/5 blur-[120px] pointer-events-none" />
             <div className="absolute bottom-0 left-1/4 h-[600px] w-[600px] rounded-full bg-brand-accent/5 blur-[150px] pointer-events-none" />

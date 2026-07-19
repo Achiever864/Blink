@@ -127,7 +127,7 @@ const MessagePage: React.FC = () => {
     }, [user?.id]);
 
     return (
-        <div className="min-h-screen bg-brand-bg text-brand-text flex justify-center overflow-hidden">
+        <div className="relative min-h-screen bg-brand-bg text-brand-text flex justify-center overflow-hidden">
             <div className="absolute top-0 right-1/4 h-[500px] w-[500px] rounded-full bg-brand-accent/5 blur-[130px] pointer-events-none " />
             <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-[80px_1fr] lg:grid-cols-[260px_1fr] px-2 sm:px-4 lg:px-6 gap-3 lg:gap-6 relative z-10">
                 <Sidebar />

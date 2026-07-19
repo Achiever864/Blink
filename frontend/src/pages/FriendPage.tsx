@@ -117,7 +117,7 @@ const FriendsPage: React.FC = () => {
     );
 
     return (
-        <div className="min-h-screen bg-brand-bg text-brand-text flex justify-center overflow-hidden">
+        <div className="relative min-h-screen bg-brand-bg text-brand-text flex justify-center overflow-hidden">
 
             <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-[80px_1fr] lg:grid-cols-[260px_1fr_360px] px-2 sm:px-4 lg:px-6 gap-3 lg:gap-6 relative z-10">
                 
