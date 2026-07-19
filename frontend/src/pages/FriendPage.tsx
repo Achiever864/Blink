@@ -128,9 +128,9 @@ const FriendsPage: React.FC = () => {
                     <div className="space-y-4">
                         <div>
                             <h2 className="text-xl font-black text-brand-text tracking-tight flex items-center gap-2 flex-wrap">
-                                Personal Grid <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">{myCircle.length} Operators</span>
+                                Manage Friends <span className="text-xs font-medium px-2 py-0.5 rounded-sm bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">{myCircle.length} friends</span>
                             </h2>
-                            <p className="text-xs text-brand-text-muted">Manage real-time communication bridges and proximity nodes.</p>
+                            <p className="text-xs text-brand-text-muted">Handle friend connection with users across the globe</p>
                         </div>
 
                         <div className="relative flex items-center">
@@ -139,7 +139,7 @@ const FriendsPage: React.FC = () => {
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Search handles, names, or vibe codes..."
+                                placeholder="Search a user..."
                                 className="w-full bg-brand-surface/30 border border-brand-border/80 rounded-2xl pl-11 pr-12 py-3.5 text-sm text-brand-text placeholder-slate-700 outline-none focus:border-brand-accent/30 backdrop-blur-sm transition-all"
                             />
                             <button className="absolute right-3 p-1.5 rounded-lg bg-brand-surface/60 border border-brand-border text-brand-text-muted hover:text-brand-text transition-colors">
@@ -193,12 +193,12 @@ const FriendsPage: React.FC = () => {
 
                     <div className="space-y-3">
                         <div className="px-1">
-                            <h3 className="text-xs font-bold text-brand-text-muted uppercase tracking-wider">Active Circle</h3>
+                            <h3 className="text-xs font-bold text-brand-text-muted uppercase tracking-wider">Friends List:</h3>
                         </div>
 
                         {filteredCircle.length === 0 ? (
                             <div className="rounded-2xl border border-brand-border bg-brand-surface/5 p-8 text-center text-xs text-brand-text-muted">
-                                No network connections match your parameter filters.
+                                No result matches your search
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

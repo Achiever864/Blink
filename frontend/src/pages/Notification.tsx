@@ -3,8 +3,7 @@ import {
     Bell, 
     MessageSquare, 
     Sparkles, 
-    ShieldAlert, 
-    Radio, 
+    ShieldAlert,
     CheckCheck, 
     Trash2, 
     Layers,
@@ -150,9 +149,9 @@ const NotificationsPage: React.FC = () => {
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
                                 </span>
-                                <p className="text-[11px] font-mono tracking-wider text-brand-text-muted uppercase truncate">
+                                {/* <p className="text-[11px] font-mono tracking-wider text-brand-text-muted uppercase truncate">
                                     Blink Telemetry Tunnel: <span className="text-teal-400">Live</span>
-                                </p>
+                                </p> */}
                             </div>
                             {unreadCount > 0 && (
                                 <span className="text-[10px] font-mono font-bold bg-brand-accent/10 text-brand-accent border border-brand-accent/20 px-2 py-0.5 rounded-md flex-shrink-0">
@@ -168,7 +167,7 @@ const NotificationsPage: React.FC = () => {
                                     <Bell size={18} className="text-brand-text-muted" />
                                     Notification Feed
                                 </h2>
-                                <p className="text-xs text-brand-text-muted">Monitor incoming messages, friend activity, and engagement on your posts.</p>
+                                <p className="text-xs text-brand-text-muted">Monitor activity across your account.</p>
                             </div>
 
                             <div className="flex gap-2 self-stretch sm:self-auto">
@@ -186,7 +185,7 @@ const NotificationsPage: React.FC = () => {
                                     className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 bg-rose-950/20 border border-rose-950/40 hover:bg-rose-900/20 disabled:opacity-30 disabled:cursor-not-allowed rounded-xl text-[11px] font-bold text-rose-400 transition-all outline-none"
                                 >
                                     <Trash2 size={12} />
-                                    <span>Purge Feed</span>
+                                    <span>Delete all</span>
                                 </button>
                             </div>
                         </div>
@@ -260,8 +259,7 @@ const NotificationsPage: React.FC = () => {
                                                         className="p-1.5 rounded-lg bg-brand-bg border border-brand-border hover:text-teal-400 transition-colors disabled:opacity-40"
                                                         title={log.isRead ? "Already read" : "Mark as read"}
                                                     >
-                                                        <Radio size={13} className={!log.isRead ? "text-brand-text-muted" : "text-teal-400"} />
-                                                    </button>
+                                                    </button> {/*add read notifications here */}
                                                 </div>
                                             </div>
                                         );
