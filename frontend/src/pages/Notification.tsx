@@ -35,7 +35,7 @@ interface NotificationItem {
 const getNotificationTypeConfig = (type: string) => {
     switch (type) {
         case "message":
-            return { icon: <MessageSquare size={13} />, color: "text-violet-400 bg-violet-500/5 border-violet-500/20" };
+            return { icon: <MessageSquare size={13} />, color: "text-brand-accent bg-violet-500/5 border-brand-accent/20" };
         case "friend_accept":
             return { icon: <Sparkles size={13} />, color: "text-teal-400 bg-teal-500/5 border-teal-500/20" };
         case "friend_request":
@@ -175,7 +175,7 @@ const NotificationsPage: React.FC = () => {
                                 <button 
                                     onClick={handleMarkAllRead}
                                     disabled={unreadCount === 0}
-                                    className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 bg-brand-surface/60 border border-brand-border hover:border-slate-800 disabled:opacity-30 disabled:cursor-not-allowed rounded-xl text-[11px] font-bold text-brand-text transition-all outline-none"
+                                    className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 bg-brand-surface/60 border border-brand-border hover:border-brand-border disabled:opacity-30 disabled:cursor-not-allowed rounded-xl text-[11px] font-bold text-brand-text transition-all outline-none"
                                 >
                                     <CheckCheck size={12} />
                                     <span>Read All</span>
@@ -228,7 +228,7 @@ const NotificationsPage: React.FC = () => {
                                                 key={log._id} 
                                                 className={`p-3 sm:p-4 rounded-2xl border transition-all flex items-start justify-between gap-2 sm:gap-4 group ${
                                                     !log.isRead
-                                                        ? "bg-brand-surface/30 border-slate-800/80 shadow-md shadow-violet-950/5" 
+                                                        ? "bg-brand-surface/30 border-brand-border/80 shadow-md shadow-brand-accent/5" 
                                                         : "bg-brand-bg/40 border-brand-border/50 opacity-70 hover:opacity-100"
                                                 }`}
                                             >

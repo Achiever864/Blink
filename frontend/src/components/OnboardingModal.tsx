@@ -228,7 +228,7 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClose }) =>
             <button
               type="button"
               onClick={() => setCurrentStep((prev) => prev + 1)}
-              className="flex items-center justify-center gap-1.5 px-6 py-3 rounded-2xl bg-brand-accent hover:bg-brand-accent-hover font-semibold text-sm text-brand-text transition shadow-lg shadow-violet-600/20 ml-auto"
+              className="flex items-center justify-center gap-1.5 px-6 py-3 rounded-2xl bg-brand-accent hover:bg-brand-accent-hover font-semibold text-sm text-brand-text transition shadow-lg shadow-brand-accent/20 ml-auto"
             >
               Continue <ChevronRight size={16} />
             </button>

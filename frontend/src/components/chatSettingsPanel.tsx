@@ -42,35 +42,35 @@ const ChatSettingsPanel: React.FC<ChatSettingsPanelProps> = ({ chat, onClose, on
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
-            <div className="w-full max-w-sm rounded-3xl border border-slate-900 bg-slate-900/60 shadow-2xl overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-4 border-b border-slate-900 bg-slate-950/40">
-                    <h3 className="text-sm font-bold text-slate-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-brand-bg/80 backdrop-blur-md p-4">
+            <div className="w-full max-w-sm rounded-3xl border border-brand-border bg-brand-surface/60 shadow-2xl overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-brand-border bg-brand-bg/40">
+                    <h3 className="text-sm font-bold text-brand-text">
                         {chat.isGroup ? "Group Settings" : "Chat Options"}
                     </h3>
-                    <button onClick={onClose} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-900 hover:text-slate-200 transition-all">
+                    <button onClick={onClose} className="p-1.5 rounded-lg text-brand-text-muted hover:bg-brand-surface hover:text-brand-text transition-all">
                         <X size={16} />
                     </button>
                 </div>
 
-                <div className="flex flex-col items-center gap-2 py-6 border-b border-slate-900/60">
-                    <div className="h-16 w-16 rounded-2xl bg-violet-600/10 border border-violet-500/20 flex items-center justify-center text-violet-400 font-bold text-lg overflow-hidden">
+                <div className="flex flex-col items-center gap-2 py-6 border-b border-brand-border/60">
+                    <div className="h-16 w-16 rounded-2xl bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent font-bold text-lg overflow-hidden">
                         {chat.profilePicture ? (
                             <img src={chat.profilePicture} alt="" className="w-full h-full object-cover" />
                         ) : (
                             <span>{chat.avatarLabel}</span>
                         )}
                     </div>
-                    <p className="text-sm font-bold text-slate-200">{chat.title}</p>
+                    <p className="text-sm font-bold text-brand-text">{chat.title}</p>
                     {chat.isGroup && (
-                        <p className="text-[11px] text-slate-500">{chat.participants.length} members</p>
+                        <p className="text-[11px] text-brand-text-muted">{chat.participants.length} members</p>
                     )}
                 </div>
 
                 <div className="p-3 space-y-1">
                     {chat.isGroup ? (
                         <>
-                            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-900 transition-all">
+                            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-brand-text hover:bg-brand-surface transition-all">
                                 <Users size={15} />
                                 View members
                             </button>

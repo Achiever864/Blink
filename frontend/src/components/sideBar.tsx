@@ -27,7 +27,7 @@ const Sidebar: React.FC = () => {
 
             {/* MOBILE: fixed horizontal top bar */}
             <nav className="md:hidden fixed top-0 inset-x-0 w-screen h-16 bg-brand-bg border-b border-brand-border z-40 flex items-center justify-between px-3 gap-2 box-border">
-                <div className="relative flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-accent to-brand-accent-hover shadow-lg shadow-violet-600/20">
+                <div className="relative flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-accent to-brand-accent-hover shadow-lg shadow-brand-accent/20">
                     <span className="text-base font-black text-white -skew-x-3">B</span>
                     <span className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-white" />
                 </div>
@@ -62,7 +62,7 @@ const Sidebar: React.FC = () => {
             {/* DESKTOP: fixed vertical side rail */}
             <aside className="hidden md:flex fixed left-0 top-0 h-screen flex-col justify-between bg-brand-bg border-r border-brand-border z-40 w-20 lg:w-64 px-3 py-6">
                 <div className="space-y-8">
-                    <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-accent to-brand-accent-hover shadow-lg shadow-violet-600/20 lg:mx-0 mx-auto">
+                    <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-accent to-brand-accent-hover shadow-lg shadow-brand-accent/20 lg:mx-0 mx-auto">
                         <span className="text-xl font-black text-white -skew-x-3">B</span>
                         <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-white" />
                     </div>
@@ -92,7 +92,7 @@ const Sidebar: React.FC = () => {
 
                 <div className="space-y-4">
                     <div className="hidden lg:flex items-center gap-3 p-2 rounded-xl bg-brand-surface/30 border border-brand-border">
-                        <div className="h-9 w-9 rounded-lg bg-brand-accent/20 border border-violet-500/30 flex items-center justify-center text-brand-accent font-bold uppercase text-xs">
+                        <div className="h-9 w-9 rounded-lg bg-brand-accent/20 border border-brand-accent/30 flex items-center justify-center text-brand-accent font-bold uppercase text-xs">
                             {user?.profilePicture ? (
                                 <img src={user.profilePicture} alt="US" className="w-full h-full object-cover overflow-hidden rounded-lg" />
                             ) : (

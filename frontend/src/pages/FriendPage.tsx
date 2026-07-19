@@ -203,7 +203,7 @@ const FriendsPage: React.FC = () => {
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {filteredCircle.map((friend) => (
-                                    <div key={friend.id} className="rounded-2xl border border-brand-border bg-brand-surface/10 backdrop-blur-sm p-4 space-y-4 hover:border-slate-800 transition-all group relative overflow-hidden">
+                                    <div key={friend.id} className="rounded-2xl border border-brand-border bg-brand-surface/10 backdrop-blur-sm p-4 space-y-4 hover:border-brand-border transition-all group relative overflow-hidden">
                                         {friend.streak !== undefined && friend.streak >= 10 && (
                                             <div className="absolute top-0 right-0 h-16 w-16 bg-gradient-to-bl from-amber-500/5 to-transparent rounded-bl-full pointer-events-none" />
                                         )}
@@ -268,7 +268,7 @@ const FriendsPage: React.FC = () => {
                         <p className="text-[11px] text-brand-text-muted leading-relaxed">Hop instantly into your friends audio frequencies and screenshare nodes.</p>
                         
                         <div className="space-y-2">
-                            <div className="p-3 rounded-xl bg-brand-bg/60 border border-brand-border/80 hover:border-slate-800 transition-all flex items-center justify-between cursor-pointer group">
+                            <div className="p-3 rounded-xl bg-brand-bg/60 border border-brand-border/80 hover:border-brand-border transition-all flex items-center justify-between cursor-pointer group">
                                 <div>
                                     <h4 className="text-xs font-bold text-brand-text group-hover:text-brand-accent transition-colors">⚡ General Sync Space</h4>
                                     <p className="text-[10px] text-brand-text-muted mt-0.5">Owen K. & Amina are inside</p>
@@ -285,7 +285,7 @@ const FriendsPage: React.FC = () => {
 
                         <div className="space-y-2.5">
                             {suggestions.map((suggested) => (
-                                <div key={suggested.id} className="p-3 rounded-xl bg-brand-surface/10 border border-brand-border flex items-center justify-between hover:border-slate-800/80 transition-all gap-2">
+                                <div key={suggested.id} className="p-3 rounded-xl bg-brand-surface/10 border border-brand-border flex items-center justify-between hover:border-brand-border/80 transition-all gap-2">
                                     <div className="flex items-center gap-3 min-w-0">
                                         <div className="h-8 w-8 rounded-lg bg-brand-surface border border-brand-border flex items-center justify-center text-xs text-brand-text-muted font-bold uppercase overflow-hidden flex-shrink-0">
                                             {suggested.avatarUrl ? (

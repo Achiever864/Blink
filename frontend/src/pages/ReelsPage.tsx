@@ -129,7 +129,7 @@
 //                         return (
 //                             <div
 //                                 key={reel._id}
-//                                 className="relative w-full max-w-[420px] h-[calc(100vh-2rem)] snap-center rounded-3xl overflow-hidden bg-slate-950 border border-slate-900 flex-shrink-0"
+//                                 className="relative w-full max-w-[420px] h-[calc(100vh-2rem)] snap-center rounded-3xl overflow-hidden bg-brand-bg border border-brand-border flex-shrink-0"
 //                             >
 //                                 {video && (
 //                                     <video
@@ -158,7 +158,7 @@
 //                                 {/* Author + caption overlay */}
 //                                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
 //                                     <div className="flex items-center gap-2 mb-2">
-//                                         <div className="h-8 w-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold overflow-hidden">
+//                                         <div className="h-8 w-8 rounded-full bg-brand-surface-hover border border-brand-border flex items-center justify-center text-xs font-bold overflow-hidden">
 //                                             {reel.author?.profilePicture?.url ? (
 //                                                 <img src={reel.author.profilePicture.url} alt="" className="w-full h-full object-cover" />
 //                                             ) : (
@@ -167,7 +167,7 @@
 //                                         </div>
 //                                         <span className="text-xs font-bold">{reel.author?.username || "Unknown"}</span>
 //                                     </div>
-//                                     <p className="text-xs text-slate-200 leading-relaxed break-words line-clamp-2">
+//                                     <p className="text-xs text-brand-text leading-relaxed break-words line-clamp-2">
 //                                         {reel.caption}
 //                                     </p>
 //                                 </div>
@@ -191,17 +191,17 @@
 //                     })}
 
 //                     {loading && (
-//                         <div className="text-xs text-slate-500 font-mono py-6">Loading reels...</div>
+//                         <div className="text-xs text-brand-text-muted font-mono py-6">Loading reels...</div>
 //                     )}
 
 //                     {!hasMore && reels.length > 0 && (
-//                         <div className="text-xs text-slate-600 font-mono py-6">You've reached the end.</div>
+//                         <div className="text-xs text-brand-text-muted font-mono py-6">You've reached the end.</div>
 //                     )}
 
 //                     {!loading && reels.length === 0 && (
 //                         <div className="flex flex-col items-center justify-center h-full gap-3 text-center px-8">
-//                             <Play size={32} className="text-slate-700" />
-//                             <p className="text-sm text-slate-400 font-medium">No reels yet</p>
+//                             <Play size={32} className="text-brand-text-muted" />
+//                             <p className="text-sm text-brand-text-muted font-medium">No reels yet</p>
 //                         </div>
 //                     )}
 //                 </main>

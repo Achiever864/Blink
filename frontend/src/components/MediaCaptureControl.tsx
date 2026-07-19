@@ -192,27 +192,27 @@ export const MediaCaptureControl: React.FC<MediaCaptureControlProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
-            <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-slate-900 bg-slate-900/40 shadow-2xl flex flex-col relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-brand-bg/80 backdrop-blur-md p-4">
+            <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-brand-border bg-brand-surface/40 shadow-2xl flex flex-col relative">
 
                 {/*Header Segment */}
-                <div className="flex items-center justify-between border-b border-slate-900 px-6 py-4 bg-slate-950/40">
+                <div className="flex items-center justify-between border-b border-brand-border px-6 py-4 bg-brand-bg/40">
                     <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-bold font-mono tracking-tight text-slate-200">
+                        <h3 className="text-sm font-bold font-mono tracking-tight text-brand-text">
                             {previewUrl ? "Edit & Polish Media" : "Live Media Capture"}
                         </h3>
                         </div>
-                        <button onClick={onClose} className="rounded-xl p-2 text-slate-500 hover:bg-slate-900 hover:text-slate-200 transition-all outline-none">
+                        <button onClick={onClose} className="rounded-xl p-2 text-brand-text-muted hover:bg-brand-surface hover:text-brand-text transition-all outline-none">
                             <X size={16} />
                         </button>
                     </div>
 
-                    <div className="bg-slate-950 relative aspect-video flex items-center justify-center overflow-hidden">
+                    <div className="bg-brand-bg relative aspect-video flex items-center justify-center overflow-hidden">
                         {permissionError && (
                             <div className="flex flex-col items-center gap-3 max-w-sm px-6 text-center">
                                 <ShieldAlert className="text-rose-500" size={32} />
-                                <p className="text-xs font-mono text-slate-400">{permissionError}</p>
-                                <button onClick={initCamera} className="mt-2 text-xs font-bold text-violet-400 hover:underline">Retry Connection</button>
+                                <p className="text-xs font-mono text-brand-text-muted">{permissionError}</p>
+                                <button onClick={initCamera} className="mt-2 text-xs font-bold text-brand-accent hover:underline">Retry Connection</button>
                             </div>
                         )}
 
@@ -228,7 +228,7 @@ export const MediaCaptureControl: React.FC<MediaCaptureControlProps> = ({
 
                         {/*Recapture or Preview modification stage */}
                         {previewUrl && (
-                            <div className="w-full h-full flex items-center justify-center bg-slate-950">
+                            <div className="w-full h-full flex items-center justify-center bg-brand-bg">
                                 {mode === "image" ? (
                                     <img 
                                         src={previewUrl}
@@ -251,17 +251,17 @@ export const MediaCaptureControl: React.FC<MediaCaptureControlProps> = ({
                     </div>
 
                     {/*Control Hub */}
-                    <div className="p-6 bg-slate-950/40 border-t border-slate-900 space-y-4">
+                    <div className="p-6 bg-brand-bg/40 border-t border-brand-border space-y-4">
                         {/*Phase A: Live stream */}
                         {!previewUrl && !permissionError && (
                             <div className="flex items-center justify-between">
-                                <div className="flex bg-slate-950 border border-slate-900 rounded-xl p-1">
+                                <div className="flex bg-brand-bg border border-brand-border rounded-xl p-1">
                                     <button
                                         type="button"
                                         disabled={isRecording}
                                         onClick={() => setMode("image")}
                                         className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg transition-all outline-none disabled:opacity-30 ${
-                                            mode === "image" ? "bg-slate-900 text-white border border-slate-800/60 shadow" : "text-slate-500 hover:text-slate-300"
+                                            mode === "image" ? "bg-brand-surface text-white border border-brand-border/60 shadow" : "text-brand-text-muted hover:text-brand-text"
                                         }`}
                                     >
                                         <Camera size={13} />
@@ -272,7 +272,7 @@ export const MediaCaptureControl: React.FC<MediaCaptureControlProps> = ({
                                         disabled={isRecording}
                                         onClick={() => setMode('video')}
                                         className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg transition-all outline-none disabled:opacity-30 ${
-                                            mode === "video" ? "bg-slate-900 text-white border border-slate-800/60 shadow" : "text-slate-500 hover:text-slate-300"
+                                            mode === "video" ? "bg-brand-surface text-white border border-brand-border/60 shadow" : "text-brand-text-muted hover:text-brand-text"
                                         }`}
                                     >
                                         <Video size={13} />
@@ -284,12 +284,12 @@ export const MediaCaptureControl: React.FC<MediaCaptureControlProps> = ({
                                     {mode === "image" ? (
                                         <button 
                                             onClick={capturePhoto}
-                                            className="h-14 w-14 rounded-full border-4 border-slate-900 bg-white shadow-xl shadow-slate-950 flex items-center justify-center transition-transform hover:scale-105 active:scale-95 outline-none"
+                                            className="h-14 w-14 rounded-full border-4 border-brand-border bg-white shadow-xl shadow-brand-surface flex items-center justify-center transition-transform hover:scale-105 active:scale-95 outline-none"
                                         />
                                     ) : (
                                         <button 
                                             onClick={isRecording ? stopRecording : startRecording}
-                                            className={`h-14 w-14 rounded-full border-4 border-slate-900 shadow-xl shadow-slate-950 flex items-center justify-center transition-all hover:scale-105 active:scale-95 outline-none ${
+                                            className={`h-14 w-14 rounded-full border-4 border-brand-border shadow-xl shadow-brand-surface flex items-center justify-center transition-all hover:scale-105 active:scale-95 outline-none ${
                                                 isRecording ? "bg-rose-500 rounded-2xl scale-95" : "bg-indigo-600"
                                             }`}
                                         />
@@ -310,8 +310,8 @@ export const MediaCaptureControl: React.FC<MediaCaptureControlProps> = ({
                                                     onClick={() => setActiveFilter(filter)}
                                                     className={`px-3 py-1.5 rounded-xl text-[10px] font-mono font-bold capitalize transition-all border outline-none whitespace-nowrap ${
                                                         activeFilter === filter
-                                                            ? "bg-violet-600 border-violet-400/40 text-white"
-                                                            : "bg-slate-950 border-slate-900 text-slate-400 hover:text-slate-200" 
+                                                            ? "bg-brand-accent border-violet-400/40 text-white"
+                                                            : "bg-brand-bg border-brand-border text-brand-text-muted hover:text-brand-text" 
                                                     }`}
                                                 >
                                                     {filter}
@@ -322,7 +322,7 @@ export const MediaCaptureControl: React.FC<MediaCaptureControlProps> = ({
                                         <div className="flex items-center gap-2">
                                             <button
                                                 onClick={() => setRotation((prev) => (prev + 90) % 360)}
-                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-950 border border-slate-900 rounded-xl text-[10px] font-bold font-mono text-slate-400 hover:text-slate-200 transition-all outline-none"
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-bg border border-brand-border rounded-xl text-[10px] font-bold font-mono text-brand-text-muted hover:text-brand-text transition-all outline-none"
                                             >
                                                 <RotateCw size={11} />
                                                 Rotate 90 deg
@@ -331,10 +331,10 @@ export const MediaCaptureControl: React.FC<MediaCaptureControlProps> = ({
                                     </div>
                                 )}
 
-                                <div className="flex items-center justify-between pt-2 border-t border-slate-900/60">
+                                <div className="flex items-center justify-between pt-2 border-t border-brand-border/60">
                                     <button
                                         onClick={resetCaptureZone}
-                                        className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-slate-400 hover:text-rose-400 border border-slate-800/40 rounded-xl text-xs font-bold transition-all outline-none"
+                                        className="flex items-center gap-1.5 px-4 py-2 bg-brand-surface text-brand-text-muted hover:text-rose-400 border border-brand-border/40 rounded-xl text-xs font-bold transition-all outline-none"
                                     >
                                         <Trash2 size={13} />
                                         Delete
@@ -342,7 +342,7 @@ export const MediaCaptureControl: React.FC<MediaCaptureControlProps> = ({
 
                                     <button
                                         onClick={handleCommitMedia}
-                                        className="flex items-center gap-1.5 px-5 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-violet-600/10 transition-all hover:scale-[1.01] active:scale-[0.99] outline-none font-mono"
+                                        className="flex items-center gap-1.5 px-5 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-brand-accent/10 transition-all hover:scale-[1.01] active:scale-[0.99] outline-none font-mono"
                                     >
                                         <Check size={13} />
                                         Done

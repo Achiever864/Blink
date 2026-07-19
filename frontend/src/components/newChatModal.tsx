@@ -146,19 +146,19 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
 
             <div
-                className="absolute inset-0 bg-slate-950/60 backdrop-blur-md"
+                className="absolute inset-0 bg-brand-bg/60 backdrop-blur-md"
                 onClick={onClose}
             />
 
-            <div className="relative z-10 w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+            <div className="relative z-10 w-full max-w-md bg-brand-surface border border-brand-border rounded-3xl overflow-hidden shadow-2xl">
 
                 {/* Header */}
-                <div className="flex items-center justify-between p-5 border-b border-slate-800">
+                <div className="flex items-center justify-between p-5 border-b border-brand-border">
                     <div>
                         <h3 className="text-white font-black">
                             {mode === "direct" ? "Start New Chat" : "Create Group"}
                         </h3>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-brand-text-muted">
                             {mode === "direct"
                                 ? "Select one of your friends."
                                 : "Pick at least 2 friends and name your group."}
@@ -167,7 +167,7 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
 
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-lg hover:bg-slate-800"
+                        className="p-2 rounded-lg hover:bg-brand-surface-hover"
                     >
                         <X size={16} />
                     </button>
@@ -179,8 +179,8 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
                         onClick={() => setMode("direct")}
                         className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
                             mode === "direct"
-                                ? "bg-violet-600 text-white"
-                                : "bg-slate-950 text-slate-500 border border-slate-800"
+                                ? "bg-brand-accent text-white"
+                                : "bg-brand-bg text-brand-text-muted border border-brand-border"
                         }`}
                     >
                         Direct
@@ -189,8 +189,8 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
                         onClick={() => setMode("group")}
                         className={`flex-1 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
                             mode === "group"
-                                ? "bg-violet-600 text-white"
-                                : "bg-slate-950 text-slate-500 border border-slate-800"
+                                ? "bg-brand-accent text-white"
+                                : "bg-brand-bg text-brand-text-muted border border-brand-border"
                         }`}
                     >
                         <Users size={12} />
@@ -205,23 +205,23 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
                             value={groupName}
                             onChange={(e) => setGroupName(e.target.value)}
                             placeholder="Group name..."
-                            className="w-full rounded-xl bg-slate-950 border border-slate-800 py-3 px-4 text-sm outline-none focus:border-violet-500/40"
+                            className="w-full rounded-xl bg-brand-bg border border-brand-border py-3 px-4 text-sm outline-none focus:border-brand-accent/40"
                         />
                     </div>
                 )}
 
                 {/* Search */}
-                <div className="p-4 border-b border-slate-800">
+                <div className="p-4 border-b border-brand-border">
                     <div className="relative">
                         <Search
                             size={15}
-                            className="absolute left-3 top-3 text-slate-500"
+                            className="absolute left-3 top-3 text-brand-text-muted"
                         />
                         <input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search friend..."
-                            className="w-full rounded-xl bg-slate-950 border border-slate-800 py-3 pl-10 pr-3 text-sm outline-none"
+                            className="w-full rounded-xl bg-brand-bg border border-brand-border py-3 pl-10 pr-3 text-sm outline-none"
                         />
                     </div>
                 </div>
@@ -229,11 +229,11 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
                 {/* Friends */}
                 <div className="max-h-[360px] overflow-y-auto p-3 space-y-2">
                     {loading ? (
-                        <div className="text-center py-10 text-slate-500 text-sm">
+                        <div className="text-center py-10 text-brand-text-muted text-sm">
                             Loading friends...
                         </div>
                     ) : filteredContacts.length === 0 ? (
-                        <div className="text-center py-10 text-slate-500 text-sm">
+                        <div className="text-center py-10 text-brand-text-muted text-sm">
                             No friends found.
                         </div>
                     ) : (
@@ -245,8 +245,8 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
                                     mode === "group" ? "cursor-pointer" : ""
                                 } ${
                                     mode === "group" && selectedIds.has(contact.id)
-                                        ? "bg-violet-600/10 border border-violet-500/30"
-                                        : "hover:bg-slate-800 border border-transparent"
+                                        ? "bg-brand-accent/10 border border-brand-accent/30"
+                                        : "hover:bg-brand-surface-hover border border-transparent"
                                 }`}
                             >
                                 <div className="flex items-center gap-3">
@@ -256,7 +256,7 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
                                             className="w-10 h-10 rounded-xl object-cover"
                                         />
                                     ) : (
-                                        <div className="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center font-bold uppercase">
+                                        <div className="w-10 h-10 rounded-xl bg-brand-accent flex items-center justify-center font-bold uppercase">
                                             {contact.avatarLabel}
                                         </div>
                                     )}
@@ -265,7 +265,7 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
                                         <h4 className="text-sm font-semibold">
                                             {contact.displayName}
                                         </h4>
-                                        <p className="text-xs text-slate-500">
+                                        <p className="text-xs text-brand-text-muted">
                                             {contact.username}
                                         </p>
                                     </div>
@@ -275,15 +275,15 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
                                     <button
                                         disabled={isSubmitting}
                                         onClick={() => handleSelectContact(contact.id)}
-                                        className="p-2 rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-40"
+                                        className="p-2 rounded-lg bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-40"
                                     >
                                         <MessageCirclePlus size={14} />
                                     </button>
                                 ) : (
                                     <div className={`h-5 w-5 rounded-md flex items-center justify-center border transition-all ${
                                         selectedIds.has(contact.id)
-                                            ? "bg-violet-600 border-violet-600"
-                                            : "border-slate-700"
+                                            ? "bg-brand-accent border-violet-600"
+                                            : "border-brand-border"
                                     }`}>
                                         {selectedIds.has(contact.id) && <Check size={12} className="text-white" />}
                                     </div>
@@ -295,11 +295,11 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
 
                 {/* Group create button — only in group mode */}
                 {mode === "group" && (
-                    <div className="p-4 border-t border-slate-800">
+                    <div className="p-4 border-t border-brand-border">
                         <button
                             disabled={isSubmitting || !groupName.trim() || selectedIds.size < 2}
                             onClick={handleCreateGroup}
-                            className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-30 disabled:cursor-not-allowed font-bold text-sm transition-all"
+                            className="w-full py-3 rounded-xl bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-30 disabled:cursor-not-allowed font-bold text-sm transition-all"
                         >
                             Create Group ({selectedIds.size} selected)
                         </button>

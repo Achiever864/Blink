@@ -185,7 +185,7 @@ const AuthPage: React.FC = () => {
                     <button
                     type="submit"
                     disabled = {isLoading}
-                    className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-accent to-brand-accent-hover py-3.5 font-semibold text-white shadow-lg shadow-violet-600/20 hover:from-violet-500 hover:to-indigo-500 transition-all transform active:scale-[0.98] hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed">
+                    className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-accent to-brand-accent-hover py-3.5 font-semibold text-white shadow-lg shadow-brand-accent/20 hover:from-violet-500 hover:to-indigo-500 transition-all transform active:scale-[0.98] hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed">
                         {isLoading ? (
                             <>
                                 <Spinner size="sm" variant="white" />

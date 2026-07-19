@@ -108,7 +108,7 @@ const GetFriendsDashboard: React.FC<GetFriendsDashboardProps> = ({ isEmbedded = 
     };
 
 return(
-    <div className={`rounded-3xl border border-slate-900 bg-slate-950/40 backdrop-blur-md transition-all ${
+    <div className={`rounded-3xl border border-brand-border bg-brand-bg/40 backdrop-blur-md transition-all ${
         isEmbedded ? "p-5 my-6 border-violet-900/30 bg-gradient-to-b from-slate-950 to-slate-900/20" : "p-8"
     }`}>
         {/*Header */}
@@ -117,7 +117,7 @@ return(
                 <h3 className="text-sm font-black tracking-wide text-white flex items-center gap-2">
                     Expand Your Network
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">Related Profiles, Connect Now!</p>
+                <p className="text-xs text-brand-text-muted mt-0.5">Related Profiles, Connect Now!</p>
             </div>
         </div>
 
@@ -139,23 +139,23 @@ return(
                     ]}
                 >
                     <div
-                        className="min-w-[250px] max-w-[250px] flex-shrink-0 rounded-2xl border border-slate-900 bg-slate-950 p-4 flex flex-col justify-between items-center text-center group hover:border-slate-800 transition-all duration-300 relative overflow-hidden"
+                        className="min-w-[250px] max-w-[250px] flex-shrink-0 rounded-2xl border border-brand-border bg-brand-bg p-4 flex flex-col justify-between items-center text-center group hover:border-brand-border transition-all duration-300 relative overflow-hidden"
                     >
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-600/0 via-violet-500/20 to-violet-600/0 opacity-0 group-hover:opacity-100 transition-opacity" />
 
                         <div className="flex flex-col items-center mt-2">
-                            <div className="h-12 w-12 rounded-xl bg-violet-600/10 border border-violet-500/20 flex items-center justify-center text-violet-400 text-sm font-bold shadow-inner mb-3">
+                            <div className="h-12 w-12 rounded-xl bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent text-sm font-bold shadow-inner mb-3">
                                 {item.profilePicture ? (
                                     <img src={item.profilePicture} alt={item.username} className="w-full h-full object-cover" />
                                 ) : (item.avatarLetter)
                                 }
                             </div>
 
-                            <h4 className="text-xs font-bold text-slate-200">
+                            <h4 className="text-xs font-bold text-brand-text">
                                 {item.username}
                             </h4>
 
-                            <p className="text-[10px] text-slate-600 mt-1">
+                            <p className="text-[10px] text-brand-text-muted mt-1">
                                 {item.mutualConnections} mutual connections
                             </p>
                         </div>
@@ -164,7 +164,7 @@ return(
                         onClick={() => sendFriendRequest(item.id)}
                         className={`mt-4 w-full py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-[0.97] ${
                             item.isFollowing
-                                ? "bg-slate-900 text-slate-400 border border-slate-800"
+                                ? "bg-brand-surface text-brand-text-muted border border-brand-border"
                                 : "bg-white text-slate-950 hover:bg-slate-200" 
                         }`}
                     >
@@ -185,16 +185,16 @@ return(
             ))}
 
             {isLoading && (
-                <div className="flex items-center gap-2 text-xs text-slate-500 px-3">
+                <div className="flex items-center gap-2 text-xs text-brand-text-muted px-3">
                     <Loader2 size={14} 
-                        className="animate-spin text-violet-500"
+                        className="animate-spin text-brand-accent"
                     />
                     Loading...
                 </div>
             )}
 
             {!hasMore && users.length > 0 && (
-                <div className="text-xs text-slate-600 flex items-center px-3">
+                <div className="text-xs text-brand-text-muted flex items-center px-3">
                     End of recommendations
                 </div>
             )}

@@ -136,7 +136,7 @@ const ProfilePage: React.FC = () => {
                             <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
 
                                 {/*Avatar — read-only here, editing lives in Settings now */}
-                                <div className="relative h-20 w-20 rounded-2xl border border-brand-accent/30 flex items-center justify-center text-brand-text font-black text-2xl uppercase shadow-xl shadow-violet-950/50 overflow-hidden flex-shrink-0">
+                                <div className="relative h-20 w-20 rounded-2xl border border-brand-accent/30 flex items-center justify-center text-brand-text font-black text-2xl uppercase shadow-xl shadow-brand-accent/50 overflow-hidden flex-shrink-0">
                                     {user?.profilePicture ? (
                                         <img src={user.profilePicture} alt="profile" className="w-full h-full object-cover rounded-2xl" />
                                     ) : (
@@ -153,7 +153,7 @@ const ProfilePage: React.FC = () => {
                             {/*Editing now lives on the Settings page */}
                             <button
                                 onClick={() => navigate("/settings")}
-                                className="flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold rounded-lg bg-brand-bg border border-brand-border text-brand-text-muted hover:text-brand-text hover:border-slate-800 transition-all flex-shrink-0"
+                                className="flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold rounded-lg bg-brand-bg border border-brand-border text-brand-text-muted hover:text-brand-text hover:border-brand-border transition-all flex-shrink-0"
                             >
                                 <Settings size={13} />
                                 Edit Profile

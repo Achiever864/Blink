@@ -335,7 +335,7 @@ const SettingsPage: React.FC = () => {
                                 <button
                                     type="submit"
                                     disabled={isSaving}
-                                    className="px-5 py-2.5 rounded-xl bg-brand-accent hover:bg-brand-accent-hover text-white text-xs font-bold transition-all shadow-md shadow-violet-950/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-5 py-2.5 rounded-xl bg-brand-accent hover:bg-brand-accent-hover text-white text-xs font-bold transition-all shadow-md shadow-brand-accent/20 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isSaving ? "Saving..." : "Update Changes"}
                                 </button>
@@ -361,7 +361,7 @@ const SettingsPage: React.FC = () => {
                                     <button
                                         key={mode}
                                         onClick={() => setTheme(mode)}
-                                        className={`p-4 rounded-2xl border text-left flex flex-col justify-between h-28 relative group transition-all capitalize ${theme === mode ? "bg-brand-bg border-brand-accent shadow-md shadow-violet-950/40 text-brand-text" : "bg-brand-bg/40 border-brand-border text-brand-text-muted hover:border-slate-800"}`}
+                                        className={`p-4 rounded-2xl border text-left flex flex-col justify-between h-28 relative group transition-all capitalize ${theme === mode ? "bg-brand-bg border-brand-accent shadow-md shadow-brand-accent/40 text-brand-text" : "bg-brand-bg/40 border-brand-border text-brand-text-muted hover:border-brand-border"}`}
                                     >
                                         <div className="flex justify-between items-start w-full">
                                             <span className="text-xs font-bold tracking-wide">{mode} Mode</span>
@@ -372,7 +372,7 @@ const SettingsPage: React.FC = () => {
                                             )}
                                         </div>
                                         <div className="flex gap-1.5">
-                                            <div className={`h-3 w-3 rounded-full ${mode === "light" ? "bg-slate-200" : mode === "dark" ? "bg-slate-950 border border-slate-800" : "bg-purple-950"}`} />
+                                            <div className={`h-3 w-3 rounded-full ${mode === "light" ? "bg-slate-200" : mode === "dark" ? "bg-brand-bg border border-brand-border" : "bg-purple-950"}`} />
                                             <div className={`h-3 w-3 rounded-full ${mode === "light"  ? "bg-purple-600" : mode === "dark" ? "bg-violet-500" : "bg-teal-400"}`} />
                                         </div>
                                     </button>

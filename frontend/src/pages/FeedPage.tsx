@@ -261,7 +261,7 @@ const FeedPage: React.FC = () => {
                             {/*First element: current operator add link */}
                             <div className="flex flex-col items-center flex-shrink-0 cursor-pointer group">
                                 <div className="relative">
-                                    <div className="h-12 w-12 rounded-full bg-brand-surface border border-brand-border flex items-center justify-center text-xs text-brand-text-muted font-bold group-hover:border-slate-700 transition-all">
+                                    <div className="h-12 w-12 rounded-full bg-brand-surface border border-brand-border flex items-center justify-center text-xs text-brand-text-muted font-bold group-hover:border-brand-border transition-all">
                                         ME
                                     </div>
 
@@ -306,7 +306,7 @@ const FeedPage: React.FC = () => {
 
 
                     {/*Feed composer box */}
-                    <div className="rounded-3xl border border-brand-border bg-brand-bg p-3 sm:p-4 shadow-xl focus-within:border-violet-500/40 transition-all">
+                    <div className="rounded-3xl border border-brand-border bg-brand-bg p-3 sm:p-4 shadow-xl focus-within:border-brand-accent/40 transition-all">
                         <textarea 
                             className="w-full bg-transparent resize-none text-sm text-brand-text placeholder-slate-600 outline-none min-h-[80px]"
                             placeholder="What's on your mind..."
@@ -435,7 +435,7 @@ const FeedPage: React.FC = () => {
                                 type="button"
                                 onClick={sendNewPost}
                                 disabled={isPosting || (!newPost.trim() && attachments.length === 0)}
-                                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-brand-accent to-brand-accent-hover rounded-xl font-bold text-white shadow-lg shadow-violet-600/10 transition-all hover:scale-[1.03] active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-brand-accent to-brand-accent-hover rounded-xl font-bold text-white shadow-lg shadow-brand-accent/10 transition-all hover:scale-[1.03] active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
                             >
                                 {isPosting ? (
                                     <>

@@ -127,12 +127,12 @@ const MessagePage: React.FC = () => {
     }, [user?.id]);
 
     return (
-        <div className="relative min-h-screen bg-brand-bg text-brand-text flex justify-center overflow-hidden">
+        <div className="relative h-[100dvh] bg-brand-bg text-brand-text flex justify-center overflow-hidden">
             <div className="absolute top-0 right-1/4 h-[500px] w-[500px] rounded-full bg-brand-accent/5 blur-[130px] pointer-events-none " />
-            <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-[80px_1fr] lg:grid-cols-[260px_1fr] px-2 sm:px-4 lg:px-6 gap-3 lg:gap-6 relative z-10">
+            <div className="w-full h-full max-w-7xl grid grid-cols-1 md:grid-cols-[80px_1fr] lg:grid-cols-[260px_1fr] grid-rows-[auto_1fr] md:grid-rows-1 px-2 sm:px-4 lg:px-6 gap-0 sm:gap-3 lg:gap-6 relative z-10">
                 <Sidebar />
 
-                <main className="py-4 sm:py-6 grid grid-cols-1 md:grid-cols-[340px_1fr] overflow-hidden max-h-screen w-full min-w-0">
+                <main className="pb-2 pt-0 sm:py-6 grid grid-cols-1 md:grid-cols-[340px_1fr] overflow-hidden h-full w-full min-w-0">
 
                     {/*Chat directory — full width on mobile when no chat is open,
                         hidden on mobile once a chat is active (WhatsApp-style swap) */}
@@ -159,7 +159,7 @@ const MessagePage: React.FC = () => {
                                     onClick={() => setActiveChat(chat)}
                                     className={`w-full text-left p-3.5 rounded-2xl flex items-center gap-3.5 border transition-all ${
                                         activeChat?.conversationId === chat.conversationId
-                                            ? "bg-gradient-to-r from-brand-accent/20 to-brand-surface/40 border-brand-accent/30 shadow-md shadow-violet-950/10"
+                                            ? "bg-gradient-to-r from-brand-accent/20 to-brand-surface/40 border-brand-accent/30 shadow-md shadow-brand-accent/10"
                                             : "bg-transparent border-transparent hover:bg-brand-surface-hover/40 hover:border-brand-border"
                                     }`}
                                 >

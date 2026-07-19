@@ -20,8 +20,8 @@ const BLoader: React.FC<BloaderProps> = ({
 
     const variantMap = {
         white: {letter: "text-white", dot: "bg-white" },
-        primary: { letter: "text-violet-500", dot: "bg-violet-500" },
-        slate: { letter: "text-slate-400", dot: "bg-slate-400" },
+        primary: { letter: "text-brand-accent", dot: "bg-violet-500" },
+        slate: { letter: "text-brand-text-muted", dot: "bg-slate-400" },
         gold: { letter: "text-[#c9a84c]", dot: "bg-[#c9a84c]" },
     };
 

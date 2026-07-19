@@ -97,7 +97,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ children, items }) => {
                         left: position.x,
                         zIndex: 1000
                     }}
-                    className="min-w-[180px] rounded-xl border border-slate-800 bg-slate-950 shadow-xl py-1.5 overflow-hidden"
+                    className="min-w-[180px] rounded-xl border border-brand-border bg-brand-bg shadow-xl py-1.5 overflow-hidden"
                 >
                     {items.map((item, index) => {
                         const Icon = item.icon;
@@ -108,10 +108,10 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ children, items }) => {
                                 disabled={item.disabled}
                                 className={`w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-left transition-colors ${
                                     item.disabled
-                                        ? "text-slate-600 cursor-not-allowed"
+                                        ? "text-brand-text-muted cursor-not-allowed"
                                         : item.danger
                                             ? "text-red-400 hover:bg-red-500/10"
-                                            : "text-slate-200 hover:bg-slate-900"
+                                            : "text-brand-text hover:bg-brand-surface"
                                 }`}
                             >
                                 {Icon && <Icon size={14} />}

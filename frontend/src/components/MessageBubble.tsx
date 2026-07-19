@@ -109,10 +109,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, parti
     return (
         <div className="relative">
             <div
-                className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-violet-600/20 transition-opacity"
+                className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 rounded-full bg-brand-accent/20 transition-opacity"
                 style={{ opacity: replyProgress }}
             >
-                <CornerUpLeft size={14} className="text-violet-400" />
+                <CornerUpLeft size={14} className="text-brand-accent" />
             </div>
 
             <div
@@ -129,32 +129,32 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, parti
                 className={`flex flex-col cursor-grab active:cursor-grabbing ${isMe ? "items-end" : "items-start"}`}
             >
                 {isGroup && !isMe && (
-                    <span className="text-[10px] font-bold text-violet-400 mb-0.5 px-1">
+                    <span className="text-[10px] font-bold text-brand-accent mb-0.5 px-1">
                         {getSenderName(msg.sender, participants)}
                     </span>
                 )}
 
                 <div className={`max-w-[70%] rounded-2xl px-4 py-3 text-xs leading-relaxed transition-all ${
                     isMe
-                        ? "bg-violet-600 text-white rounded-tr-none font-medium shadow-md shadow-violet-600/10"
-                        : "bg-slate-900/60 border border-slate-900 text-slate-300 rounded-tl-none"
+                        ? "bg-brand-accent text-white rounded-tr-none font-medium shadow-md shadow-brand-accent/10"
+                        : "bg-brand-surface/60 border border-brand-border text-brand-text rounded-tl-none"
                 }`}>
                     <div className="whitespace-pre-wrap">
                         {msg.replyTo && (
                             <div className={`mb-2 pl-2 border-l-2 rounded-r-md py-1 px-2 ${
-                                isMe ? "border-white/40 bg-white/10" : "border-violet-500/50 bg-slate-950/40"
+                                isMe ? "border-white/40 bg-white/10" : "border-brand-accent/50 bg-brand-bg/40"
                             }`}>
-                                <p className={`text-[10px] font-bold ${isMe ? "text-white/80" : "text-violet-400"}`}>
+                                <p className={`text-[10px] font-bold ${isMe ? "text-white/80" : "text-brand-accent"}`}>
                                     {getSenderName(msg.replyTo.sender, participants)}
                                 </p>
-                                <p className={`text-[10px] truncate ${isMe ? "text-white/60" : "text-slate-500"}`}>
+                                <p className={`text-[10px] truncate ${isMe ? "text-white/60" : "text-brand-text-muted"}`}>
                                     {msg.replyTo.text || attachmentPreviewLabel(msg.replyTo.attachment)}
                                 </p>
                             </div>
                         )}
 
                         {msg.isDeleted && (
-                            <p className="italic text-slate-500">
+                            <p className="italic text-brand-text-muted">
                                 ∅ This message was deleted.
                             </p>
                         )}
@@ -169,7 +169,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, parti
                         )}
 
                         {msg.attachment?.type === "image" && (
-                            <div className="mt-2 rounded-xl overflow-hidden max-w-xs bg-slate-800/50">
+                            <div className="mt-2 rounded-xl overflow-hidden max-w-xs bg-brand-surface-hover/50">
                                 <img
                                     src={msg.attachment.url}
                                     alt=""
@@ -199,7 +199,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, parti
                                 href={msg.attachment.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-violet-400 underline"
+                                className="text-brand-accent underline"
                             >
                                 {msg.attachment?.fileName}
                             </a>
@@ -213,16 +213,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, parti
                     </div>
                 </div>
 
-                <div className="flex items-center gap-1 mt-1 text-[9px] text-slate-600 px-1 font-medium">
+                <div className="flex items-center gap-1 mt-1 text-[9px] text-brand-text-muted px-1 font-medium">
                     <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                     {isMe && msg.status === "sending" && (
-                        <span className="text-slate-500 italic">Sending...</span>
+                        <span className="text-brand-text-muted italic">Sending...</span>
                     )}
                     {isMe && msg.status === "failed" && (
                         <span className="text-red-400 font-semibold">Failed to send</span>
                     )}
                     {isMe && (msg.status === "sent" || !msg.status) && (
-                        <CheckCheck size={11} className="text-violet-400" />
+                        <CheckCheck size={11} className="text-brand-accent" />
                     )}
                 </div>
             </div>

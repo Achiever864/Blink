@@ -63,7 +63,7 @@ const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({ url, isMe }) =>
                 type="button"
                 onClick={togglePlay}
                 className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center transition-all active:scale-90 ${
-                    isMe ? "bg-white/20 hover:bg-white/30" : "bg-violet-600 hover:bg-violet-500"
+                    isMe ? "bg-white/20 hover:bg-white/30" : "bg-brand-accent hover:bg-brand-accent-hover"
                 }`}
             >
                 {isPlaying ? (
@@ -92,7 +92,7 @@ const AudioMessagePlayer: React.FC<AudioMessagePlayerProps> = ({ url, isMe }) =>
                     />
                 </div>
 
-                <span className={`text-[10px] font-mono ${isMe ? "text-white/70" : "text-slate-500"}`}>
+                <span className={`text-[10px] font-mono ${isMe ? "text-white/70" : "text-brand-text-muted"}`}>
                     {formatTime(isPlaying || currentTime > 0 ? currentTime : duration)}
                 </span>
             </div>

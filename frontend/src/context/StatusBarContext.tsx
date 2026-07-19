@@ -43,7 +43,7 @@ export const StatusBarProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                                 <AlertOctagon size={20} className="text-rose-400 shrink-0" />
                             )}
 
-                            <p className="text-sm font-medium tracking-wide text-slate-200">
+                            <p className="text-sm font-medium tracking-wide text-brand-text">
                                 {notif.message}
                             </p>
                         </div>
@@ -51,7 +51,7 @@ export const StatusBarProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                         {/*This if for users to exit the commands */}
                         <button
                         onClick={() => removeStatus(notif.id)}
-                        className="rounded-lg p-1 text-slate-400 hover:bg-white/5 hover:text-white transition">
+                        className="rounded-lg p-1 text-brand-text-muted hover:bg-white/5 hover:text-white transition">
                             <X size={16} />
                         </button>
 

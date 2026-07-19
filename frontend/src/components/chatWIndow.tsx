@@ -295,18 +295,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
         return (
             <section className="flex flex-col h-full pl-6 overflow-hidden relative">
                 <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center px-8">
-                    <div className="h-24 w-24 rounded-3xl bg-violet-600/10 border border-violet-500/20 flex items-center justify-center">
-                        <MessageSquarePlus size={40} className="text-violet-400" />
+                    <div className="h-24 w-24 rounded-3xl bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center">
+                        <MessageSquarePlus size={40} className="text-brand-accent" />
                     </div>
                     <div className="space-y-1.5">
-                        <h3 className="text-base font-bold text-slate-200">Your messages live here</h3>
-                        <p className="text-xs text-slate-500 max-w-xs">
+                        <h3 className="text-base font-bold text-brand-text">Your messages live here</h3>
+                        <p className="text-xs text-brand-text-muted max-w-xs">
                             Pick a conversation from the left, or start a new chat with a friend to begin.
                         </p>
                     </div>
                     <button
                         onClick={onStartNewChat}
-                        className="mt-2 px-5 py-2.5 rounded-xl bg-violet-600/10 hover:bg-violet-600 border border-violet-500/20 text-violet-400 hover:text-white text-xs font-bold flex items-center gap-2 transition-all"
+                        className="mt-2 px-5 py-2.5 rounded-xl bg-brand-accent/10 hover:bg-brand-accent border border-brand-accent/20 text-brand-accent hover:text-white text-xs font-bold flex items-center gap-2 transition-all"
                     >
                         <MessageSquarePlus size={15} />
                         <span>Start a new chat</span>
@@ -330,9 +330,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
                             <button
                 type="button"
                 onClick={onOpenSettings}
-                className="pb-4 border-b border-slate-900/60 flex items-center gap-3 text-left hover:opacity-80 transition-opacity"
+                className="pb-4 border-b border-brand-border/60 flex items-center gap-3 text-left hover:opacity-80 transition-opacity"
             >
-                <div className="h-8 w-8 rounded-lg bg-violet-600/10 border border-violet-500/20 flex items-center justify-center text-violet-400 text-xs font-bold flex-shrink-0">
+                <div className="h-8 w-8 rounded-lg bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent text-xs font-bold flex-shrink-0">
                     {activeChat.profilePicture ? (
                         <img src={activeChat.profilePicture} alt="image" className="w-full h-full object-cover" />
                     ) : (
@@ -340,10 +340,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
                     )}
                 </div>
                 <div>
-                    <h3 className="text-xs font-bold text-slate-200">{activeChat.title}</h3>
+                    <h3 className="text-xs font-bold text-brand-text">{activeChat.title}</h3>
                     {!activeChat.isGroup && (
                         <p className={`text-[10px] flex items-center gap-1 mt-0.5 font-medium ${
-                            activeChat.online ? "text-emerald-400" : "text-slate-500"
+                            activeChat.online ? "text-emerald-400" : "text-brand-text-muted"
                         }`}>
                             <span className={`h-1 w-1 rounded-full ${
                                 activeChat.online ? "bg-emerald-400 animate-pulse" : "bg-slate-600"
@@ -377,7 +377,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
             {showScrollButton && (
                 <button
                     onClick={() => scrollToBottom()}
-                    className="absolute bottom-24 right-6 h-11 w-11 rounded-full bg-violet-600 hover:bg-violet-500 shadow-lg flex items-center justify-center transition-all"
+                    className="absolute bottom-24 right-6 h-11 w-11 rounded-full bg-brand-accent hover:bg-brand-accent-hover shadow-lg flex items-center justify-center transition-all"
                 >
                     <ChevronDown size={20} />
                 </button>
@@ -385,7 +385,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
 
             {mediaFile && mediaPreviewUrl && (
                 <div className="px-4 pb-2">
-                    <div className="relative inline-block rounded-xl overflow-hidden border border-slate-800">
+                    <div className="relative inline-block rounded-xl overflow-hidden border border-brand-border">
                         {mediaFile.type.startsWith("video") ? (
                             <video src={mediaPreviewUrl} className="h-24 w-24 object-cover" muted />
                         ) : (
@@ -404,29 +404,29 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
 
             {replyingTo && (
                 <div className="px-4 pb-2 flex items-center gap-2">
-                    <div className="flex-1 rounded-xl border-l-2 border-violet-500 bg-slate-900/40 px-3 py-2">
-                        <p className="text-[10px] text-violet-400 font-semibold">
+                    <div className="flex-1 rounded-xl border-l-2 border-brand-accent bg-brand-surface/40 px-3 py-2">
+                        <p className="text-[10px] text-brand-accent font-semibold">
                             Replying to {getSenderName(replyingTo.sender) || "message"}
                         </p>
-                        <p className="text-xs text-slate-500 truncate">{replyingTo.text}</p>
+                        <p className="text-xs text-brand-text-muted truncate">{replyingTo.text}</p>
                     </div>
-                    <button type="button" onClick={() => setReplyingTo(null)} className="text-slate-500 hover:text-slate-300">
+                    <button type="button" onClick={() => setReplyingTo(null)} className="text-brand-text-muted hover:text-brand-text">
                         <X size={14} />
                     </button>
                 </div>
             )}
 
-            <form onSubmit={handleSendMessage} className="pt-4 border-t border-slate-900/60 bg-slate-950">
-                <div className="relative flex items-center rounded-2xl border border-slate-900/60 bg-slate-950">
+            <form onSubmit={handleSendMessage} className="pt-4 border-t border-brand-border/60 bg-brand-bg">
+                <div className="relative flex items-center rounded-2xl border border-brand-border/60 bg-brand-bg">
                     {isRecording ? (
                         <div className="w-full flex items-center gap-3 py-2.5 pl-4 pr-14">
                             <span className="h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse" />
                             <span className="text-xs font-semibold text-red-400">Recording...</span>
-                            <span className="text-xs text-slate-500 font-mono">{formatDuration(recordingDuration)}</span>
+                            <span className="text-xs text-brand-text-muted font-mono">{formatDuration(recordingDuration)}</span>
                             <button
                                 type="button"
                                 onClick={cancelRecording}
-                                className="ml-auto text-[10px] text-slate-500 hover:text-slate-300 font-medium"
+                                className="ml-auto text-[10px] text-brand-text-muted hover:text-brand-text font-medium"
                             >
                                 Cancel
                             </button>
@@ -435,7 +435,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
                         <>
                             <button
                                 type="button"
-                                className="ml-3 p-2 rounded-xl text-slate-400 hover:bg-slate-800"
+                                className="ml-3 p-2 rounded-xl text-brand-text-muted hover:bg-brand-surface-hover"
                                 onClick={() => mediaInputRef.current?.click()}
                             >
                                 <Paperclip size={20} />
@@ -455,7 +455,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
                                 <button
                                     type="button"
                                     onClick={() => setCameraActive(true)}
-                                    className=" p-2 rounded-xl text-slate-400 hover:bg-slate-800"
+                                    className=" p-2 rounded-xl text-brand-text-muted hover:bg-brand-surface-hover"
                                 >
                                     <Camera size={20} />
                                 </button>
@@ -470,7 +470,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
 
                             <button
                                 type="button"
-                                className="p-2 rounded-xl text-slate-400 hover:bg-slate-800 relative"
+                                className="p-2 rounded-xl text-brand-text-muted hover:bg-brand-surface-hover relative"
                                 onClick={() => setShowEmojiPicker(prev => !prev)}
                             >
                                 <Smile size={20} />
@@ -490,7 +490,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
                                 ref={inputRef}
                                 type="text"
                                 placeholder="Type a message..."
-                                className="w-full bg-transparent py-2.5 pl-4 pr-14 text-xs text-slate-200 outline-none placeholder-slate-600"
+                                className="w-full bg-transparent py-2.5 pl-4 pr-14 text-xs text-brand-text outline-none placeholder-slate-600"
                                 value={typedMessage}
                                 onChange={(e) => setTypedMessage(e.target.value)}
                             />
@@ -501,7 +501,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
                         <button
                             type="submit"
                             disabled={sendingMessage}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-xl bg-violet-600 text-white shadow-md shadow-violet-600/20 transition-all hover:scale-[1.05] active:scale-[0.95] disabled:opacity-30 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-xl bg-brand-accent text-white shadow-md shadow-brand-accent/20 transition-all hover:scale-[1.05] active:scale-[0.95] disabled:opacity-30 disabled:hover:scale-100 disabled:cursor-not-allowed"
                         >
                             <Send size={12} />
                         </button>
@@ -510,7 +510,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
                             type="button"
                             onClick={isRecording ? stopRecording : startRecording}
                             className={`absolute right-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-xl text-white shadow-md transition-all hover:scale-[1.05] active:scale-[0.95] ${
-                                isRecording ? "bg-red-500 shadow-red-500/20 animate-pulse" : "bg-violet-600 shadow-violet-600/20"
+                                isRecording ? "bg-red-500 shadow-red-500/20 animate-pulse" : "bg-brand-accent shadow-brand-accent/20"
                             }`}
                         >
                             <Mic2 size={16} />

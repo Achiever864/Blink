@@ -77,8 +77,8 @@ const ProfileView: React.FC<UserProfileModalProps> = ({
     if (loading || !profile){
         return createPortal(
             <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-                <div className="flex flex-col items-center gap-3 text-slate-400">
-                    <div className="h-10 w-10 rounded-full border-2 border-slate-700 border-t-violet-500 animate-spin" />
+                <div className="flex flex-col items-center gap-3 text-brand-text-muted">
+                    <div className="h-10 w-10 rounded-full border-2 border-brand-border border-t-violet-500 animate-spin" />
                     <span className="text-sm font-medium"> Loading Profile...</span>
                 </div>
             </div>,
@@ -89,7 +89,7 @@ const ProfileView: React.FC<UserProfileModalProps> = ({
      return createPortal(
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
             {/*Modal */}
-            <div className="w-full max-w-4xl h-[90vh] bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+            <div className="w-full max-w-4xl h-[90vh] bg-brand-bg border border-brand-border rounded-3xl overflow-hidden shadow-2xl flex flex-col">
                 {/*Cover Photo */}
                 <div className="relative h-52 bg-gradient-to-r from-violet-700 via-indigo-600 to-fuchsia-600">
                     {profile.coverPhoto && (
@@ -112,7 +112,7 @@ const ProfileView: React.FC<UserProfileModalProps> = ({
                     {/*profile section */}
                     <div className="px-8">
                         <div className="mt-16 flex items-end justify-between">
-                            <div className="h-32 w-32 rounded-3xl border-4 border-slate-950 overflow-hidden bg-slate-900 shadow-xl">
+                            <div className="h-32 w-32 rounded-3xl border-4 border-slate-950 overflow-hidden bg-brand-surface shadow-xl">
                                 <img
                                     src={profile.profilePicture?.url}
                                     alt=""
@@ -123,20 +123,20 @@ const ProfileView: React.FC<UserProfileModalProps> = ({
                             {/*Action Button */}
                             {profile.userId !== currentUser?.id && (
                                 <div className="flex gap-3">
-                                    <button className="px-5 py-2 rounded-xl border border-slate-700 hover:border-violet-500 transition">
+                                    <button className="px-5 py-2 rounded-xl border border-brand-border hover:border-brand-accent transition">
                                         Message
                                     </button>
 
                                     {profile.isFriend ? (
-                                        <button className="px-5 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold cursor-default">
+                                        <button className="px-5 py-2 rounded-xl bg-brand-surface-hover text-brand-text font-semibold cursor-default">
                                             Friends
                                         </button>
                                     ) : profile.friendRequestSent ? (
-                                        <button className="px-5 py-2 rounded-xl bg-slate-800 text-slate-400 font-semibold cursor-default">
+                                        <button className="px-5 py-2 rounded-xl bg-brand-surface-hover text-brand-text-muted font-semibold cursor-default">
                                             Request Sent
                                         </button>
                                     ) : (
-                                        <button className="px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 transition font-semibold">
+                                        <button className="px-5 py-2 rounded-xl bg-brand-accent hover:bg-brand-accent-hover transition font-semibold">
                                             Add Friend
                                         </button>
                                     )}
@@ -150,19 +150,19 @@ const ProfileView: React.FC<UserProfileModalProps> = ({
                                 {profile.fullname || profile.username}
                             </h1>
 
-                            <p className="text-slate-500 text-sm">
+                            <p className="text-brand-text-muted text-sm">
                                 {profile.username}
                             </p>
 
                             {profile.bio && (
-                                <p className="mt-4 text-slate-300 leading-relaxed max-w-2xl">
+                                <p className="mt-4 text-brand-text leading-relaxed max-w-2xl">
                                     {profile.bio}
                                 </p>
                             )}
                         </div>
 
                         {/*Quick Info */}
-                        <div className="flex flex-wrap gap-6 mt-5 text-sm text-slate-400">
+                        <div className="flex flex-wrap gap-6 mt-5 text-sm text-brand-text-muted">
                             {profile.city && <span>{profile.city}</span>}
                             {profile.occupation && <span>{profile.occupation}</span>}
                             {profile.nationality && <span>{profile.nationality}</span>}
@@ -171,53 +171,53 @@ const ProfileView: React.FC<UserProfileModalProps> = ({
 
                         {/*Stats */}
                         <div className="grid grid-cols-4 gap-4 mt-8">
-                            <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 text-center">
+                            <div className="rounded-2xl bg-brand-surface border border-brand-border p-5 text-center">
                                 <h2 className="text-3xl font-black text-white">
                                     {profile.friendsCount}
                                 </h2>
-                                <p className="text-xs text-slate-500 mt-1">Friends</p>
+                                <p className="text-xs text-brand-text-muted mt-1">Friends</p>
                             </div>
 
-                            <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 text-center">
+                            <div className="rounded-2xl bg-brand-surface border border-brand-border p-5 text-center">
                                 <h2 className="text-3xl font-black text-white">
                                     {profile.postsCount}
                                 </h2>
-                                <p className="text-xs text-slate-500 mt-1">Posts</p>
+                                <p className="text-xs text-brand-text-muted mt-1">Posts</p>
                             </div>
 
-                            <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 text-center">
+                            <div className="rounded-2xl bg-brand-surface border border-brand-border p-5 text-center">
                                 <h2 className="text-3xl font-black text-white">
                                     {profile.mutualFriends.length}
                                 </h2>
-                                <p className="text-xs text-slate-500 mt-1">Mutual Friends</p>
+                                <p className="text-xs text-brand-text-muted mt-1">Mutual Friends</p>
                             </div>
 
-                            <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 text-center">
-                                <h2 className={`text-3xl font-black ${profile.online ? "text-emerald-400" : "text-slate-500"}`}>
+                            <div className="rounded-2xl bg-brand-surface border border-brand-border p-5 text-center">
+                                <h2 className={`text-3xl font-black ${profile.online ? "text-emerald-400" : "text-brand-text-muted"}`}>
                                     {profile.online ? "Online" : "Offline"}
                                 </h2>
-                                <p className="text-xs text-slate-500 mt-1">Status</p>
+                                <p className="text-xs text-brand-text-muted mt-1">Status</p>
                             </div>
                         </div>
 
-                        <div className="flex gap-8 mt-10 border-b border-slate-800">
-                            <button className="pb-4 border-b-2 border-violet-500 text-white font-semibold">
+                        <div className="flex gap-8 mt-10 border-b border-brand-border">
+                            <button className="pb-4 border-b-2 border-brand-accent text-white font-semibold">
                                 Posts
                             </button>
-                            <button className="pb-4 text-slate-500 hover:text-white">
+                            <button className="pb-4 text-brand-text-muted hover:text-white">
                                 Media
                             </button>
-                            <button className="pb-4 text-slate-500 hover:text-white">
+                            <button className="pb-4 text-brand-text-muted hover:text-white">
                                 Friends
                             </button>
-                            <button className="pb-4 text-slate-500 hover:text-white">
+                            <button className="pb-4 text-brand-text-muted hover:text-white">
                                 About
                             </button>
                         </div>
 
                         {/*Content — still placeholder, needs actual post fetching */}
                         <div className="space-y-4 py-8">
-                            <p className="text-sm text-slate-500 text-center py-8">
+                            <p className="text-sm text-brand-text-muted text-center py-8">
                                 Recent posts will appear here once wired up.
                             </p>
                         </div>
