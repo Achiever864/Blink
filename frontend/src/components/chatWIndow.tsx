@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo, useEffect } from "react";
 import {
-    Send, Smile, ChevronDown, Camera, Mic2, Paperclip, MessageSquarePlus, X
+    Send, ArrowLeft, Smile, ChevronDown, Camera, Mic2, Paperclip, MessageSquarePlus, X
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useStatus } from "../context/StatusBarContext";
@@ -18,6 +18,7 @@ interface ChatWindowProps {
     activeChat: Conversation | null;
     onOpenSettings: () => void;
     onStartNewChat: () => void;
+    onBack: () => void;
 }
 
 const formatLastSeen = (lastSeen?: string) => {
@@ -38,7 +39,7 @@ const formatDuration = (seconds: number) => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
 };
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onStartNewChat }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onStartNewChat, onBack }) => {
     const { user } = useAuth();
     const { showStatus } = useStatus();
 
@@ -315,10 +316,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
         );
     }
 
-    return (
+    return (    
         <section className="flex flex-col h-full pl-6 overflow-hidden relative">
+            <div className="pb-4 border-b border-brand-border/60 flex items-center gap-2">
+                <button
+                    type="button"
+                    onClick={onBack}
+                    className="md:hidden p-2 -ml-2 rounded-xl text-brand-text-muted hover:bg-brand-surface-hover transition-all flex-shrink-0"
+                >
+                    <ArrowLeft size={18} />
+                </button>
 
-            <button
+                            <button
                 type="button"
                 onClick={onOpenSettings}
                 className="pb-4 border-b border-slate-900/60 flex items-center gap-3 text-left hover:opacity-80 transition-opacity"
@@ -344,6 +353,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
                     )}
                 </div>
             </button>
+            </div>
+
 
             <div
                 ref={chatContainerRef}

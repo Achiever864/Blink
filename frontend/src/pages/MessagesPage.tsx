@@ -127,52 +127,56 @@ const MessagePage: React.FC = () => {
     }, [user?.id]);
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 flex justify-center overflow-hidden">
-            <div className="absolute top-0 right-1/4 h-[500px] w-[500px] rounded-full bg-indigo-600/5 blur-[130px] pointer-events-none " />
-            <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-[80px_1fr] lg:grid-cols-[260px_1fr] px-4 gap-6 relative z-10">
+        <div className="min-h-screen bg-brand-bg text-brand-text flex justify-center overflow-hidden">
+            <div className="absolute top-0 right-1/4 h-[500px] w-[500px] rounded-full bg-brand-accent/5 blur-[130px] pointer-events-none " />
+            <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-[80px_1fr] lg:grid-cols-[260px_1fr] px-2 sm:px-4 lg:px-6 gap-3 lg:gap-6 relative z-10">
                 <Sidebar />
 
-                <main className="py-6 grid grid-cols-1 lg:grid-cols-[340px_1fr] overflow-hidden max-h-screen">
+                <main className="py-4 sm:py-6 grid grid-cols-1 md:grid-cols-[340px_1fr] overflow-hidden max-h-screen w-full min-w-0">
 
-                    <section className="border-r border-slate-900/60 pr-4 flex flex-col h-full overflow-hidden">
-                        <div className="mb-4 space-y-4">
-                            <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                    {/*Chat directory — full width on mobile when no chat is open,
+                        hidden on mobile once a chat is active (WhatsApp-style swap) */}
+                    <section className={`border-r border-brand-border/60 md:pr-4 flex-col h-full overflow-hidden ${
+                        activeChat ? "hidden md:flex" : "flex"
+                    }`}>
+                        <div className="mb-4 space-y-4 px-2 sm:px-0">
+                            <h1 className="text-2xl font-black tracking-tight text-brand-text flex items-center gap-2">
                                 Chats
                             </h1>
                             <div className="relative flex items-center">
-                                <Search className="absolute left-4 text-slate-600" size={16} />
+                                <Search className="absolute left-4 text-brand-text-muted" size={16} />
                                 <input type="text"
                                     placeholder="Search a friend..."
-                                    className="w-full text-xs rounded-xl border border-slate-900 bg-slate-950 py-3 pl-11 pr-4 text-white placeholder-slate-600 outline-none transition-all focus:border-violet-500/40"
+                                    className="w-full text-xs rounded-xl border border-brand-border bg-brand-bg py-3 pl-11 pr-4 text-brand-text placeholder-slate-600 outline-none transition-all focus:border-brand-accent/40"
                                 />
                             </div>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto no-scrollbar space-y-2 pr-1">
+                        <div className="flex-1 overflow-y-auto no-scrollbar space-y-2 pr-1 px-2 sm:px-0">
                             {conversations.map((chat) => (
                                 <button
                                     key={chat.conversationId}
                                     onClick={() => setActiveChat(chat)}
                                     className={`w-full text-left p-3.5 rounded-2xl flex items-center gap-3.5 border transition-all ${
                                         activeChat?.conversationId === chat.conversationId
-                                            ? "bg-gradient-to-r from-violet-950/30 to-slate-900/40 border-violet-500/30 shadow-md shadow-violet-950/10"
-                                            : "bg-transparent border-transparent hover:bg-slate-900/20 hover:border-slate-900"
+                                            ? "bg-gradient-to-r from-brand-accent/20 to-brand-surface/40 border-brand-accent/30 shadow-md shadow-violet-950/10"
+                                            : "bg-transparent border-transparent hover:bg-brand-surface-hover/40 hover:border-brand-border"
                                     }`}
                                 >
                                     <div className="relative">
-                                        <div className="h-10 w-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-sm font-bold text-slate-300">
+                                        <div className="h-10 w-10 rounded-xl bg-brand-surface border border-brand-border flex items-center justify-center text-sm font-bold text-brand-text overflow-hidden">
                                             {chat.avatarLabel}
                                         </div>
                                         {chat.online && (
-                                            <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-500 border-2 border-slate-950" />
+                                            <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-500 border-2 border-brand-bg" />
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between">
-                                            <h4 className="text-xs font-bold text-slate-200 truncate">{chat.title}</h4>
-                                            <span className="text-[10px] text-slate-600 font-medium">{new Date(chat.updatedAt).toLocaleTimeString()}</span>
+                                            <h4 className="text-xs font-bold text-brand-text truncate">{chat.title}</h4>
+                                            <span className="text-[10px] text-brand-text-muted font-medium">{new Date(chat.updatedAt).toLocaleTimeString()}</span>
                                         </div>
-                                        <p className={`text-xs truncate mt-0.5 ${chat.unread ? "text-violet-400 font-semibold" : "text-slate-500"}`}>
+                                        <p className={`text-xs truncate mt-0.5 ${chat.unread ? "text-brand-accent font-semibold" : "text-brand-text-muted"}`}>
                                             {chat.latestMessage?.text || "No messages yet"}
                                         </p>
                                     </div>
@@ -180,10 +184,10 @@ const MessagePage: React.FC = () => {
                             ))}
                         </div>
 
-                        <div className="p-3 border-t border-slate-900/80 bg-slate-950">
+                        <div className="p-3 border-t border-brand-border/80 bg-brand-bg">
                             <button
                                 onClick={() => setIsModalOpen(true)}
-                                className="w-full py-3 px-4 rounded-xl bg-violet-600/10 hover:bg-violet-600 border border-violet-500/20 text-violet-400 hover:text-white text-xs font-bold flex items-center justify-center gap-2 transition-all"
+                                className="w-full py-3 px-4 rounded-xl bg-brand-accent/10 hover:bg-brand-accent border border-brand-accent/20 text-brand-accent hover:text-white text-xs font-bold flex items-center justify-center gap-2 transition-all"
                             >
                                 <MessageSquarePlus size={15} />
                                 <span>Chat with Friends</span>
@@ -198,11 +202,16 @@ const MessagePage: React.FC = () => {
                         />
                     </section>
 
-                    <ChatWindow
-                        activeChat={activeChat}
-                        onOpenSettings={() => setShowChatSettings(true)}
-                        onStartNewChat={() => setIsModalOpen(true)}
-                    />
+                    {/*Chat window — hidden on mobile until a chat is selected,
+                        always visible from md upward (so the empty state still shows on desktop) */}
+                    <div className={`h-full min-h-0 md:pl-6 ${activeChat ? "flex" : "hidden md:flex"} flex-col`}>
+                        <ChatWindow
+                            activeChat={activeChat}
+                            onOpenSettings={() => setShowChatSettings(true)}
+                            onStartNewChat={() => setIsModalOpen(true)}
+                            onBack={() => setActiveChat(null)}
+                        />
+                    </div>
                 </main>
             </div>
 

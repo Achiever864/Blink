@@ -235,7 +235,7 @@ const FeedPage: React.FC = () => {
 
 
     return (
-        <div className="min-h-screen bg-brand-bg text-brand-text flex justify-center md:overflow-hidden">
+        <div className="min-h-screen bg-brand-bg text-brand-text flex justify-center overflow-hidden">
             {/*global backgroung glows.. i really should remove all glows later sha */}
             <div className="absolute top-0 left-1/4 h-[600px] w-[600px] px-2 sm:px-4 rounded-full bg-brand-accent/5 blur-[150px] pointer-events-none" />
 
