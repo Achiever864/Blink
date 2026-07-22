@@ -52,12 +52,14 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const peerRef = useRef<RTCPeerConnection | null>(null);
     const targetUserIdRef = useRef<string | null>(null);
+    const pendingCandidatesRef = useRef<RTCIceCandidateInit[]>([]);
 
     const cleanup = useCallback(() => {
         localStream?.getTracks().forEach(track => track.stop());
         peerRef.current?.close();
         peerRef.current = null;
         targetUserIdRef.current = null;
+        pendingCandidatesRef.current = [];
         setLocalStream(null);
         setRemoteStream(null);
         setCallStatus("idle");
@@ -136,6 +138,12 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
         peerRef.current = peer;
 
         await peer.setRemoteDescription(new RTCSessionDescription(incomingCall.offer));
+
+        //flush any ICE candidate that arrived before we were ready
+        for (const candidate of pendingCandidatesRef.current){
+            await peer.addIceCandidate(new RTCIceCandidate(candidate));
+        }
+        pendingCandidatesRef.current = [];
         const answer = await peer.createAnswer();
         await peer.setLocalDescription(answer);
 
@@ -188,17 +196,25 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
         socket.on("call:answer", async ({ answer }) => {
             if (peerRef.current) {
                 await peerRef.current.setRemoteDescription(new RTCSessionDescription(answer));
+
+                //flush here too
+                for (const candidate of pendingCandidatesRef.current){
+                    await peerRef.current.addIceCandidate(new RTCIceCandidate(candidate));
+                }
+                pendingCandidatesRef.current = [];
                 setCallStatus("active");
             }
         });
 
         socket.on("call:ice-candidate", async ({ candidate }) => {
-            if (peerRef.current) {
+            if (peerRef.current && peerRef.current.remoteDescription) {
                 try {
                     await peerRef.current.addIceCandidate(new RTCIceCandidate(candidate));
                 } catch (err) {
                     console.error("Failed to add ICE candidate:", err);
                 }
+            } else {
+                pendingCandidatesRef.current.push(candidate);
             }
         });
 
