@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-    Camera, Pencil, Trash2, Plus, Heart, MessageCircle, Paperclip, Send, X,
+    Camera, Trash2, Plus, Heart, MessageCircle, Paperclip, Send, X,
     Eye,
     Minus,
     Mic

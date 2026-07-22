@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { 
-    Search, UserPlus, Check, X, Flame, Radio, Sliders 
+    Search, UserPlus, Check, X, Flame, Radio,
 } from "lucide-react";
 import Sidebar from "../components/sideBar.tsx";
 import API from "../api/axios";
@@ -22,7 +22,7 @@ const FriendsPage: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [loadingSearch, setLoadingSearch] = useState(false);
-
+    console.log(searchResults, loadingSearch);
 
     const { showStatus } = useStatus();
     const { user } = useAuth();
@@ -150,9 +150,10 @@ const FriendsPage: React.FC = () => {
         friend.username.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const filteredSearchResults = searchResults.filter(user =>
-        user.username.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // const filteredSearchResults = searchResults.filter(user =>
+    //     user.username.toLowerCase().includes(searchQuery.toLowerCase())
+    // ); still working on integrating this sha..
+
     return (
         <div className="relative min-h-screen bg-brand-bg text-brand-text flex justify-center overflow-hidden">
 
