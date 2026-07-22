@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-    Camera, Plus, Heart, MessageCircle, Paperclip, Send, X
+    Camera, Pencil, Trash2, Plus, Heart, MessageCircle, Paperclip, Send, X,
+    Eye,
+    Minus,
+    Mic
 } from "lucide-react";
 import GetFriendsDashboard from "../components/getFriendsDashboard";
 import Sidebar from "../components/sideBar";
@@ -9,7 +12,7 @@ import { useAuth } from "../context/AuthContext";
 import { useStatus } from "../context/StatusBarContext.tsx";
 import PostMedia from "../components/PostMedia.tsx";
 import { PostComments } from "../components/Comments.tsx";
-//import ContextMenu from "../context/ContextMenu.tsx";
+import ContextMenu from "../context/ContextMenu.tsx";
 import { MediaCaptureControl } from "../components/MediaCaptureControl.tsx";
 
 interface StatusNode {
@@ -464,6 +467,12 @@ const FeedPage: React.FC = () => {
                                 <React.Fragment key={post._id || index}>
 
                                 {/*standard post card */}
+                                <ContextMenu items={[
+                                    { label: "View Profile", icon: Eye, onClick: () => console.log("edit") },
+                                    { label: "Delete", icon: Trash2, onClick: () => console.log("delete"), danger: true },
+                                    { label: "Not interested", icon: Minus, onClick: () => console.log()},
+                                    { label: "Report Post", icon: Mic, onClick: () => console.log()},
+                                ]}>
                                 <div className="rounded-3xl border border-brand-border bg-brand-surface/20 backdrop-blur-md p-4 sm:p-5 space-y-4 hover:border-brand-border/80 transition-all">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
@@ -513,6 +522,7 @@ const FeedPage: React.FC = () => {
                                         </button>
                                     </div>
                                 </div>
+                                </ContextMenu>
 
                                 {openPostId === post._id && (
                                     <PostComments
@@ -560,22 +570,17 @@ const FeedPage: React.FC = () => {
                 {/*Right column: Discover Bar (Large Desktop only)*/}
                 <aside className="hidden lg:block py-6 border-l border-brand-border/60 pl-6 space-y-6">
                         <div className="rounded-3xl border border-brand-border bg-brand-surface/10 p-5 space-y-4">
-                            <h3 className="text-sm font-bold text-brand-text tracking-wide">System Activity</h3>
-                            <div className="space-y-3">
-                                <div className="text-xs p-3 sm:p-4 rounded-xl bg-brand-bg/60 border border-brand-border">
-                                    <p className="text-brand-text-muted font-medium">Status: </p>
-                                    <p className="text-emerald-400 font-bold mt-1 flex items-center gap-1.5">
-                                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" /> Online
-                                    </p>
-                                </div>
+                            <h3 className="text-sm font-bold text-brand-text tracking-wide">Trending:</h3>
+                                <p>#Achiver is a fine boy</p>
+                                <p>#UI resumes session</p>
+                                <p>#AI takes over a lab</p>
 
                                 {/* <ContextMenu items={[
                                     { label: "Edit", icon: Pencil, onClick: () => console.log("edit") },
                                     { label: "Delete", icon: Trash2, onClick: () => console.log("delete"), danger: true }
                                 ]}>
-                                    <div className="p-4 bg-brand-surface rounded-xl">Right-click me</div>
+                                    
                                 </ContextMenu> */}
-                            </div>
                         </div>
                 </aside>
 

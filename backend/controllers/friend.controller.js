@@ -296,7 +296,85 @@ const getFriends = async (req, res) => {
             message: error.message
         })
     }
-}
+};
+
+const searchUsers = async (req, res) => {
+    try {
+        const { userid, query } = req.body;
+
+        if (!userId){
+            return res.status(400).json({
+                message: "User Id is required."
+            });
+        }
+
+        const users = await User.find({
+            _id: { $ne: userId },
+            username: {
+                $regex: query || "",
+                $options: "i"
+            }
+        })
+        .select("username profilePicture")
+        .limit(20);
+
+        const userIds = users.map(user => user._id);
+
+        const friendships = await Friendship.find({
+            $or: [
+                {
+                    requester: userId,
+                    recipient: {$in: userIds}
+                },
+                {
+                    requester: { $in: userIds },
+                    recipient: userId
+                }
+            ]
+        });
+
+        const relationshipMap = {};
+        friendships.forEach(friendship => {
+            const otherUser =
+                friendship.requester.toString() === userId
+                    ? friendship.recipient.toString()
+                    : friendship.requester.toString();
+                
+            let status = "none";
+
+            if (friendship.status === "accepted"){
+                status = "friend";
+            } else if (friendship.status === "pending"){
+                if (friendship.requester.toString() === userId) {
+                    status = "requested";
+                } else {
+                    status = "pending";
+                }
+            } else if (friendship.status === "blocked" || friendship.status === "friendBlocked" || friendship.status === "pendingBlocked"){
+                status = "blocked";
+            }
+
+            relationshipMap[otherUser] = status;
+    });
+
+    const results = users.map(user => ({
+        id: user._id,
+        username: user.username,
+        avatarUrl: user.profilePicture?.url,
+        status: relationshipMap[user._id.toString()] || "none"
+    }));
+
+    res.status(200).json({
+        message: "Users fetched successfully.",
+        users: results
+    });
+    } catch (error) {
+       return res.status(500).json({
+            message: error.message
+       }) 
+    }
+};
+
 export {
     sendRequest,
     acceptRequest,
@@ -304,5 +382,6 @@ export {
     blockUser,
     unblockUser,
     getPendingRequest,
-    getFriends
+    getFriends,
+    searchUsers
 };

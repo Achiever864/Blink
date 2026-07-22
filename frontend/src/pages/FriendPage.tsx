@@ -20,6 +20,10 @@ interface NetworkUser {
 
 const FriendsPage: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
+    const [loadingSearch, setLoadingSearch] = useState(false);
+
+
     const { showStatus } = useStatus();
     const { user } = useAuth();
 
@@ -76,6 +80,36 @@ const FriendsPage: React.FC = () => {
     }
     }
 
+    const searchUsers= async () => {
+        setLoadingSearch(true);
+        try {
+            const res = await API.post("/friend/searchUsers", {
+                userId: user?.id,
+                query: searchQuery
+            });
+
+            setSearchResults(res.data.users);
+        } catch (error) {
+            showStatus("Unable to find matches. Please try again!")
+        } finally {
+            setLoadingSearch(false);
+        }
+    }
+
+    useEffect(() => {
+        if (searchQuery.trim() === ""){
+            setSearchResults([]);
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            searchUsers();
+        }, 300);
+
+        return () =>  clearTimeout(timer);
+    }, [searchQuery]);
+
+
     useEffect(() => {
         if(!user?.id) return;
         fetchRequest();
@@ -116,6 +150,9 @@ const FriendsPage: React.FC = () => {
         friend.username.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    const filteredSearchResults = searchResults.filter(user =>
+        user.username.toLowerCase().includes(searchQuery.toLowerCase())
+    );
     return (
         <div className="relative min-h-screen bg-brand-bg text-brand-text flex justify-center overflow-hidden">
 
@@ -142,9 +179,6 @@ const FriendsPage: React.FC = () => {
                                 placeholder="Search a user..."
                                 className="w-full bg-brand-surface/30 border border-brand-border/80 rounded-2xl pl-11 pr-12 py-3.5 text-sm text-brand-text placeholder-slate-700 outline-none focus:border-brand-accent/30 backdrop-blur-sm transition-all"
                             />
-                            <button className="absolute right-3 p-1.5 rounded-lg bg-brand-surface/60 border border-brand-border text-brand-text-muted hover:text-brand-text transition-colors">
-                                <Sliders size={14} />
-                            </button>
                         </div>
                     </div>
 

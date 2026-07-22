@@ -67,6 +67,27 @@ const initSocket = (server) => {
                 }
             }
         });
+
+
+        socket.on("call:offer", ({ to, from, offer, callType }) => {
+            io.to(to).emit("call:incoming", {from, offer, callType });
+        });
+
+        socket.on("call:answer", ({ to, answer }) => {
+            io.to(to).emit("call:answer", { answer });
+        });
+
+        socket.on("call:ice-candidate", ({ to, candidate }) => {
+            io.to(to).emit("call:ice-candidate", { candidate });
+        })
+
+        socket.on("call:end", ({ to }) => {
+            io.to(to).emit("call:ended");
+        });
+
+        socket.on("call:reject", ({ to }) => {
+            io.to(to).emit("call:rejected");
+        });
     });
 
     return io;

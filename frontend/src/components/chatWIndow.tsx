@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo, useEffect } from "react";
 import {
-    Send, ArrowLeft, Smile, ChevronDown, Camera, Mic2, Paperclip, MessageSquarePlus, X
+    Send, Phone, Video, ArrowLeft, Smile, ChevronDown, Camera, Mic2, Paperclip, MessageSquarePlus, X
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useStatus } from "../context/StatusBarContext";
@@ -13,6 +13,7 @@ import {
     type Conversation, type Message, type Attachment,
     getSenderId, getSenderName
 } from "../types/chat";
+import { useCall } from "../context/callContext";
 
 interface ChatWindowProps {
     activeChat: Conversation | null;
@@ -42,6 +43,7 @@ const formatDuration = (seconds: number) => {
 const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onStartNewChat, onBack }) => {
     const { user } = useAuth();
     const { showStatus } = useStatus();
+    const { startCall } = useCall();
 
     const [messages, setMessages] = useState<Message[]>([]);
     const [typedMessage, setTypedMessage] = useState("");
@@ -327,34 +329,50 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
                     <ArrowLeft size={18} />
                 </button>
 
-                            <button
-                type="button"
-                onClick={onOpenSettings}
-                className="pb-4 border-b border-brand-border/60 flex items-center gap-3 text-left hover:opacity-80 transition-opacity"
-            >
-                <div className="h-8 w-8 rounded-lg bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent text-xs font-bold flex-shrink-0">
-                    {activeChat.profilePicture ? (
-                        <img src={activeChat.profilePicture} alt="image" className="w-full h-full object-cover" />
-                    ) : (
-                        <span>{activeChat.avatarLabel}</span>
-                    )}
-                </div>
-                <div>
-                    <h3 className="text-xs font-bold text-brand-text">{activeChat.title}</h3>
-                    {!activeChat.isGroup && (
-                        <p className={`text-[10px] flex items-center gap-1 mt-0.5 font-medium ${
-                            activeChat.online ? "text-emerald-400" : "text-brand-text-muted"
-                        }`}>
-                            <span className={`h-1 w-1 rounded-full ${
-                                activeChat.online ? "bg-emerald-400 animate-pulse" : "bg-slate-600"
-                            }`} />
-                            {activeChat.online ? "Online" : formatLastSeen(activeChat.lastSeen)}
-                        </p>
-                    )}
-                </div>
-            </button>
-            </div>
+                <button
+                    type="button"
+                    onClick={onOpenSettings}
+                    className="flex items-center gap-3 text-left hover:opacity-80 transition-opacity flex-1 min-w-0"
+                >
+                    <div className="h-8 w-8 rounded-lg bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent text-xs font-bold flex-shrink-0">
+                        {activeChat.profilePicture ? (
+                            <img src={activeChat.profilePicture} alt="image" className="w-full h-full object-cover" />
+                        ) : (
+                            <span>{activeChat.avatarLabel}</span>
+                        )}
+                    </div>
+                    <div className="min-w-0">
+                        <h3 className="text-xs font-bold text-brand-text truncate">{activeChat.title}</h3>
+                        {!activeChat.isGroup && (
+                            <p className={`text-[10px] flex items-center gap-1 mt-0.5 font-medium ${
+                                activeChat.online ? "text-emerald-400" : "text-brand-text-muted"
+                            }`}>
+                                <span className={`h-1 w-1 rounded-full ${
+                                    activeChat.online ? "bg-emerald-400 animate-pulse" : "bg-slate-600"
+                                }`} />
+                                {activeChat.online ? "Online" : formatLastSeen(activeChat.lastSeen)}
+                            </p>
+                        )}
+                    </div>
+                </button>
 
+                {!activeChat.isGroup && activeChat.otherUserId && (
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                        <button
+                            onClick={() => startCall(activeChat.otherUserId!, activeChat.title, "audio")}
+                            className="p-2 rounded-xl text-brand-text-muted hover:bg-brand-surface-hover transition-all"
+                        >
+                            <Phone size={18} />
+                        </button>
+                        <button
+                            onClick={() => startCall(activeChat.otherUserId!, activeChat.title, "video")}
+                            className="p-2 rounded-xl text-brand-text-muted hover:bg-brand-surface-hover transition-all"
+                        >
+                            <Video size={18} />
+                        </button>
+                    </div>
+                )}
+            </div>
 
             <div
                 ref={chatContainerRef}

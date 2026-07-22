@@ -9,7 +9,10 @@ import FriendPage from "./pages/FriendPage";
 import SettingsPage from "./pages/SettingsPage";
 import { ThemeProvider } from "./context/ThemeContext";
 import NotificationsPage from "./pages/Notification";
-// import ReelsPage from "./pages/ReelsPage";
+import ReelsPage from "./pages/ReelsPage";
+import { CallProvider } from "./context/callContext";
+import IncomingCallModal from "./components/IncomingCallModal";
+import ActiveCallModal from "./components/ActiveCallModal";
 
 function App() {
   return (
@@ -17,16 +20,21 @@ function App() {
       <ThemeProvider>
       <StatusBarProvider>
         <AuthProvider>
-          <Routes>
-            <Route path="/" element={<AuthPage />} />
-            <Route path="/feed" element={<FeedPage />} />
-            <Route path="/message" element={<MessagePage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/friends" element={<FriendPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/notifications" element={<NotificationsPage />} />  
-            {/* <Route path="/reels" element={<ReelsPage />} /> */}
-            </Routes>  
+          <CallProvider>
+            <Routes>
+              <Route path="/" element={<AuthPage />} />
+              <Route path="/feed" element={<FeedPage />} />
+              <Route path="/message" element={<MessagePage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/friends" element={<FriendPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/reels" element={<ReelsPage />} />
+            </Routes>
+
+            <IncomingCallModal />
+            <ActiveCallModal />
+          </CallProvider>
         </AuthProvider>
       </StatusBarProvider>
       </ThemeProvider>
