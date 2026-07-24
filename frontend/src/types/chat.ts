@@ -28,6 +28,7 @@ export interface Conversation {
     updatedAt: string;
     online?: boolean;
     lastSeen?: string;
+    unreadCount?: number;
     unread?: boolean;
 }
 

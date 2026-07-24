@@ -1,4 +1,5 @@
 import Conversation from "../models/conversation.model.js";
+import mongoose from "mongoose";
 import Messages from "../models/message.model.js";
 import User from '../models/user.model.js';
 import { getio } from "../config/socket.js";
@@ -113,33 +114,48 @@ const setLatestMessage = async (req, res) => {
 const getConversation = async (req, res) => {
     try {
         const { userId } = req.body;
-        
-        const user = await User.findById(userId);
 
-        if (!user){
-            return res.status(400).json({
-                message: "User not found. Please try again"
-            })
-        };
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(400).json({ message: "User not found. Please try again" });
+        }
 
         const conversation = await Conversation.find({ participant: userId })
             .populate("participant", "username profilePicture")
             .populate("latestMessage")
-            .sort({
-                updatedAt: -1
-            });
+            .sort({ updatedAt: -1 });
+
+        
+        const conversationIds = conversation.map(c => c._id);
+
+        const unreadCounts = await Messages.aggregate([
+            {
+                $match: {
+                    chatId: { $in: conversationIds },
+                    sender: { $ne: new mongoose.Types.ObjectId(userId) },
+                    readBy: { $ne: new mongoose.Types.ObjectId(userId) }
+                }
+            },
+            { $group: { _id: "$chatId", count: { $sum: 1 } } }
+        ]);
+
+        const unreadMap = new Map(
+            unreadCounts.map(u => [u._id.toString(), u.count])
+        );
+
+        const withCounts = conversation.map(c => ({
+            ...c.toObject(),
+            unreadCount: unreadMap.get(c._id.toString()) || 0
+        }));
 
         res.status(200).json({
             message: "Conversations fetched successfully",
-            conversation
-        })
+            conversation: withCounts
+        });
     } catch (error) {
-        res.status(500).json({
-            message: error.message
-        })        
+        res.status(500).json({ message: error.message });
     }
 };
-
 
 const getMessages = async (req, res) => {
     try {

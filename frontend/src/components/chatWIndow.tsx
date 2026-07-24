@@ -20,6 +20,7 @@ interface ChatWindowProps {
     onOpenSettings: () => void;
     onStartNewChat: () => void;
     onBack: () => void;
+    onMessagesRead?: () => void;
 }
 
 const formatLastSeen = (lastSeen?: string) => {
@@ -40,7 +41,7 @@ const formatDuration = (seconds: number) => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
 };
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onStartNewChat, onBack }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onStartNewChat, onBack, onMessagesRead }) => {
     const { user } = useAuth();
     const { showStatus } = useStatus();
     const { startCall } = useCall();
@@ -67,6 +68,65 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
     const mediaInputRef = useRef<HTMLInputElement>(null);
     const [cameraActive, setCameraActive] = useState(false);
 
+    const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+    const readSetRef = useRef<Set<string>>(new Set());
+    const unreadDividerIdRef = useRef<string | null>(null);
+    const [unreadDividerCount, setUnreadDividerCount] = useState(0);
+
+    const markMessageRead = async (messageId: string) => {
+        if (!user?.id) return;
+        if (readSetRef.current.has(messageId)) return;
+        readSetRef.current.add(messageId);
+
+        try {
+            await API.post("/message/read", {
+                userId: user.id,
+                messageId
+            });
+
+            setMessages(prev => prev.map(msg =>
+                msg._id === messageId && !msg.readBy.includes(user.id)
+                    ? {...msg, readBy: [...msg.readBy, user.id]}
+                    : msg
+            ));
+
+            onMessagesRead?.();
+        } catch (error) {
+            console.error("Failed to mark messages as read:", error);
+            readSetRef.current.delete(messageId);
+        }
+    };
+
+    useEffect(() => {
+        if (!user?.id) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting) return;
+
+                    const messageId = (entry.target as HTMLElement).dataset.messageId;
+                    if (!messageId) return;
+
+                    const message = messages.find(m => m._id === messageId);
+                    if (!message) return;
+
+                    const senderId = getSenderId(message.sender);
+                    const alreadyRead = message.readBy.includes(user.id);
+
+                    if (senderId !== user.id && !alreadyRead){
+                        markMessageRead(messageId);
+                    }
+                });
+            },
+            { root: chatContainerRef.current, threshold: 0.6 }
+        );
+
+        messageRefs.current.forEach((el) => observer.observe(el));
+
+        return () => observer.disconnect();
+    }, [messages, user?.id]);
+
     const mediaPreviewUrl = useMemo(() => {
         if (!mediaFile) return null;
         return URL.createObjectURL(mediaFile);
@@ -86,6 +146,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
     useEffect(() => {
         if (!activeChat) {
             setMessages([]);
+            unreadDividerIdRef.current = null;
             return;
         }
 
@@ -96,7 +157,17 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
                 const res = await API.post("/conversation/getMessages", {
                     conversationId: activeChat.conversationId
                 });
-                setMessages(res.data.messages);
+
+                const fetchedMessages: Message [] = res.data.messages;
+                setMessages(fetchedMessages);
+
+                if (user?.id){
+                    const unreadMessages = fetchedMessages.filter(
+                        msg => getSenderId(msg.sender) !== user.id && !msg.readBy.includes(user.id)
+                    );
+                    unreadDividerIdRef.current = unreadMessages[0]?._id || null;
+                    setUnreadDividerCount(unreadMessages.length);
+                }
             } catch (error) {
                 console.log(error);
             }
@@ -282,6 +353,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
             );
 
             setMediaFile(null);
+            onMessagesRead?.();
         } catch (error: any) {
             console.log(error.response?.data || error.message);
             setMessages(prev =>
@@ -380,14 +452,35 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
                 className="flex-1 overflow-y-auto no-scrollbar py-6 space-y-4 pr-1"
             >
                 {messages.map((msg) => (
-                    <MessageBubble
-                        key={msg._id}
-                        msg={msg}
-                        isMe={getSenderId(msg.sender) === user?.id}
-                        isGroup={activeChat.isGroup}
-                        onReply={handleReply}
-                        participants={activeChat.participants || []}
-                    />
+                    //divider Reference for unread messages within an active chat.. lol
+                    <React.Fragment key={msg._id}>
+                        {unreadDividerIdRef.current === msg._id && (
+                            <div className="flex items-center gap-3 py-2">
+                                <div className="flex-1 h-px bg-brand-accent/30" />
+                                <span className="text-[10px] font-bold text-brand-accent whitespace-nowrap px-2 py-1 rounded-full bg-brand-accent/10 border border-brand-accent/20">
+                                    {unreadDividerCount} unread message{unreadDividerCount !== 1 ? "s" : ""}
+                                </span>
+                                <div className="flex-1 h-px bg-brand-accent/30" />
+                            </div>
+                        )}
+
+                        <div
+                            key={msg._id}
+                            data-message-id={msg._id}
+                            ref={(el) => {
+                                if (el) messageRefs.current.set(msg._id, el);
+                                else messageRefs.current.delete(msg._id);
+                            }}
+                        >
+                        <MessageBubble
+                            msg={msg}
+                            isMe={getSenderId(msg.sender) === user?.id}
+                            isGroup={activeChat.isGroup}
+                            onReply={handleReply}
+                            participants={activeChat.participants || []}
+                        />
+                        </div>
+                    </React.Fragment>
                 ))}
                 <div ref={bottomRef} />
             </div>

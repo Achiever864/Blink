@@ -13,6 +13,7 @@ import ReelsPage from "./pages/ReelsPage";
 import { CallProvider } from "./context/callContext";
 import IncomingCallModal from "./components/IncomingCallModal";
 import ActiveCallModal from "./components/ActiveCallModal";
+import { UnreadProvider } from "./context/UnreadContext";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <ThemeProvider>
       <StatusBarProvider>
         <AuthProvider>
+          <UnreadProvider>
           <CallProvider>
             <Routes>
               <Route path="/" element={<AuthPage />} />
@@ -31,10 +33,10 @@ function App() {
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/reels" element={<ReelsPage />} />
             </Routes>
-
             <IncomingCallModal />
             <ActiveCallModal />
           </CallProvider>
+          </UnreadProvider>
         </AuthProvider>
       </StatusBarProvider>
       </ThemeProvider>

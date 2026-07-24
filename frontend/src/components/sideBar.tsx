@@ -4,11 +4,13 @@ import {
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useUnread } from "../context/UnreadContext";
 
 const Sidebar: React.FC = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    const {totalUnread} = useUnread();
 
     const navItems = [
         { label: "Timeline", icon: Home, path: '/feed' },
@@ -41,11 +43,14 @@ const Sidebar: React.FC = () => {
                             <button
                                 key={item.path}
                                 onClick={() => navigate(item.path)}
-                                className={`flex flex-col items-center justify-center gap-0.5 p-1.5 rounded-lg transition-all ${
+                                className={`flex flex-col relative items-center justify-center gap-0.5 p-1.5 rounded-lg transition-all ${
                                     active ? "text-brand-accent" : "text-brand-text-muted"
                                 }`}
                             >
                                 <Icon size={20} />
+                                {item.path === "/message" && totalUnread > 0 && (
+                                    <span className="absolute top-0.5 right-2 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-brand-bg" />
+                                )}
                             </button>
                         );
                     })}

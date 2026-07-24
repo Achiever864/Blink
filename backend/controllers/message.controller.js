@@ -85,4 +85,45 @@ const sendMessage = async (req, res) => {
     }
 };
 
-export { sendMessage };
+const readMessage = async (req, res) => {
+    try {
+        const { userId, messageId } = req.body;
+
+        const message = await Message.findByIdAndUpdate(messageId,
+            {
+                $addToSet: {
+                    readBy: userId
+                }
+            },
+            {
+                new: true
+            }
+        );
+
+        if (!message){
+            return res.status(404).json({
+                success: false,
+                message: "Message not found."
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Message marked as read.",
+            data: message
+        });
+
+    } catch (error) {
+        console.error("Read Message Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error."
+        });
+    }
+};
+
+export { 
+    sendMessage,
+    readMessage,
+};

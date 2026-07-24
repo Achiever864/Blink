@@ -8,7 +8,8 @@ import NewChatModal from "../components/newChatModal";
 import socket from "../socket";
 import ChatWindow from "../components/chatWIndow";
 import ChatSettingsPanel from "../components/chatSettingsPanel";
-import type { Conversation } from "../types/chat";
+import { getSenderId, type Conversation } from "../types/chat";
+import { useUnread } from "../context/UnreadContext";
 
 const MessagePage: React.FC = () => {
     const { user } = useAuth();
@@ -17,6 +18,7 @@ const MessagePage: React.FC = () => {
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showChatSettings, setShowChatSettings] = useState(false);
+    const { setTotalUnread } = useUnread();
 
     const fetchOnlineStatus = async (userId: string) => {
         try {
@@ -53,7 +55,9 @@ const MessagePage: React.FC = () => {
                     otherUserId: converse.isGroupChat ? undefined : otherUser?._id,
                     profilePicture: converse.isGroupChat ? "" : otherUser?.profilePicture?.url || "",
                     latestMessage: converse.latestMessage || null,
-                    updatedAt: converse.updatedAt
+                    updatedAt: converse.updatedAt,
+                    unreadCount: converse.unreadCount || 0,
+                    unread: (converse.unreadCount || 0) > 0
                 };
             });
 
@@ -66,6 +70,8 @@ const MessagePage: React.FC = () => {
             );
 
             setConversations(withStatus);
+            const total = withStatus.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+            setTotalUnread(total);
             setActiveChat(prev => {
                 if (!prev) return prev;
                 return withStatus.find(c => c.conversationId === prev.conversationId) || prev;
@@ -172,13 +178,20 @@ const MessagePage: React.FC = () => {
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex items-center justify-between gap-2">
                                             <h4 className="text-xs font-bold text-brand-text truncate">{chat.title}</h4>
                                             <span className="text-[10px] text-brand-text-muted font-medium">{new Date(chat.updatedAt).toLocaleTimeString()}</span>
                                         </div>
-                                        <p className={`text-xs truncate mt-0.5 ${chat.unread ? "text-brand-accent font-semibold" : "text-brand-text-muted"}`}>
-                                            {chat.latestMessage?.text || "No messages yet"}
-                                        </p>
+                                        <div className="flex items-center justify-between gap-2 mt-0.5">
+                                            <p className={`text-xs truncate mt-0.5 ${chat.unread ? "text-brand-accent font-semibold" : "text-brand-text-muted"}`}>
+                                                {chat.latestMessage?.text || "No messages yet"}
+                                            </p>
+                                            {chat.unreadCount ? (
+                                                <span className="flex-shrink-0 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-accent text-white text-[10px] font-bold flex items-center justify-center">
+                                                    {chat.unreadCount > 99 ? "99+" : chat.unreadCount}
+                                                </span>
+                                            ) : null}
+                                        </div>
                                     </div>
                                 </button>
                             ))}
@@ -210,6 +223,7 @@ const MessagePage: React.FC = () => {
                             onOpenSettings={() => setShowChatSettings(true)}
                             onStartNewChat={() => setIsModalOpen(true)}
                             onBack={() => setActiveChat(null)}
+                            onMessagesRead={fetchConversation}
                         />
                     </div>
                 </main>
