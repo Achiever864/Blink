@@ -31,11 +31,14 @@ interface CallContextType {
 
 const CallContext = createContext<CallContextType | undefined>(undefined);
 
-// Free public STUN server — helps peers discover their public IP for NAT traversal.
-// For production reliability behind stricter NATs/firewalls, you'll eventually
-// want a TURN server too (e.g. via a service like Twilio or coturn self-hosted).
+//iceserver + turn server to enable a global connection betweeen users
 const ICE_SERVERS = {
-    iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+    iceServers: [{ urls: "stun:stun.l.google.com:19302" },
+                 {  urls: "turn:blink01.com:3478",
+                    username: "04db8a1bc688e9bc5712cdc6",
+                    password: "e0ibR4QdOe4bAVXf",
+                 }
+    ]
 };
 
 export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

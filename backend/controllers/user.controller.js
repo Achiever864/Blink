@@ -274,9 +274,10 @@ const getUserProfile = async (req, res) => {
         let isFriend = false;
         let friendRequestSent = false;
         let mutualFriends = [];
+        let hasBlocked = false;
+        let blockedMe = false;
 
         if (viewerId && viewerId !== userId){
-            //chheck relationship status between viewer and profile owner ... omor
             const friendship = await Friendship.findOne({
                 $or: [
                     { requester: viewerId, recipient: userId },
@@ -290,6 +291,11 @@ const getUserProfile = async (req, res) => {
                 friendRequestSent =
                     friendship.status === "pending" &&
                     friendship.requester.toString() === viewerId;
+
+                if (friendship.blockedBy) {
+                    hasBlocked = friendship.blockedBy.toString() === viewerId;
+                    blockedMe = friendship.blockedBy.toString() === userId;
+                }
             }
 
             const viewerFriendships = await Friendship.find({
@@ -326,7 +332,6 @@ const getUserProfile = async (req, res) => {
             }
         }
 
-        //now... do the overall friend count
         const friendsCount = await Friendship.countDocuments({
             status: "accepted",
             $or: [{ requester: userId }, { recipient: userId}]
@@ -341,18 +346,17 @@ const getUserProfile = async (req, res) => {
             city: user.city,
             nationality: user.nationality,
             profilePicture: user.profilePicture,
-            coverPhoto: user.coverPhoto || "",
             friendsCount,
             postsCount,
             mutualFriends,
             badges: user.badges || [],
-            isFriend: false,
+            isFriend,
             friendRequestSent,
-            hasBlocked: false, //change this from the hardwire data later abeg
-            blockedMe: false,
+            hasBlocked,
+            blockedMe,
             joinedAt: user.createdAt,
-            lastSeen: user.updatedAt,
-            online: false //same thing here I have not even handled the logic for online and offline user yet omor
+            lastSeen: user.lastSeen,
+            online: user.isOnline
         };
 
         res.status(200).json(profile);
