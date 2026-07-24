@@ -8,7 +8,7 @@ import NewChatModal from "../components/newChatModal";
 import socket from "../socket";
 import ChatWindow from "../components/chatWIndow";
 import ChatSettingsPanel from "../components/chatSettingsPanel";
-import { getSenderId, type Conversation } from "../types/chat";
+import { type Conversation } from "../types/chat";
 import { useUnread } from "../context/UnreadContext";
 
 const MessagePage: React.FC = () => {
