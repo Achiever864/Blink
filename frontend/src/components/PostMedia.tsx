@@ -3,7 +3,7 @@ import React from "react";
 interface MediaItem {
     url: string;
     publicId: string;
-    type: "image" | "video" | "audio";
+    type: "image" | "video" | "audio" | "file";
 }
 
 interface PostMediaProps {
