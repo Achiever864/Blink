@@ -6,6 +6,7 @@ import userRouter from "./routes/user.route.js";
 import friendRoute from "./routes/friend.route.js";
 import messageRoute from "./routes/messages.route.js";
 import postRouter from "./routes/post.route.js";
+import callRouter from "./routes/call.route.js";
 import { initSocket } from "./config/socket.js";
 import conversationRoute from "./routes/conversation.route.js";
 import notRouter from "./routes/notification.route.js";
@@ -30,6 +31,7 @@ app.use("/api/conversation", conversationRoute);
 app.use("/api/message", messageRoute);
 app.use("/api/post", postRouter);
 app.use("/api/notifications", notRouter);
+app.use("/api/call", callRouter);
 
 app.get("/", (req, res) => {
   res.send("Server is running");

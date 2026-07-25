@@ -60,6 +60,12 @@ const getSenderName = (sender: Message["sender"], participants: Participant[]) =
     return match?.username || "Unknown";
 };
 
+const getSenderAvatar = (sender: Message["sender"], participants: Participant[]) => {
+    if (typeof sender !== "string") return sender?.profilePicture;
+    const match = participants.find((p) => p._id === sender);
+    return match?.profilePicture;
+};
+
 const attachmentPreviewLabel = (attachment?: Attachment | null) => {
     if (!attachment) return null;
     switch (attachment.type) {
@@ -105,6 +111,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, parti
     };
 
     const replyProgress = Math.min(dragX / DRAG_THRESHOLD, 1);
+    const senderAvatar = getSenderAvatar(msg.sender, participants);
+    const senderName = getSenderName(msg.sender, participants);
 
     return (
         <div className="relative">
@@ -115,115 +123,128 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, parti
                 <CornerUpLeft size={14} className="text-brand-accent" />
             </div>
 
-            <div
-                ref={rowRef}
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                onPointerCancel={handlePointerUp}
-                style={{
-                    transform: `translateX(${dragX}px)`,
-                    transition: isDragging ? "none" : "transform 0.2s ease-out",
-                    touchAction: "pan-y"
-                }}
-                className={`flex flex-col cursor-grab active:cursor-grabbing ${isMe ? "items-end" : "items-start"}`}
-            >
-                {isGroup && !isMe && (
-                    <span className="text-[10px] font-bold text-brand-accent mb-0.5 px-1">
-                        {getSenderName(msg.sender, participants)}
-                    </span>
+            <div className={`flex items-end gap-2 ${isMe ? "justify-end" : "justify-start"}`}>
+                {/* Avatar — only for other people's messages, never your own */}
+                {!isMe && (
+                    <div className="h-7 w-7 rounded-full bg-brand-surface border border-brand-border flex items-center justify-center text-[10px] font-bold text-brand-text-muted uppercase overflow-hidden flex-shrink-0 mb-1">
+                        {senderAvatar ? (
+                            <img src={senderAvatar} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                            <span>{senderName?.substring(0, 2) || "??"}</span>
+                        )}
+                    </div>
                 )}
 
-                <div className={`max-w-[70%] rounded-2xl px-4 py-3 text-xs leading-relaxed transition-all ${
-                    isMe
-                        ? "bg-brand-accent text-white rounded-tr-none font-medium shadow-md shadow-brand-accent/10"
-                        : "bg-brand-surface/60 border border-brand-border text-brand-text rounded-tl-none"
-                }`}>
-                    <div className="whitespace-pre-wrap">
-                        {msg.replyTo && (
-                            <div className={`mb-2 pl-2 border-l-2 rounded-r-md py-1 px-2 ${
-                                isMe ? "border-white/40 bg-white/10" : "border-brand-accent/50 bg-brand-bg/40"
-                            }`}>
-                                <p className={`text-[10px] font-bold ${isMe ? "text-white/80" : "text-brand-accent"}`}>
-                                    {getSenderName(msg.replyTo.sender, participants)}
+                <div
+                    ref={rowRef}
+                    onPointerDown={handlePointerDown}
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={handlePointerUp}
+                    onPointerCancel={handlePointerUp}
+                    style={{
+                        transform: `translateX(${dragX}px)`,
+                        transition: isDragging ? "none" : "transform 0.2s ease-out",
+                        touchAction: "pan-y"
+                    }}
+                    className={`flex flex-col cursor-grab active:cursor-grabbing max-w-[70%] ${isMe ? "items-end" : "items-start"}`}
+                >
+                    {isGroup && !isMe && (
+                        <span className="text-[10px] font-bold text-brand-accent mb-0.5 px-1">
+                            {senderName}
+                        </span>
+                    )}
+
+                    <div className={`rounded-2xl px-4 py-3 text-xs leading-relaxed transition-all ${
+                        isMe
+                            ? "bg-brand-accent text-white rounded-tr-none font-medium shadow-md shadow-brand-accent/10"
+                            : "bg-brand-surface/60 border border-brand-border text-brand-text rounded-tl-none"
+                    }`}>
+                        <div className="whitespace-pre-wrap">
+                            {msg.replyTo && (
+                                <div className={`mb-2 pl-2 border-l-2 rounded-r-md py-1 px-2 ${
+                                    isMe ? "border-white/40 bg-white/10" : "border-brand-accent/50 bg-brand-bg/40"
+                                }`}>
+                                    <p className={`text-[10px] font-bold ${isMe ? "text-white/80" : "text-brand-accent"}`}>
+                                        {getSenderName(msg.replyTo.sender, participants)}
+                                    </p>
+                                    <p className={`text-[10px] truncate ${isMe ? "text-white/60" : "text-brand-text-muted"}`}>
+                                        {msg.replyTo.text || attachmentPreviewLabel(msg.replyTo.attachment)}
+                                    </p>
+                                </div>
+                            )}
+
+                            {msg.isDeleted && (
+                                <p className="italic text-brand-text-muted">
+                                    ∅ This message was deleted.
                                 </p>
-                                <p className={`text-[10px] truncate ${isMe ? "text-white/60" : "text-brand-text-muted"}`}>
-                                    {msg.replyTo.text || attachmentPreviewLabel(msg.replyTo.attachment)}
+                            )}
+
+                            {msg.text && (
+                                <p className="break-words">
+                                    {msg.text}
+                                    {msg.isEdited && (
+                                        <span className="ml-2 text-[10px]">edited</span>
+                                    )}
                                 </p>
-                            </div>
-                        )}
+                            )}
 
-                        {msg.isDeleted && (
-                            <p className="italic text-brand-text-muted">
-                                ∅ This message was deleted.
-                            </p>
-                        )}
+                            {msg.attachment?.type === "image" && (
+                                <div className="mt-2 rounded-xl overflow-hidden max-w-xs bg-brand-surface-hover/50">
+                                    <img
+                                        src={msg.attachment.url}
+                                        alt=""
+                                        loading="lazy"
+                                        className="w-full max-h-[320px] object-cover transition duration-300 hover:scale-[1.02] hover:brightness-95 cursor-pointer"
+                                        onClick={() => window.open(msg.attachment?.url, "_blank")}
+                                    />
+                                </div>
+                            )}
 
-                        {msg.text && (
-                            <p className="break-words">
-                                {msg.text}
-                                {msg.isEdited && (
-                                    <span className="ml-2 text-[10px]">edited</span>
-                                )}
-                            </p>
-                        )}
-
-                        {msg.attachment?.type === "image" && (
-                            <div className="mt-2 rounded-xl overflow-hidden max-w-xs bg-brand-surface-hover/50">
-                                <img
-                                    src={msg.attachment.url}
-                                    alt=""
-                                    loading="lazy"
-                                    className="w-full max-h-[320px] object-cover transition duration-300 hover:scale-[1.02] hover:brightness-95 cursor-pointer"
-                                    onClick={() => window.open(msg.attachment?.url, "_blank")}
+                            {msg.attachment?.type === "video" && (
+                                <video
+                                    src={msg.attachment?.url}
+                                    controls
+                                    playsInline
+                                    preload="metadata"
+                                    className="rounded-xl mt-2 max-w-xs max-h-[320px] w-full object-cover bg-black"
                                 />
+                            )}
+
+                            {msg.attachment?.type === "audio" && (
+                                <AudioMessagePlayer url={msg.attachment.url} isMe={isMe} />
+                            )}
+
+                            {msg.attachment?.type === "file" && (
+                                <a
+                                    href={msg.attachment.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-brand-accent underline"
+                                >
+                                    {msg.attachment?.fileName}
+                                </a>
+                            )}
+
+                            <div className="flex gap-1">
+                                {msg.reactions?.map(r => (
+                                    <span key={r.user}>{r.emoji}</span>
+                                ))}
                             </div>
-                        )}
-
-                        {msg.attachment?.type === "video" && (
-                            <video
-                                src={msg.attachment?.url}
-                                controls
-                                playsInline
-                                preload="metadata"
-                                className="rounded-xl mt-2 max-w-xs max-h-[320px] w-full object-cover bg-black"
-                            />
-                        )}
-
-                        {msg.attachment?.type === "audio" && (
-                            <AudioMessagePlayer url={msg.attachment.url} isMe={isMe} />
-                        )}
-
-                        {msg.attachment?.type === "file" && (
-                            <a
-                                href={msg.attachment.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-brand-accent underline"
-                            >
-                                {msg.attachment?.fileName}
-                            </a>
-                        )}
-
-                        <div className="flex gap-1">
-                            {msg.reactions?.map(r => (
-                                <span key={r.user}>{r.emoji}</span>
-                            ))}
                         </div>
                     </div>
-                </div>
 
-                <div className="flex items-center gap-1 mt-1 text-[9px] text-brand-text-muted px-1 font-medium">
-                    <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
-                    {isMe && msg.status === "sending" && (
-                        <span className="text-brand-text-muted italic">Sending...</span>
-                    )}
-                    {isMe && msg.status === "failed" && (
-                        <span className="text-red-400 font-semibold">Failed to send</span>
-                    )}
-                    {isMe && (msg.status === "sent" || !msg.status) && (
-                        <CheckCheck size={11} className="text-brand-accent" />
-                    )}
+                    <div className="flex items-center gap-1 mt-1 text-[9px] text-brand-text-muted px-1 font-medium">
+                        <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                        {isMe && msg.status === "sending" && (
+                            <span className="text-brand-text-muted italic">Sending...</span>
+                        )}
+                        {isMe && msg.status === "failed" && (
+                            <span className="text-red-400 font-semibold">Failed to send</span>
+                        )}
+                        {isMe && (msg.status === "sent" || !msg.status) && (
+                            <CheckCheck size={11} className="text-brand-accent" />
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

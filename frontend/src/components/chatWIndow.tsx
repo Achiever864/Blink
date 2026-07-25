@@ -472,6 +472,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
                                 else messageRefs.current.delete(msg._id);
                             }}
                         >
+                        
                         <MessageBubble
                             msg={msg}
                             isMe={getSenderId(msg.sender) === user?.id}

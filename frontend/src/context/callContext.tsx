@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useRef, useCallback } from "react";
 import socket from "../socket";
 import { useAuth } from "./AuthContext";
+import API from "../api/axios";
 
 type CallType = "audio" | "video";
 type CallStatus = "idle" | "calling" | "ringing" | "active";
@@ -31,14 +32,18 @@ interface CallContextType {
 
 const CallContext = createContext<CallContextType | undefined>(undefined);
 
-//iceserver + turn server to enable a global connection betweeen users
-const ICE_SERVERS = {
-    iceServers: [{ urls: "stun:stun.l.google.com:19302" },
-                 {  urls: "turn:blink01.com:3478",
-                    username: "04db8a1bc688e9bc5712cdc6",
-                    password: "e0ibR4QdOe4bAVXf",
-                 }
-    ]
+// Fetches fresh STUN/TURN credentials from our own backend, which in turn
+// proxies Metered's API — keeps the real API key server-side only.
+// Falls back to public STUN if the fetch fails, so same-network calls
+// still work even when TURN is unreachable.
+const getIceServers = async (): Promise<RTCIceServer[]> => {
+    try {
+        const res = await API.get("/call/getTurnCredentials");
+        return res.data.iceServers;
+    } catch (error) {
+        console.error("Failed to fetch TURN credentials, falling back to STUN only:", error);
+        return [{ urls: "stun:stun.l.google.com:19302" }];
+    }
 };
 
 export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -73,8 +78,9 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setRemoteUsername(null);
     }, [localStream]);
 
-    const createPeerConnection = useCallback((targetUserId: string) => {
-        const peer = new RTCPeerConnection(ICE_SERVERS);
+    const createPeerConnection = useCallback(async (targetUserId: string) => {
+        const iceServers = await getIceServers();
+        const peer = new RTCPeerConnection({ iceServers });
 
         peer.onicecandidate = (event) => {
             if (event.candidate) {
@@ -107,7 +113,7 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setRemoteUsername(targetUsername);
         targetUserIdRef.current = targetUserId;
 
-        const peer = createPeerConnection(targetUserId);
+        const peer = await createPeerConnection(targetUserId);
         stream.getTracks().forEach(track => peer.addTrack(track, stream));
         peerRef.current = peer;
 
@@ -136,17 +142,18 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setRemoteUsername(incomingCall.fromUsername);
         targetUserIdRef.current = incomingCall.from;
 
-        const peer = createPeerConnection(incomingCall.from);
+        const peer = await createPeerConnection(incomingCall.from);
         stream.getTracks().forEach(track => peer.addTrack(track, stream));
         peerRef.current = peer;
 
         await peer.setRemoteDescription(new RTCSessionDescription(incomingCall.offer));
 
-        //flush any ICE candidate that arrived before we were ready
-        for (const candidate of pendingCandidatesRef.current){
+        // flush any ICE candidates that arrived before we were ready
+        for (const candidate of pendingCandidatesRef.current) {
             await peer.addIceCandidate(new RTCIceCandidate(candidate));
         }
         pendingCandidatesRef.current = [];
+
         const answer = await peer.createAnswer();
         await peer.setLocalDescription(answer);
 
@@ -200,8 +207,7 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (peerRef.current) {
                 await peerRef.current.setRemoteDescription(new RTCSessionDescription(answer));
 
-                //flush here too
-                for (const candidate of pendingCandidatesRef.current){
+                for (const candidate of pendingCandidatesRef.current) {
                     await peerRef.current.addIceCandidate(new RTCIceCandidate(candidate));
                 }
                 pendingCandidatesRef.current = [];

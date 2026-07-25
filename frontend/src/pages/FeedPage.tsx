@@ -261,14 +261,14 @@ const FeedPage: React.FC = () => {
                         </div>
 
                         <div className="flex items-center gap-4 overflow-x-auto pb-2 pt-1 no-scrollbar w-full scroll-smooth">
-                            {/*First element: current operator add link */}
+                            {/* First element: current operator add link */}
                             <div className="flex flex-col items-center flex-shrink-0 cursor-pointer group">
                                 <div className="relative">
                                     <div className="h-12 w-12 rounded-full bg-brand-surface border border-brand-border flex items-center justify-center text-xs text-brand-text-muted font-bold group-hover:border-brand-border transition-all">
                                         ME
                                     </div>
 
-                                    {/*Pinned Add Plus Icon Badge */}
+                                    {/*Pinned Add Plus Icon Badge*/}
                                     <div className="absolute bottom-0 right-0 p-0.5 rounded-full bg-brand-accent text-white border-2 border-slate-950 group-hover:scale-110 transition-transform">
                                         <Plus size={10} strokeWidth={3} />
                                     </div>

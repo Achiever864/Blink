@@ -114,7 +114,7 @@ const ReelsPage: React.FC = () => {
     const primaryVideo = (reel: Reel) => reel.media.find(m => m.type === "video");
 
     return (
-        <div className="min-h-screen bg-black text-slate-100 flex justify-center overflow-hidden">
+        <div className="min-h-screen bg-brand-bg text-slate-100 flex justify-center overflow-hidden">
             <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-[80px_1fr] px-4 gap-6 relative z-10">
                 <Sidebar />
 

@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    Home, MessageSquare, Bell, User, Users, LogOut 
+    Home, MessageSquare, Bell, User, Users, Clapperboard, LogOut 
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -15,6 +15,7 @@ const Sidebar: React.FC = () => {
     const navItems = [
         { label: "Timeline", icon: Home, path: '/feed' },
         { label: "Messages", icon: MessageSquare, path: "/message" },
+        { label: "Reels" , icon: Clapperboard, path: "/reels"},
         { label: "Friends", icon: Users, path: "/friends" },
         { label: "Notifications", icon: Bell, path: "/notifications" },
         { label: "Profile", icon: User, path: "/profile" }
@@ -29,10 +30,10 @@ const Sidebar: React.FC = () => {
 
             {/* MOBILE: fixed horizontal top bar */}
             <nav className="md:hidden fixed top-0 inset-x-0 w-screen h-16 bg-brand-bg border-b border-brand-border z-40 flex items-center justify-between px-3 gap-2 box-border">
-                <div className="relative flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-accent to-brand-accent-hover shadow-lg shadow-brand-accent/20">
+                {/* <div className="relative flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-accent to-brand-accent-hover shadow-lg shadow-brand-accent/20">
                     <span className="text-base font-black text-white -skew-x-3">B</span>
                     <span className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-white" />
-                </div>
+                </div> */}
 
                 <div className="flex items-center justify-around flex-1">
                     {navItems.map((item) => {
@@ -55,13 +56,6 @@ const Sidebar: React.FC = () => {
                         );
                     })}
                 </div>
-
-                <button
-                    onClick={logout}
-                    className="flex-shrink-0 p-2 rounded-lg text-rose-400 hover:bg-rose-950/20 transition-all"
-                >
-                    <LogOut size={18} />
-                </button>
             </nav>
 
             {/* DESKTOP: fixed vertical side rail */}
