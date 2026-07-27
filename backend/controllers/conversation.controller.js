@@ -1,5 +1,6 @@
 import Conversation from "../models/conversation.model.js";
 import mongoose from "mongoose";
+import CloudinaryService from "../services/CloudinaryService.js";
 import Messages from "../models/message.model.js";
 import User from '../models/user.model.js';
 import { getio } from "../config/socket.js";
@@ -402,27 +403,35 @@ const demoteAdmin = async (req, res) => {
 };
 
 const updateGroupInfo = async (req, res) => {
-    try{
+    try {
         const { conversationId, requesterId, roomName } = req.body;
 
         const conversation = await Conversation.findById(conversationId);
-        if(!conversation){
+        if (!conversation) {
             return res.status(404).json({ message: "Conversation not found" });
         }
 
         const isAdmin = conversation.groupAdmins.some(id => id.toString() === requesterId);
-        if (!isAdmin){
+        if (!isAdmin) {
             return res.status(403).json({ message: "Only group admins can update group info" });
         }
 
-        if (roomName && roomName.trim()){
+        if (roomName && roomName.trim()) {
             conversation.roomName = roomName.trim();
+        }
+
+        if (req.file) {
+            const result = await CloudinaryService.upload(req.file.buffer, "/blink/groupPhotos");
+            conversation.groupAvatar = {
+                url: result.secure_url,
+                publicId: result.public_id
+            };
         }
 
         await conversation.save();
 
         const updated = await Conversation.findById(conversationId)
-            .populate("participant", "username profilePicture");
+            .populate("participant", "username profilePicture bio");
 
         const io = getio();
         io.to(conversationId).emit("group-updated", updated);
@@ -431,10 +440,42 @@ const updateGroupInfo = async (req, res) => {
             message: "Group info updated successfully",
             conversation: updated
         });
-    } catch(error){
+    } catch (error) {
         res.status(500).json({ message: error.message });
-    };
-}
+    }
+};
+
+const toggleGroupLock = async (req, res) => {
+    try {
+        const { conversationId, requesterId } = req.body;
+
+        const conversation = await Conversation.findById(conversationId);
+        if (!conversation){
+            return res.status(404).json({ message: "Conversation not found" });
+        };
+
+        const isAdmin = conversation.groupAdmins.some(id => id.toString() === requesterId);
+        if (!isAdmin) {
+            return res.status(403).json({ message: "Only group admins can lock/unlock the group" });
+        }
+
+        conversation.onlyAdminsCanMessage = !conversation.onlyAdminsCanMessage;
+        await conversation.save();
+
+        const updated = await Conversation.findById(conversationId)
+            .populate("participant", "username profilePicture bio");
+
+        const io = getio();
+        io.to(conversationId).emit("group-updated", updated);
+
+        res.status(200).json({
+            message: conversation.onlyAdminsCanMessage ? "Group locked" : "Group unlocked",
+            conversation: updated
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
 export {
     createChat,
@@ -446,5 +487,6 @@ export {
     leaveGroup,
     promoteAdmin,
     demoteAdmin,
-    updateGroupInfo
+    updateGroupInfo,
+    toggleGroupLock
 }

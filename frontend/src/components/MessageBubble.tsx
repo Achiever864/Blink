@@ -24,7 +24,10 @@ interface Message {
     sender: string | {
         _id: string;
         username: string;
-        profilePicture?: string;
+        profilePicture?: {
+            url: string;
+            publicId: string;
+        };
     };
     text: string;
     attachment?: Attachment | null;
@@ -60,8 +63,10 @@ const getSenderName = (sender: Message["sender"], participants: Participant[]) =
     return match?.username || "Unknown";
 };
 
-const getSenderAvatar = (sender: Message["sender"], participants: Participant[]) => {
-    if (typeof sender !== "string") return sender?.profilePicture;
+const getSenderAvatar = (sender: Message["sender"], participants: Participant[]): string | undefined => {
+    if (typeof sender !== "string") {
+        return sender?.profilePicture?.url;
+    }
     const match = participants.find((p) => p._id === sender);
     return match?.profilePicture;
 };
@@ -124,7 +129,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, parti
             </div>
 
             <div className={`flex items-end gap-2 ${isMe ? "justify-end" : "justify-start"}`}>
-                {/* Avatar — only for other people's messages, never your own */}
+
                 {!isMe && (
                     <div className="h-7 w-7 rounded-full bg-brand-surface border border-brand-border flex items-center justify-center text-[10px] font-bold text-brand-text-muted uppercase overflow-hidden flex-shrink-0 mb-1">
                         {senderAvatar ? (

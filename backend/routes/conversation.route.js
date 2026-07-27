@@ -9,8 +9,10 @@ import {
     leaveGroup,
     promoteAdmin,
     demoteAdmin,
-    updateGroupInfo
-} from "../controllers/conversation.controller.js"
+    updateGroupInfo,
+    toggleGroupLock
+} from "../controllers/conversation.controller.js";
+import upload from "../config/multer.js";
 
 const conversationRoute = express.Router();
 
@@ -23,6 +25,7 @@ conversationRoute.post("/removeParticipant", removeParticipant);
 conversationRoute.post("/leaveGroup", leaveGroup);
 conversationRoute.post("/promoteAdmin", promoteAdmin);
 conversationRoute.post("/demoteAdmin", demoteAdmin);
-conversationRoute.post("updateGroupInfo", updateGroupInfo);
+conversationRoute.patch("/updateGroupInfo", upload.single("groupPhoto"), updateGroupInfo);
+conversationRoute.post("/lockGroup", toggleGroupLock);
 
 export default conversationRoute;

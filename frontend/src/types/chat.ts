@@ -4,6 +4,7 @@ export interface Participant {
     _id: string;
     username: string;
     profilePicture?: string;
+    bio?: string;
 }
 
 export interface Attachment {
@@ -30,6 +31,8 @@ export interface Conversation {
     lastSeen?: string;
     unreadCount?: number;
     unread?: boolean;
+    groupAdmins?: string[];
+    onlyAdminsCanMessage?: boolean;
 }
 
 export interface Message {

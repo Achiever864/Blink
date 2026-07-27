@@ -57,7 +57,9 @@ const MessagePage: React.FC = () => {
                     latestMessage: converse.latestMessage || null,
                     updatedAt: converse.updatedAt,
                     unreadCount: converse.unreadCount || 0,
-                    unread: (converse.unreadCount || 0) > 0
+                    unread: (converse.unreadCount || 0) > 0,
+                    groupAdmins: converse.groupAdmins?.map((a: any) => a.toString ? a.toString() : a) || [],
+                    onlyAdminsCanMessage: converse.onlyAdminsCanMessage || false,
                 };
             });
 
@@ -235,6 +237,10 @@ const MessagePage: React.FC = () => {
                     onClose={() => setShowChatSettings(false)}
                     onLeftGroup={() => {
                         setActiveChat(null);
+                        fetchConversation();
+                    }}
+                    onUpdate={(updatedChat) => {
+                        setActiveChat(updatedChat);
                         fetchConversation();
                     }}
                 />
