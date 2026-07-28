@@ -7,7 +7,9 @@ import {
     loginUser,
     updateUserProfile,
     getUserProfile,
-    getUserOnlineStatus
+    getUserOnlineStatus,
+    forgotPassword,
+    resetPassword
 } from "../controllers/user.controller.js";
 
 const userRouter = express.Router();
@@ -19,5 +21,7 @@ userRouter.patch("/update", upload.single('profilePicture'), updateUserProfile);
 // userRouter.post("/getBetaUser", getUserSuggestions);  //run for test since the docker isn't working yet and we can't cache for now
 userRouter.get("/getProfile/:userId", getUserProfile);
 userRouter.get("/getOnlineStatus/:userId", getUserOnlineStatus);
+userRouter.post("/forgotPassword", forgotPassword);
+userRouter.post("/resetPassword", resetPassword);
 
 export default userRouter;

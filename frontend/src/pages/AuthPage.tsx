@@ -160,7 +160,7 @@ const AuthPage: React.FC = () => {
                         <div className="flex items-center justify-between">
                             <label className="text-xs font-semibold uppercase tracking-wider text-brand-text-muted">Password</label>
                             {isLogin && (
-                                <a href="#forgot" className="text-xs font-medium text-brand-accent hover:text-brand-accent-hover hover:underline">Forgot password?</a>
+                                <a href="/forgotPassword" className="text-xs font-medium text-brand-accent hover:text-brand-accent-hover hover:underline">Forgot password?</a>
                             )}
                         </div>
                         <div className="relative flex items-center">

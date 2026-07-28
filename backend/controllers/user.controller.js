@@ -7,6 +7,8 @@ import FriendsRecommend from "../services/friendSuggestion.js";
 import RecommendationCache from "../services/RecommendationCache.js";
 import CloudinaryService from "../services/CloudinaryService.js";
 import messageModel from "../models/message.model.js";
+import crypto from "crypto";
+import { sendResetEmail } from "../services/sendEmail.js";
 
 const friendsRecommend = new FriendsRecommend();
 
@@ -381,7 +383,68 @@ const getUserOnlineStatus = async (req, res) => {
     } catch(error) {
         res.status(500).json({ message: error.message })
     }
-}
+};
+
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const user = await User.findOne({ email });
+
+        if (!user){
+            return res.status(200).json({
+                message: "If an account with that email exists, a reset link has been sent."
+            });
+        }
+
+        const rawToken = crypto.randomBytes(32).toString("hex");
+        const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpires = Date.now() + 30 * 60 * 1000;
+        await user.save();
+
+        const resetLink = `${process.env.FRONTEND_URL}/resetPassword?token=${rawToken}`;
+        await sendResetEmail(user.email, resetLink);
+
+        res.status(200).json({
+            message: "If an account with that email exists, a resent link has been sent."
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const resetPassword = async (req, res) => {
+    try {
+        const { token, newPassword }= req.body;
+        
+        if (!token || !newPassword){
+            return res.status(400).json({ message: "Token and new password are required" });
+        }
+
+        const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+        const user = await User.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: "Reset link is invalid or has expired"});
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        user.resetPasswordToken = null;
+        user.resetPasswordExpires = null;
+        await user.save();
+
+        res.status(200).json({ message: "Password reset successfully. You can now log in."});
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
 export {
     getUserBeta, //test
@@ -390,5 +453,7 @@ export {
     loginUser,
     updateUserProfile,
     getUserProfile,
-    getUserOnlineStatus
+    getUserOnlineStatus,
+    forgotPassword,
+    resetPassword
 }

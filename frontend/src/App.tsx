@@ -14,6 +14,9 @@ import { CallProvider } from "./context/callContext";
 import IncomingCallModal from "./components/IncomingCallModal";
 import ActiveCallModal from "./components/ActiveCallModal";
 import { UnreadProvider } from "./context/UnreadContext";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
+
 
 function App() {
   return (
@@ -32,6 +35,8 @@ function App() {
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/reels" element={<ReelsPage />} />
+              <Route path="/forgotPassword" element={<ForgotPasswordPage />} />
+              <Route path="/resetPassword" element={<ResetPasswordPage />} />
             </Routes>
             <IncomingCallModal />
             <ActiveCallModal />
