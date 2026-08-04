@@ -3,7 +3,6 @@ import User from "../models/user.model.js";
 import Friendship from "../models/friend.model.js";
 import CloudinaryService from "../services/CloudinaryService.js";
 import PostRecommend from "../services/postSuggestion.js";
-import RecommendationCache from "../services/RecommendationCache.js";
 import { isLikeMilestone } from "../util/likeMilestones.js";
 import { createNotification } from "./notification.controller.js";
 
@@ -59,11 +58,6 @@ const createPost = async (req, res) => {
             media,
             visibility
         });
-        
-        //relax here there is something about this logic because if a post is newly made
-        //and a user cache is already active then he won't be able to get that new post but well dont
-        //think it really matters ... let us just get this shit to actually work
-        await RecommendationCache.clear("post", author);
 
         res.status(201).json({
             message: "Post created successfully",
@@ -92,14 +86,7 @@ const getFeed = async (req, res) => {
             });
         }
 
-        //first get from cache yooo
-        let rankedPosts = await RecommendationCache.get('post', userId);
-
-        //so if nothing in cache we set cache
-        if (!rankedPosts){
-            rankedPosts = await postRecommend.recommend(userId);
-            await RecommendationCache.set("post", userId, rankedPosts);
-        }
+        const rankedPosts = await postRecommend.recommend(userId);
 
         const totalPosts = rankedPosts.length;
         const totalPages = Math.ceil(totalPosts / limit);

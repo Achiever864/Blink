@@ -60,7 +60,7 @@ const ResetPasswordPage: React.FC = () => {
                         This password reset link is missing or malformed. Please request a new one.
                     </p>
                     <Link
-                        to="/forgotPassword"
+                        to="/forgot-password"
                         className="mt-6 inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-brand-accent to-brand-accent-hover px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-600/20 transition-all hover:scale-[1.02]"
                     >
                         Request new link

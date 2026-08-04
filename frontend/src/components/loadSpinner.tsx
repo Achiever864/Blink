@@ -1,56 +1,108 @@
-import React from "react";
+import React, { useId } from "react";
 
-interface BloaderProps {
+interface BLoaderProps {
     size?: "xs" | "sm" | "md" | "lg";
-    variant?: "white"| "primary" | "slate" | "gold";
+    variant?: "white" | "primary" | "slate" | "gold";
     className?: string;
 }
 
-const BLoader: React.FC<BloaderProps> = ({
+const SIZE_MAP = {
+    xs: { box: 20, stroke: 1.5, font: 13 },
+    sm: { box: 28, stroke: 2, font: 18 },
+    md: { box: 42, stroke: 2.5, font: 27 },
+    lg: { box: 60, stroke: 3, font: 38 },
+};
+
+const VARIANT_MAP = {
+    white: { ring: "#ffffff", letter: "#ffffff" },
+    primary: { ring: "var(--brand-accent, #8b5cf6)", letter: "var(--brand-accent, #8b5cf6)" },
+    slate: { ring: "#94a3b8", letter: "#94a3b8" },
+    gold: { ring: "#c9a84c", letter: "#c9a84c" },
+};
+
+const BLoader: React.FC<BLoaderProps> = ({
     size = "sm",
     variant = "primary",
     className = "",
 }) => {
-    const sizeMap = {
-        xs: { container: "w-[20px] h-[20px]", letter: "text-[18px]", dot:"w-[4px] h-[4px]" },
-        sm: { container: "w-[28px] h-[28px]", letter: "text-[26px]", dot: "w-[5px] h-[5px]" },
-        md: { container: "w-[42px] h-[42px]", letter: "text-[40px]", dot: "w-[7px] h-[7px]" },
-        lg: { container: "w-[60px] h-[60px]", letter: "text-[58px]", dot: "w-[10px] h-[10px]" },
-    };
+    const uid = useId().replace(/:/g, "");
+    const { box, stroke, font } = SIZE_MAP[size];
+    const colors = VARIANT_MAP[variant];
 
-    const variantMap = {
-        white: {letter: "text-white", dot: "bg-white" },
-        primary: { letter: "text-brand-accent", dot: "bg-violet-500" },
-        slate: { letter: "text-brand-text-muted", dot: "bg-slate-400" },
-        gold: { letter: "text-[#c9a84c]", dot: "bg-[#c9a84c]" },
-    };
+    const radius = (box - stroke) / 2;
+    const circumference = 2 * Math.PI * radius;
+    const arcLength = circumference * 0.24; // visible portion of the ring
 
     return (
         <div
-            className={`relative inline-block ${sizeMap[size].container} ${className}`}
+            className={`relative inline-flex items-center justify-center ${className}`}
+            style={{ width: box, height: box }}
             role="status"
             aria-label="Loading"
         >
-            {/*track Line... wait what?? */}
-            <span
-                className="absolute -bottom-1 left-[-10%] w-[120%] h-[1.5px] rounded opacity-15"
-                style={{ background: "currentColor" }}
-            />
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap');
+
+                @keyframes bl-spin-${uid} {
+                    to { transform: rotate(360deg); }
+                }
+                @keyframes bl-breathe-${uid} {
+                    0%, 100% { opacity: 0.55; transform: scale(0.94); }
+                    50% { opacity: 1; transform: scale(1); }
+                }
+                .bl-ring-${uid} {
+                    animation: bl-spin-${uid} 1.1s linear infinite;
+                    transform-origin: 50% 50%;
+                }
+                .bl-letter-${uid} {
+                    animation: bl-breathe-${uid} 1.6s ease-in-out infinite;
+                    transform-origin: 50% 50%;
+                }
+                @media (prefers-reduced-motion: reduce) {
+                    .bl-ring-${uid}, .bl-letter-${uid} { animation: none; }
+                }
+            `}</style>
+
+            <svg
+                width={box}
+                height={box}
+                viewBox={`0 0 ${box} ${box}`}
+                className={`absolute inset-0 bl-ring-${uid}`}
+            >
+                <circle
+                    cx={box / 2}
+                    cy={box / 2}
+                    r={radius}
+                    fill="none"
+                    stroke={colors.ring}
+                    strokeWidth={stroke}
+                    strokeLinecap="round"
+                    strokeDasharray={`${arcLength} ${circumference - arcLength}`}
+                    opacity={0.9}
+                />
+            </svg>
 
             <span
-                className={`inline-block leading-none font-bold animate-bRoll ${sizeMap[size].letter} ${variantMap[variant].letter}`}
-                style={{ fontFamily: " 'Cormorant Garamond', Georgia, serif", transformOrigin: "center center"}}
+                className={`absolute inset-0 flex items-center justify-center bl-letter-${uid} select-none`}
             >
-                B
+                <span
+                    style={{
+                        fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
+                        fontStyle: "italic",
+                        fontWeight: 500,
+                        fontSize: font,
+                        lineHeight: 1,
+                        color: colors.letter,
+                        transform: "translateY(-1px)",
+                    }}
+                >
+                    B
+                </span>
             </span>
 
-            <span
-                className={`absolute rounded-full animate-dotOrbit ${sizeMap[size].dot} ${variantMap[variant].dot}`}
-            />
-
-            <span className="sr-only"> Loading...</span>
+            <span className="sr-only">Loading...</span>
         </div>
-    )
-}
+    );
+};
 
 export default BLoader;

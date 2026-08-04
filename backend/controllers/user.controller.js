@@ -4,7 +4,6 @@ import Post from "../models/post.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import FriendsRecommend from "../services/friendSuggestion.js";
-import RecommendationCache from "../services/RecommendationCache.js";
 import CloudinaryService from "../services/CloudinaryService.js";
 import messageModel from "../models/message.model.js";
 import crypto from "crypto";
@@ -166,18 +165,7 @@ const getUserSuggestions = async (req, res) => {
         const offset = Number(req.query.offset) || 0;
         const limit = Number(req.query.limit) || 10;
 
-
-        //try accessing from cache if not fall back to database
-        let recommendations = await RecommendationCache.get("friend", userId);
-
-        if(!recommendations){
-            recommendations = await friendsRecommend.recommend(userId);
-            await RecommendationCache.set(
-                "friend",
-                userId,
-                recommendations
-            );
-        }
+        const recommendations = await friendsRecommend.recommend(userId);
 
         const friendships = await Friendship.find({
             $or: [{ requester: userId }, { recipient: userId }],

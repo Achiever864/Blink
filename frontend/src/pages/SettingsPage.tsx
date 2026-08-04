@@ -357,7 +357,7 @@ const SettingsPage: React.FC = () => {
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {(["light", "dark", "cyberpunk", "rose"] as ThemeMode[]).map((mode) => (
+                                {(["dark", "cyberpunk", "rose", "darkfury", "navy", "megatron", "funky", "nature"] as ThemeMode[]).map((mode) => (
                                     <button
                                         key={mode}
                                         onClick={() => setTheme(mode)}

@@ -33,13 +33,14 @@ class PostRecommend{
     recencyScore(candidatePosts){
         const scores = new Map();
         const now = Date.now();
-        const halfLifeHours = 48; //hmmm nice idea... scores halves every 48 hours, beautiful
+        const halfLifeHours = 24; //tightened from 48 -- fresh posts fall off faster, so recency actually separates the ranking
+        const maxScore = 30; //doubled from 15 so recency carries real weight against engagement/velocity
 
         for (const post of candidatePosts){
             const ageHours = (now - new Date(post.createdAt).getTime())/ (1000 * 60 * 60);
             const decayFactor = Math.pow(0.5, ageHours / halfLifeHours);
 
-            scores.set(post._id.toString(), decayFactor * 15);
+            scores.set(post._id.toString(), decayFactor * maxScore);
         }
 
         return scores;
@@ -106,6 +107,36 @@ class PostRecommend{
             }
         }
         return scores;
+    }
+
+    //small random jitter so the feed doesn't look frozen on repeat visits --
+    //keeps ranking mostly intact but shuffles posts that are close in score
+    randomnessScore(candidatePosts, magnitude = 6){
+        const scores = new Map();
+
+        for (const post of candidatePosts){
+            scores.set(post._id.toString(), Math.random() * magnitude);
+        }
+
+        return scores;
+    }
+
+    //multiplicative decay applied to the WHOLE combined score, not just an additive term --
+    //this is what actually kills old high-engagement posts, since engagement alone has no ceiling
+    //and was steamrolling recencyScore's additive points
+    stalenessMultiplier(candidatePosts, halfLifeHours = 30){
+        const multipliers = new Map();
+        const now = Date.now();
+
+        for (const post of candidatePosts){
+            const ageHours = (now - new Date(post.createdAt).getTime()) / (1000 * 60 * 60);
+            multipliers.set(
+                post._id.toString(),
+                Math.pow(0.5, ageHours / halfLifeHours)
+            );
+        }
+
+        return multipliers;
     }
 
     //prevents one user from flooding the feed
@@ -188,6 +219,7 @@ class PostRecommend{
         ]);
 
         const interestScores = this.interestScore(user, candidatePosts);
+        const randomnessScores = this.randomnessScore(candidatePosts);
 
         const finalScores = new Map();
         this.mergeScores(finalScores, engagementScores);
@@ -195,6 +227,14 @@ class PostRecommend{
         this.mergeScores(finalScores, velocityScores);
         this.mergeScores(finalScores, authorAffinityScores);
         this.mergeScores(finalScores, interestScores);
+        this.mergeScores(finalScores, randomnessScores);
+
+        //apply staleness decay to the WHOLE score before anything else -- this is what
+        //actually drags a stuck-at-the-top old post back down, regardless of its engagement
+        const stalenessMultipliers = this.stalenessMultiplier(candidatePosts);
+        for (const [postId, score] of finalScores){
+            finalScores.set(postId, score * (stalenessMultipliers.get(postId) ?? 1));
+        }
 
         let sortedScores = [...finalScores.entries()].sort((a,b) => b[1] - a[1]);
 

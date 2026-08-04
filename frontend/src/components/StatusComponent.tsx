@@ -21,17 +21,12 @@ export interface Post {
 }
 
 interface FeedStreamProps {
-  /** "full" for main FeedPage, "compact" for sidebars in MessagePage */
   variant?: "full" | "compact"; 
-  /** Whether to render the post creation box at the top */
   showComposer?: boolean; 
-  /** Optional initial posts array or custom posts passed from parent */
   initialPosts?: Post[]; 
-  /** Filter tag or title header (e.g. "Shared Media", "Activity") */
   title?: string;
 }
 
-// Default mock feed data if none is supplied
 const DEFAULT_POSTS: Post[] = [
   {
     id: "1",
