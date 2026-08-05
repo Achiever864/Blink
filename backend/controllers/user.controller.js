@@ -393,6 +393,7 @@ const forgotPassword = async (req, res) => {
         await user.save();
 
         const resetLink = `${process.env.FRONTEND_URL}/resetPassword?token=${rawToken}`;
+        console.log("sending ooo....", resetLink, user.email);
         await sendResetEmail(user.email, resetLink);
 
         res.status(200).json({
@@ -404,6 +405,7 @@ const forgotPassword = async (req, res) => {
 };
 
 const resetPassword = async (req, res) => {
+    console.log("I am resetting the password nigga!")
     try {
         const { token, newPassword }= req.body;
         

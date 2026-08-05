@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
-import { CheckCheck, CornerUpLeft } from "lucide-react";
+import { CheckCheck, CornerUpLeft, Reply, Trash2, Copy } from "lucide-react";
 import AudioMessagePlayer from "./AudioMessagePlayer";
+import ContextMenu from "../context/ContextMenu";
 
 interface Attachment {
     type: "image" | "video" | "audio" | "file";
@@ -26,7 +27,6 @@ interface Message {
         username: string;
         profilePicture?: {
             url: string;
-            publicId: string;
         };
     };
     text: string;
@@ -48,15 +48,12 @@ interface MessageBubbleProps {
     isGroup: boolean;
     participants: Participant[];
     onReply: (msg: Message) => void;
+    onDelete?: (messageId: string) => void;
 }
 
 const DRAG_THRESHOLD = 50; // px of drag before releasing counts as "swipe to reply"
 const MAX_DRAG = 80; // px cap so the bubble can't be dragged off-screen
 
-// sender can be a raw id string (unpopulated reference, common on nested replyTo.sender)
-// or a populated object (top-level sender, fresh optimistic sends). When it's a raw
-// string, fall back to resolving it against the conversation's known participants,
-// since the backend doesn't currently nest-populate replyTo.sender.
 const getSenderName = (sender: Message["sender"], participants: Participant[]) => {
     if (typeof sender !== "string") return sender?.username || "Unknown";
     const match = participants.find((p) => p._id === sender);
@@ -82,7 +79,7 @@ const attachmentPreviewLabel = (attachment?: Attachment | null) => {
     }
 };
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, participants, onReply }) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, participants, onReply, onDelete }) => {
     const [dragX, setDragX] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
     const startXRef = useRef(0);
@@ -118,6 +115,25 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, parti
     const replyProgress = Math.min(dragX / DRAG_THRESHOLD, 1);
     const senderAvatar = getSenderAvatar(msg.sender, participants);
     const senderName = getSenderName(msg.sender, participants);
+
+    const contextMenuItems = [
+        {
+            label: "Reply",
+            icon: Reply,
+            onClick: () => onReply(msg)
+        },
+        ...(msg.text ? [{
+            label: "Copy text",
+            icon: Copy,
+            onClick: () => navigator.clipboard.writeText(msg.text)
+        }] : []),
+        ...(isMe && !msg.isDeleted ? [{
+            label: "Delete",
+            icon: Trash2,
+            danger: true,
+            onClick: () => onDelete?.(msg._id)
+        }] : [])
+    ];
 
     return (
         <div className="relative">
@@ -159,84 +175,88 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ msg, isMe, isGroup, parti
                         </span>
                     )}
 
-                    <div className={`rounded-2xl px-4 py-3 text-xs leading-relaxed transition-all ${
-                        isMe
-                            ? "bg-brand-accent text-white rounded-tr-none font-medium shadow-md shadow-brand-accent/10"
-                            : "bg-brand-surface/60 border border-brand-border text-brand-text rounded-tl-none"
-                    }`}>
-                        <div className="whitespace-pre-wrap">
-                            {msg.replyTo && (
-                                <div className={`mb-2 pl-2 border-l-2 rounded-r-md py-1 px-2 ${
-                                    isMe ? "border-white/40 bg-white/10" : "border-brand-accent/50 bg-brand-bg/40"
-                                }`}>
-                                    <p className={`text-[10px] font-bold ${isMe ? "text-white/80" : "text-brand-accent"}`}>
-                                        {getSenderName(msg.replyTo.sender, participants)}
+                    <ContextMenu items={contextMenuItems}>
+                        <div className={`rounded-2xl px-4 py-3 text-xs leading-relaxed transition-all ${
+                            isMe
+                                ? "bg-brand-accent text-white rounded-tr-none font-medium shadow-md shadow-brand-accent/10"
+                                : "bg-brand-surface/60 border border-brand-border text-brand-text rounded-tl-none"
+                        }`}>
+                            <div className="whitespace-pre-wrap">
+                                {msg.replyTo && (
+                                    <div className={`mb-2 pl-2 border-l-2 rounded-r-md py-1 px-2 ${
+                                        isMe ? "border-white/40 bg-white/10" : "border-brand-accent/50 bg-brand-bg/40"
+                                    }`}>
+                                        <p className={`text-[10px] font-bold ${isMe ? "text-white/80" : "text-brand-accent"}`}>
+                                            {getSenderName(msg.replyTo.sender, participants)}
+                                        </p>
+                                        <p className={`text-[10px] truncate ${isMe ? "text-white/60" : "text-brand-text-muted"}`}>
+                                            {msg.replyTo.text || attachmentPreviewLabel(msg.replyTo.attachment)}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {msg.isDeleted && (
+                                    <p className="italic text-brand-text-muted">
+                                        ∅ This message was deleted.
                                     </p>
-                                    <p className={`text-[10px] truncate ${isMe ? "text-white/60" : "text-brand-text-muted"}`}>
-                                        {msg.replyTo.text || attachmentPreviewLabel(msg.replyTo.attachment)}
+                                )}
+
+                                {!msg.isDeleted && msg.text && (
+                                    <p className="break-words">
+                                        {msg.text}
+                                        {msg.isEdited && (
+                                            <span className="ml-2 text-[10px]">edited</span>
+                                        )}
                                     </p>
-                                </div>
-                            )}
+                                )}
 
-                            {msg.isDeleted && (
-                                <p className="italic text-brand-text-muted">
-                                    ∅ This message was deleted.
-                                </p>
-                            )}
+                                {!msg.isDeleted && msg.attachment?.type === "image" && (
+                                    <div className="mt-2 rounded-xl overflow-hidden max-w-xs bg-brand-surface-hover/50">
+                                        <img
+                                            src={msg.attachment.url}
+                                            alt=""
+                                            loading="lazy"
+                                            className="w-full max-h-[320px] object-cover transition duration-300 hover:scale-[1.02] hover:brightness-95 cursor-pointer"
+                                            onClick={() => window.open(msg.attachment?.url, "_blank")}
+                                        />
+                                    </div>
+                                )}
 
-                            {msg.text && (
-                                <p className="break-words">
-                                    {msg.text}
-                                    {msg.isEdited && (
-                                        <span className="ml-2 text-[10px]">edited</span>
-                                    )}
-                                </p>
-                            )}
-
-                            {msg.attachment?.type === "image" && (
-                                <div className="mt-2 rounded-xl overflow-hidden max-w-xs bg-brand-surface-hover/50">
-                                    <img
-                                        src={msg.attachment.url}
-                                        alt=""
-                                        loading="lazy"
-                                        className="w-full max-h-[320px] object-cover transition duration-300 hover:scale-[1.02] hover:brightness-95 cursor-pointer"
-                                        onClick={() => window.open(msg.attachment?.url, "_blank")}
+                                {!msg.isDeleted && msg.attachment?.type === "video" && (
+                                    <video
+                                        src={msg.attachment?.url}
+                                        controls
+                                        playsInline
+                                        preload="metadata"
+                                        className="rounded-xl mt-2 max-w-xs max-h-[320px] w-full object-cover bg-black"
                                     />
-                                </div>
-                            )}
+                                )}
 
-                            {msg.attachment?.type === "video" && (
-                                <video
-                                    src={msg.attachment?.url}
-                                    controls
-                                    playsInline
-                                    preload="metadata"
-                                    className="rounded-xl mt-2 max-w-xs max-h-[320px] w-full object-cover bg-black"
-                                />
-                            )}
+                                {!msg.isDeleted && msg.attachment?.type === "audio" && (
+                                    <AudioMessagePlayer url={msg.attachment.url} isMe={isMe} />
+                                )}
 
-                            {msg.attachment?.type === "audio" && (
-                                <AudioMessagePlayer url={msg.attachment.url} isMe={isMe} />
-                            )}
+                                {!msg.isDeleted && msg.attachment?.type === "file" && (
+                                    <a
+                                        href={msg.attachment.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-brand-accent underline"
+                                    >
+                                        {msg.attachment?.fileName}
+                                    </a>
+                                )}
 
-                            {msg.attachment?.type === "file" && (
-                                <a
-                                    href={msg.attachment.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-brand-accent underline"
-                                >
-                                    {msg.attachment?.fileName}
-                                </a>
-                            )}
-
-                            <div className="flex gap-1">
-                                {msg.reactions?.map(r => (
-                                    <span key={r.user}>{r.emoji}</span>
-                                ))}
+                                {!msg.isDeleted && (
+                                    <div className="flex gap-1">
+                                        {msg.reactions?.map(r => (
+                                            <span key={r.user}>{r.emoji}</span>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
-                    </div>
+                    </ContextMenu>
 
                     <div className="flex items-center gap-1 mt-1 text-[9px] text-brand-text-muted px-1 font-medium">
                         <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>

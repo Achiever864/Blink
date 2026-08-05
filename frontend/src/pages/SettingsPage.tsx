@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    User, Palette, ArrowLeft, Lock, Bell, Globe, Check, Briefcase, MapPin, Cake, Tag, LogOut
+    User, Palette, ArrowLeft, Bell, Globe, Check, Briefcase, MapPin, Cake, Tag, LogOut
 } from "lucide-react";
 import {
     useTheme, type ThemeMode
@@ -141,14 +141,6 @@ const SettingsPage: React.FC = () => {
                     >
                         <Palette size={15} />
                         <span>Themes</span>
-                    </button>
-
-                    <button
-                        onClick ={() => setActiveTab("security")}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold tracking-wide transition-all ${activeTab === 'security' ? "bg-brand-accent/10 text-brand-accent border border-brand-accent/20" : "text-brand-text-muted hover:text-brand-text border border-transparent"}`}
-                    >
-                        <Lock size={15} />
-                        <span>Password & Security</span>
                     </button>
 
                     <button
@@ -427,15 +419,15 @@ const SettingsPage: React.FC = () => {
                     {activeTab === "notifications" && (
                         <div className="space-y-6 max-w-xl">
                             <div>
-                                <h3 className="text-md font-black text-brand-text">Signal Routing Metrics</h3>
-                                <p className="text-xs text-brand-text-muted">Configure layout parameters for alerts and peripheral statuses.</p>
+                                <h3 className="text-md font-black text-brand-text">Notification Settings</h3>
+                                <p className="text-xs text-brand-text-muted">Configure notification settings and layout.</p>
                             </div>
 
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between p-4 rounded-2xl bg-brand-bg/40 border border-brand-border">
                                     <div className="pr-4">
-                                        <h4 className="text-xs font-bold text-brand-text">Incoming Signal Alerts</h4>
-                                        <p  className="text-[11px] text-brand-text-muted mt-0.5">Push peripheral desktop banners when incoming real-time direct packet data transfers land.</p>
+                                        <h4 className="text-xs font-bold text-brand-text">Incoming Notification</h4>
+                                        <p  className="text-[11px] text-brand-text-muted mt-0.5">Push Notification when currently active on the application.</p>
                                     </div>
 
                                     <button

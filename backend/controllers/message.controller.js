@@ -123,7 +123,35 @@ const readMessage = async (req, res) => {
     }
 };
 
+const deleteMessage = async (req, res) => {
+    try {
+        const { messageId, userId } = req.body;
+
+        const message = await Message.findById(messageId);
+        if (!message) {
+            return res.status(404).json({ message: "Message not found" });
+        }
+
+        if (message.sender.toString() !== userId) {
+            return res.status(403).json({ message: "You can only delete your own messages" });
+        }
+
+        message.isDeleted = true;
+        message.text = "";
+        message.attachment = null;
+        await message.save();
+
+        const io = getio();
+        io.to(message.chatId.toString()).emit("message-deleted", { messageId, chatId: message.chatId });
+
+        res.status(200).json({ message: "Message deleted" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 export { 
     sendMessage,
     readMessage,
+    deleteMessage
 };

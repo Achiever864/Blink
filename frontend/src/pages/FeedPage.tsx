@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-    Camera, Trash2, Plus, Heart, MessageCircle, Paperclip, Send, X,
+    Camera, Trash2, Heart, MessageCircle, Paperclip, Send, X,
     Eye,
     Minus,
     Mic
@@ -14,14 +14,6 @@ import PostMedia from "../components/PostMedia.tsx";
 import { PostComments } from "../components/Comments.tsx";
 import ContextMenu from "../context/ContextMenu.tsx";
 import { MediaCaptureControl } from "../components/MediaCaptureControl.tsx";
-
-interface StatusNode {
-    id: string;
-    username: string;
-    avatar: string;
-    hasUnread: boolean;
-    isOnline: boolean;
-}
 
 interface Post {
     _id: string;
@@ -68,14 +60,6 @@ const FeedPage: React.FC = () => {
         setAttachments(prev => [...prev, file]);
         setCameraActive(false);
     }
-
-    //mock data for active status for now shaaa
-    const activeStatuses: StatusNode[] = [
-        { id: "s1", username: "compSci", avatar: "CS", hasUnread: true, isOnline: true },
-        { id: "s2", username: "Kernel", avatar: "KP", hasUnread: true, isOnline: false },
-        { id: "s3", username: "binaryBabe", avatar: "BB", hasUnread: false, isOnline: true },
-        { id: "s4", username: "neonVector", avatar: "NV",  hasUnread: false, isOnline: false}
-    ];
 
     const toggleLike = async (postId: string) => {
         if (!user?.id) return;
@@ -252,62 +236,6 @@ const FeedPage: React.FC = () => {
                     className="py-4 sm:py-6 md:overflow-y-auto md:max-h-screen no-scrollbar space-y-4 sm:space-y-6 w-full min-w-0"
                     ref={mainRef}
                 >
-                    <div className="w-full bg-brand-bg/40 p-4 border-b border-brand-border/60 rounded-2xl sm:rounded-3xl">
-                        <div className="flex items-center justify-between mb-3 px-1">
-                            <h3 className="text-xs font-black tracking-wider text-brand-text-muted font-mono uppercase">Active Status</h3>
-                            <span className="text-[10px] bg-brand-surface px-2 py-0.5 rounded-md font-mono text-brand-text-muted">
-                                {activeStatuses.length} active
-                            </span>
-                        </div>
-
-                        <div className="flex items-center gap-4 overflow-x-auto pb-2 pt-1 no-scrollbar w-full scroll-smooth">
-                            {/* First element: current operator add link */}
-                            <div className="flex flex-col items-center flex-shrink-0 cursor-pointer group">
-                                <div className="relative">
-                                    <div className="h-12 w-12 rounded-full bg-brand-surface border border-brand-border flex items-center justify-center text-xs text-brand-text-muted font-bold group-hover:border-brand-border transition-all">
-                                        ME
-                                    </div>
-
-                                    {/*Pinned Add Plus Icon Badge*/}
-                                    <div className="absolute bottom-0 right-0 p-0.5 rounded-full bg-brand-accent text-white border-2 border-slate-950 group-hover:scale-110 transition-transform">
-                                        <Plus size={10} strokeWidth={3} />
-                                    </div>
-                                </div>
-                                <span className="text-[10px] font-mono mt-1.5 text-brand-text-muted group-hover:text-brand-text transition-colors">My Status</span>
-                            </div>
-
-                            {/*Mapped Friends Channels */}
-                            {activeStatuses.map((status) => (
-                                <div key={status.id} className="flex flex-col items-center flex-shrink-0 cursor-pointer group">
-                                    <div className="relative">
-                                        <div className={`p-[2px] rounded-full transition-all group-hover:scale-105 ${
-                                            status.hasUnread
-                                                ? "bg-gradient-to-tr from-violet-600 via-indigo-500 to-teal-400 animation-pulse"
-                                                : "border border-brand-border/80 bg-transparent"
-                                        }`}>
-                                            {/*Inner Avatar Frame */}
-                                            <div className="h-11 w-11 rounded-full bg-brand-bg border border-brand-border/40 flex items-center justify-center text-xs text-brand-text font-black uppercase group-hover:text-white transition-colors">
-                                                {status.avatar}
-                                            </div>
-                                        </div>
-
-                                        {/*Core Online Indicator Dot */}
-                                        {status.isOnline && (
-                                            <div className="absolute top-0 right-0 h-2.5 w-2.5 rounded-full bg-teal-400 border-2 border-slate-950 ring-1 ring-teal-400/20" title="Online" />
-                                        )}
-                                    </div>
-
-                                    {/*Friend Name Display Text */}
-                                    <span className="text-[10px] font-mono mt-1.5 text-brand-text-muted max-w-[64px] truncate text-center group-hover:text-brand-text transition-colors">
-                                        {status.username}
-                                    </span>
-                                </div>
-                            ))}
-
-                        </div>
-                    </div>
-
-
                     {/*Feed composer box */}
                     <div className="rounded-3xl border border-brand-border bg-brand-bg p-3 sm:p-4 shadow-xl focus-within:border-brand-accent/40 transition-all">
                         <textarea 

@@ -41,7 +41,9 @@ export interface Message {
     sender: string | {
         _id: string;
         username: string;
-        profilePicture?: string;
+        profilePicture?: {
+            url: string;
+        };
     };
     text: string;
     attachment?: Attachment | null;

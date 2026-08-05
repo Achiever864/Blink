@@ -41,6 +41,37 @@ const formatDuration = (seconds: number) => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
 };
 
+const formatDateDivider = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const isSameDay = (a: Date, b: Date) =>
+        a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate() === b.getDate();
+
+    if (isSameDay(date, today)) return "Today";
+    if (isSameDay(date, yesterday)) return "Yesterday";
+
+    return date.toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: date.getFullYear() !== today.getFullYear() ? "numeric" : undefined
+    });
+};
+
+const isNewDay = (current: Message, previous: Message | undefined) => {
+    if (!previous) return true;
+    const a = new Date(current.createdAt);
+    const b = new Date(previous.createdAt);
+    return a.getFullYear() !== b.getFullYear() ||
+           a.getMonth() !== b.getMonth() ||
+           a.getDate() !== b.getDate();
+};
+
 const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onStartNewChat, onBack, onMessagesRead }) => {
     const { user } = useAuth();
     const { showStatus } = useStatus();
@@ -94,6 +125,24 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
         } catch (error) {
             console.error("Failed to mark messages as read:", error);
             readSetRef.current.delete(messageId);
+        }
+    };
+
+    const handleDeleteMessage = async (messageId: string) => {
+        if (!user?.id) return;
+
+        // Optimistic soft-delete
+        setMessages(prev => prev.map(msg =>
+            msg._id === messageId ? { ...msg, isDeleted: true, text: "", attachment: null } : msg
+        ));
+
+        try {
+            await API.post("/message/delete", { messageId, userId: user.id });
+        } catch (error: any) {
+            showStatus(error.response?.data?.message || "Failed to delete message", "error");
+            // Not reverting the optimistic delete here since re-fetching the
+            // original text/attachment would need a refetch anyway — simplest
+            // recovery is just letting the next fetchMessages() correct it.
         }
     };
 
@@ -158,7 +207,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
                     conversationId: activeChat.conversationId
                 });
 
-                const fetchedMessages: Message [] = res.data.messages;
+                const fetchedMessages: Message[] = res.data.messages;
                 setMessages(fetchedMessages);
 
                 if (user?.id){
@@ -189,9 +238,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
             });
         };
 
+        const handleMessageDeleted = ({ messageId, chatId }: { messageId: string; chatId: string }) => {
+            if (chatId !== activeChat.conversationId) return;
+            setMessages(prev => prev.map(msg =>
+                msg._id === messageId ? { ...msg, isDeleted: true, text: "", attachment: null } : msg
+            ));
+        };
+
         socket.on("new-message", handleNewMessage);
+        socket.on("message-deleted", handleMessageDeleted);
         return () => {
             socket.off("new-message", handleNewMessage);
+            socket.off("message-deleted", handleMessageDeleted);
         };
     }, [activeChat?.conversationId, user?.id]);
 
@@ -312,7 +370,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
             sender: {
                 _id: user?.id || "",
                 username: user?.username || "You",
-                profilePicture: user?.profilePicture
+                // profilePicture: user?.profilePicture?.url
             },
             text: textToSend,
             attachment: optimisticAttachment,
@@ -451,9 +509,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
                 onScroll={handleScroll}
                 className="flex-1 overflow-y-auto no-scrollbar py-6 space-y-4 pr-1"
             >
-                {messages.map((msg) => (
-                    //divider Reference for unread messages within an active chat.. lol
+                {messages.map((msg, index) => (
                     <React.Fragment key={msg._id}>
+                        {isNewDay(msg, messages[index - 1]) && (
+                            <div className="flex items-center gap-3 py-1">
+                                <div className="flex-1 h-px bg-brand-border/60" />
+                                <span className="text-[10px] font-semibold text-brand-text-muted whitespace-nowrap px-3 py-1 rounded-full bg-brand-surface/60 border border-brand-border/60">
+                                    {formatDateDivider(msg.createdAt)}
+                                </span>
+                                <div className="flex-1 h-px bg-brand-border/60" />
+                            </div>
+                        )}
+
                         {unreadDividerIdRef.current === msg._id && (
                             <div className="flex items-center gap-3 py-2">
                                 <div className="flex-1 h-px bg-brand-accent/30" />
@@ -465,21 +532,20 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
                         )}
 
                         <div
-                            key={msg._id}
                             data-message-id={msg._id}
                             ref={(el) => {
                                 if (el) messageRefs.current.set(msg._id, el);
                                 else messageRefs.current.delete(msg._id);
                             }}
                         >
-                        
-                        <MessageBubble
-                            msg={msg}
-                            isMe={getSenderId(msg.sender) === user?.id}
-                            isGroup={activeChat.isGroup}
-                            onReply={handleReply}
-                            participants={activeChat.participants || []}
-                        />
+                            <MessageBubble
+                                msg={msg}
+                                isMe={getSenderId(msg.sender) === user?.id}
+                                isGroup={activeChat.isGroup}
+                                onReply={handleReply}
+                                onDelete={handleDeleteMessage}
+                                participants={activeChat.participants || []}
+                            />
                         </div>
                     </React.Fragment>
                 ))}
