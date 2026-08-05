@@ -3,7 +3,7 @@ import { X, LogOut, Users, UserX, ArrowLeft, Camera, ShieldCheck, ShieldOff, Use
 import API from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import { useStatus } from "../context/StatusBarContext";
-import type { Conversation, Participant } from "../types/chat";
+import type { Conversation } from "../types/chat";
 
 interface ChatSettingsPanelProps {
     chat: Conversation;
