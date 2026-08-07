@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&display=swap");
 
 @keyframes slideIn {
     from{
@@ -26,24 +25,20 @@
 }
 
 @layer utilities{
-    /*Hide scrollbar for Chrome, safara and newer Edge browsers*/
     .no-scrollbar::-webkit-scrollbar{
         display: none;
     }
 
-    /*Hide scrollbar for Firefox*/
     .no-scrollbar {
         scrollbar-width: none;
     }
 
-    /*Old browsers, Legacy Edge */
     .no-scrollbar {
         -ms-overflow-style: none;
     }
 }
 
 
-/*Let us add themes to our app... integrate it*/
 @theme {
   --color-brand-bg: var(--bg-primary);
   --color-brand-bg-secondary: var(--bg-secondary);
