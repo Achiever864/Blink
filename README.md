@@ -1,18 +1,10 @@
 # Blink
 
-> A modern social communication platform built to make connecting, sharing, and communicating with people simple and engaging.
-
-## 🚀 Overview
-
-**Blink** is a full-stack social platform designed around communication and interaction between users.
-
-The application allows users to create accounts, connect with other users, share posts, interact with content, and communicate through real-time conversations.
-
-The project was built as a hands-on full-stack application, with a focus on building the backend architecture, authentication, database relationships, messaging system, media handling, and responsive frontend experience.
+> A social media platform built for live interaction, messaging and entertainment. It supports heavy media which includes video, audio, images and text.
 
 ---
 
-# 🛠️ Tech Stack
+# Tech Stack
 
 ## Frontend
 
@@ -32,13 +24,13 @@ The project was built as a hands-on full-stack application, with a focus on buil
 * JWT
 
 ## Services
-* Cloudinary — media storage
-* Brevo — transactional emails
-* Redis — caching / temporary data where applicable
+* Cloudinary - media storage
+* Brevo - transactional emails
+* Redis - caching / temporary data where applicable
 
 ---
 
-# 🏗️ Project Structure
+# Project Structure
 
 ```text
 Blink/
@@ -70,7 +62,7 @@ Blink/
 
 ---
 
-# 🚀 Getting Started
+# Setup Process
 
 Follow the steps below to run Blink locally.
 
@@ -178,75 +170,6 @@ The frontend should now be available at:
 http://localhost:5173
 ```
 
----
-
-# 🔄 How Blink Works
-
-Blink follows a client-server architecture.
-
-```text
-                ┌──────────────────┐
-                │     Blink UI     │
-                │ React + Vite     │
-                └────────┬─────────┘
-                         │
-                         │ HTTP / API
-                         ▼
-                ┌──────────────────┐
-                │   Express API    │
-                │     Node.js      │
-                └────────┬─────────┘
-                         │
-              ┌──────────┼──────────┐
-              ▼          ▼          ▼
-        ┌──────────┐ ┌─────────┐ ┌───────────┐
-        │ MongoDB  │ │Cloudinary│ │  Brevo    │
-        │ Database │ │  Media   │ │   Email   │
-        └──────────┘ └─────────┘ └───────────┘
-```
-
-The React frontend communicates with the Express backend through REST APIs.
-
-The backend handles authentication, business logic, database operations, relationships between users, posts, conversations, and messages.
-
-MongoDB stores application data while Cloudinary handles uploaded media.
-
-Brevo is used for transactional emails such as password-reset emails.
-
----
-
-# 💬 Messaging System
-
-One of the core features of Blink is its messaging system.
-
-Messages belong to conversations, allowing Blink to support both individual and group conversations.
-
-The messaging architecture is designed to support:
-
-* Direct conversations
-* Group conversations
-* Message attachments
-* Read receipts
-* Audio messages
-* Unread message counts
-
----
-
-# 👥 Recommendation System
-
-Blink also includes a user recommendation system.
-
-Recommendations can be generated using relationships between users, including factors such as:
-
-* Mutual friends
-* Shared interests
-* Occupation
-* Other user attributes
-
-The goal is to recommend users who are more likely to be relevant to the current user rather than simply returning random users.
-
----
-
 # 🧪 Running the Application
 
 After completing the setup, you should have two development servers running:
@@ -270,23 +193,12 @@ Then open:
 ```text
 http://localhost:5173
 ```
+
 ---
 # Live Demo URL
 https://blink01.netlify.app
 
 ---
 
-# 🤝 Contributing
-
-Contributions, suggestions, and improvements are welcome.
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Commit your changes
-5. Open a pull request
-
----
-
 # 👨‍💻 Author
-
 **Adeoluwa Igaga**
