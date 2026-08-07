@@ -88,7 +88,7 @@ cd Blink
 
 ---
 
-# ⚙️ Backend Setup
+# Backend Setup
 
 Navigate into the backend:
 
@@ -138,7 +138,7 @@ http://localhost:4000
 
 ---
 
-# 💻 Frontend Setup
+# Frontend Setup
 
 Open another terminal and navigate to the frontend:
 
@@ -170,7 +170,7 @@ The frontend should now be available at:
 http://localhost:5173
 ```
 
-# 🧪 Running the Application
+# Running the Application
 
 After completing the setup, you should have two development servers running:
 
@@ -200,5 +200,5 @@ https://blink01.netlify.app
 
 ---
 
-# 👨‍💻 Author
+# Author
 **Adeoluwa Igaga**
