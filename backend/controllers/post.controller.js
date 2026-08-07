@@ -1,5 +1,6 @@
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
+import Comment from "../models/comment.model.js";
 import Friendship from "../models/friend.model.js";
 import CloudinaryService from "../services/CloudinaryService.js";
 import PostRecommend from "../services/postSuggestion.js";
@@ -286,12 +287,36 @@ const getReels = async (req, res) => {
     } catch (error) {
        res.status(500).json({ message: error.message }); 
     }
-}
+};
+
+const deletePost = async (req, res) => {
+    try {
+        const { postId, userId } = req.body;
+
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: "Post not found" });
+        }
+
+        if (post.author.toString() !== userId) {
+            return res.status(403).json({ message: "You can only delete your own posts" });
+        }
+
+        // Clean up dependent data so nothing orphaned is left behind
+        await Comment.deleteMany({ post: postId });
+        await post.deleteOne();
+
+        res.status(200).json({ message: "Post deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
 export {
     createPost,
     getFeed,
     likePost,
     getUserPosts,
-    getReels
+    getReels,
+    deletePost
 };

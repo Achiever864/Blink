@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
     Settings, Shield, Link2, Heart, MessageCircle, Users, Grid3x3,
-    Briefcase, MapPin, Cake
+    Briefcase, MapPin, Cake, Trash2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/sideBar";
 import PostMedia from "../components/PostMedia";
 import API from "../api/axios";
 import { useStatus } from "../context/StatusBarContext";
+import ContextMenu from "../context/ContextMenu";
 
 interface Post {
     _id: string;
@@ -112,6 +113,22 @@ const ProfilePage: React.FC = () => {
         }
     };
 
+    const handleDeletePost = async (postId: string) => {
+        if (!user?.id) return;
+
+        // Optimistic removal
+        const previousPosts = posts;
+        setPosts(prev => prev.filter(p => p._id !== postId));
+
+        try {
+            await API.post("/post/deletePost", { postId, userId: user.id });
+            showStatus("Post deleted", "success");
+        } catch (error: any) {
+            setPosts(previousPosts); // revert on failure
+            showStatus(error.response?.data?.message || "Failed to delete post", "error");
+        }
+    };
+
     useEffect(() => {
         fetchUserPosts();
         fetchFriends();
@@ -206,7 +223,7 @@ const ProfilePage: React.FC = () => {
 
                             <div className="flex items-center gap-4 text-xs text-brand-text-muted pt-1">
                                 {user?.website && (
-                                    <a href={`https://${user.website}`} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-brand-accent transition-colors">
+                                    <a href={`${user.website}`} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-brand-accent transition-colors">
                                         <Link2 size={13} />
                                         <span>{user.website}</span>
                                     </a>
@@ -214,7 +231,6 @@ const ProfilePage: React.FC = () => {
 
                                 <span className="flex items-center gap-1">
                                     <Shield size={13} className="text-brand-accent/80" />
-                                    <span>Verified Operator</span>
                                 </span>
                             </div>
 
@@ -266,23 +282,35 @@ const ProfilePage: React.FC = () => {
                                 </div>
                             ) : (
                                 posts.map((post) => (
-                                    <div key={post._id} className="rounded-3xl border border-brand-border bg-brand-surface/20 backdrop-blur-md p-4 sm:p-5 space-y-3 hover:border-brand-border/80 transition-all">
-                                        <p className="text-sm leading-relaxed text-brand-text whitespace-pre-wrap break-words">{post.caption}</p>
-                                        <PostMedia media={post.media} />
-                                        <div className="flex items-center gap-6 pt-2 border-t border-brand-border/40 text-xs text-brand-text-muted">
-                                            <span className="flex items-center gap-2">
-                                                <Heart size={14} />
-                                                {post.likes?.length ?? 0}
-                                            </span>
-                                            <span className="flex items-center gap-2">
-                                                <MessageCircle size={14} />
-                                                {post.commentsCount ?? 0}
-                                            </span>
-                                            <span className="ml-auto text-[11px]">
-                                                {new Date(post.createdAt).toLocaleDateString()}
-                                            </span>
+                                    <ContextMenu
+                                        key={post._id}
+                                        items={[
+                                            {
+                                                label: "Delete post",
+                                                icon: Trash2,
+                                                danger: true,
+                                                onClick: () => handleDeletePost(post._id)
+                                            }
+                                        ]}
+                                    >
+                                        <div className="rounded-3xl border border-brand-border bg-brand-surface/20 backdrop-blur-md p-4 sm:p-5 space-y-3 hover:border-brand-border/80 transition-all">
+                                            <p className="text-sm leading-relaxed text-brand-text whitespace-pre-wrap break-words">{post.caption}</p>
+                                            <PostMedia media={post.media} />
+                                            <div className="flex items-center gap-6 pt-2 border-t border-brand-border/40 text-xs text-brand-text-muted">
+                                                <span className="flex items-center gap-2">
+                                                    <Heart size={14} />
+                                                    {post.likes?.length ?? 0}
+                                                </span>
+                                                <span className="flex items-center gap-2">
+                                                    <MessageCircle size={14} />
+                                                    {post.commentsCount ?? 0}
+                                                </span>
+                                                <span className="ml-auto text-[11px]">
+                                                    {new Date(post.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </ContextMenu>
                                 ))
                             )}
                         </div>

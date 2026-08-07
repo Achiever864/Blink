@@ -19,6 +19,6 @@ friendRoute.post("/block", blockUser);
 friendRoute.post("/unblock", unblockUser);
 friendRoute.post("/getPending", getPendingRequest);
 friendRoute.post("/getFriends", getFriends); //add this to get all the friends for a particular user
-friendRoute.get("/searchUsers", searchUsers);
+friendRoute.post("/searchUsers", searchUsers);
 
 export default friendRoute;

@@ -1,5 +1,5 @@
 import express from "express";
-import { likePost, createPost, getFeed, getUserPosts , getReels } from "../controllers/post.controller.js";
+import { likePost, createPost, getFeed, getUserPosts , getReels, deletePost } from "../controllers/post.controller.js";
 import upload from "../config/multer.js";
 
 
@@ -10,5 +10,6 @@ postRouter.post("/getFeed", getFeed);
 postRouter.post("/like", likePost);
 postRouter.post("/getUserPosts", getUserPosts);
 postRouter.get("/getReels", getReels);
+postRouter.post("/deletePost", deletePost);
 
 export default postRouter;
