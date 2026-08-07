@@ -30,6 +30,13 @@
 
 ---
 
+# How I made it?
+I built the backend architecture, which involves 6 models; User, Post, Comment, Conversation, Comment, Notification, Friend models. Each of these interacts dynamically to make up the core aspect of the backend architecture. Then I built the frontend pages and components, carefully drafting and shaping each one to mirror our backend functionalities. I also needed third party services which was integrated on my backend servers, services like cloudinary for large media and multer for uploading, STUN/TURN server for calling between users, Brevo for email services and so on.
+
+After developing this project for months I hosted it on netlify which contains the live demo url and linked it to my backend server which was hosted on Render.
+
+---
+
 # Project Structure
 
 ```text
