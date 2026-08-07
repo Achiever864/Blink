@@ -32,10 +32,7 @@ interface CallContextType {
 
 const CallContext = createContext<CallContextType | undefined>(undefined);
 
-// Fetches fresh STUN/TURN credentials from our own backend, which in turn
-// proxies Metered's API — keeps the real API key server-side only.
-// Falls back to public STUN if the fetch fails, so same-network calls
-// still work even when TURN is unreachable.
+
 const getIceServers = async (): Promise<RTCIceServer[]> => {
     try {
         const res = await API.get("/call/getTurnCredentials");
@@ -196,9 +193,7 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Wire up socket listeners once, on mount
     React.useEffect(() => {
         socket.on("call:incoming", ({ from, offer, callType }) => {
-            // We don't have the caller's username from this payload alone —
-            // MessagePage/ChatWindow should pass it in via a lookup, or the
-            // backend's call:offer relay should include it. Flagged below.
+            
             setIncomingCall({ from, fromUsername: "Someone", offer, callType });
             setCallStatus("ringing");
         });

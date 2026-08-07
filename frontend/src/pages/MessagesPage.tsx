@@ -142,8 +142,6 @@ const MessagePage: React.FC = () => {
 
                 <main className="pb-2 pt-0 sm:py-6 grid grid-cols-1 md:grid-cols-[340px_1fr] overflow-hidden h-full w-full min-w-0">
 
-                    {/*Chat directory — full width on mobile when no chat is open,
-                        hidden on mobile once a chat is active (WhatsApp-style swap) */}
                     <section className={`border-r border-brand-border/60 md:pr-4 flex-col h-full overflow-hidden ${
                         activeChat ? "hidden md:flex" : "flex"
                     }`}>
@@ -217,8 +215,6 @@ const MessagePage: React.FC = () => {
                         />
                     </section>
 
-                    {/*Chat window — hidden on mobile until a chat is selected,
-                        always visible from md upward (so the empty state still shows on desktop) */}
                     <div className={`h-full min-h-0 md:pl-6 ${activeChat ? "flex" : "hidden md:flex"} flex-col`}>
                         <ChatWindow
                             activeChat={activeChat}

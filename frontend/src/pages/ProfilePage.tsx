@@ -151,7 +151,7 @@ const ProfilePage: React.FC = () => {
                             <div className="relative flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mt-8">
                                 <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
 
-                                    {/*Avatar — read-only here, editing lives in Settings now */}
+                                    
                                     <div className="relative h-20 w-20 rounded-2xl border border-brand-accent/30 flex items-center justify-center text-brand-text font-black text-2xl uppercase shadow-xl shadow-brand-accent/50 overflow-hidden flex-shrink-0">
                                         {user?.profilePicture ? (
                                             <img src={user.profilePicture} alt="profile" className="w-full h-full object-cover rounded-2xl" />

@@ -36,9 +36,8 @@ const GetFriendsDashboard: React.FC<GetFriendsDashboardProps> = ({ isEmbedded = 
             fetchNetworkBatch(offset);
         }
     }
-    const limit = 10; //Batch size per fetch
+    const limit = 10; 
 
-    //simulated backend API caller using our limit and offset rules
     const fetchNetworkBatch = useCallback(async (currentOffset: number) => {
         if(loadingRef.current || !user?.id) return;
 
@@ -82,8 +81,7 @@ const GetFriendsDashboard: React.FC<GetFriendsDashboardProps> = ({ isEmbedded = 
             setIsLoading(false);
         }
     }, [user?.id]);
-
-    //Hook it up cleanly
+    
     useEffect(() => {
         if (user?.id){
             fetchNetworkBatch(0)

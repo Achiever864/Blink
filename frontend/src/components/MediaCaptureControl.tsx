@@ -101,7 +101,7 @@ export const MediaCaptureControl: React.FC<MediaCaptureControlProps> = ({
         videoChunksRef.current = [];
 
         const options = { mimeType: "video/webm;codecs=v9,opus" };
-        //Fallback if browser doesn't render v9
+        
         const recorder = MediaRecorder.isTypeSupported(options.mimeType)
             ? new MediaRecorder(stream, options)
             : new MediaRecorder(stream);
@@ -168,7 +168,7 @@ export const MediaCaptureControl: React.FC<MediaCaptureControlProps> = ({
                 };
             }
         } else{
-            //for video clips, we fetch back the compiled video blob pointer
+            
             const response = await fetch(previewUrl);
             const blob = await response.blob();
             const file = new File([blob], `clip_${Date.now()}.mp4`, {type: "video/mp4" });

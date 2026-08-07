@@ -15,10 +15,6 @@ const ForgotPasswordPage: React.FC = () => {
         setIsLoading(true);
         try {
             await API.post("/user/forgotPassword", { email });
-            // Backend always returns the same generic message regardless of
-            // whether the email exists — we mirror that here rather than
-            // branching on success/failure, to avoid confirming which
-            // emails are registered.
             setSubmitted(true);
         } catch (error: any) {
             showStatus(error.response?.data?.message || "Something went wrong. Please try again.", "error");

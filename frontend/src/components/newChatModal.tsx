@@ -32,7 +32,7 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    // Group-mode only state
+    
     const [groupName, setGroupName] = useState("");
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -77,7 +77,7 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
         fetchFriends();
     }, [isOpen, user]);
 
-    // Reset group-mode state whenever the modal closes, so re-opening starts fresh
+    
     useEffect(() => {
         if (!isOpen) {
             setMode("direct");

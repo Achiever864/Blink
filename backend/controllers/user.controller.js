@@ -138,7 +138,6 @@ const updateUserProfile = async (req, res) => {
         if (bio !== undefined) user.bio = bio;
 
         if (interests){
-            //Accept either a JSON array string
             try {
                 const parsed = JSON.parse(interests);
                 user.interests = Array.isArray(parsed) ? parsed : interests.split(",").map(i => i.trim()).filter(Boolean);
@@ -216,7 +215,7 @@ const getUserSuggestions = async (req, res) => {
 };
 
 
-const getUserBeta = async (req, res) => { //running this in-place of the suggestion before i fix docker
+const getUserBeta = async (req, res) => { //running this in place of the suggestion before i fix docker
     try {
         const { userId } = req.body;
 

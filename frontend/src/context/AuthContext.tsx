@@ -83,9 +83,6 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         try {
             const res = await API.post("user/register", credentials);
 
-            // Matching login's response shape (res.data.user.*) rather than a
-            // different res.data.token / res.data.userProfile shape — confirm
-            // this matches your actual register endpoint's real response.
             const token = res.data.user.token;
             const userProfile = buildUserProfile(res.data.user);
 
@@ -104,9 +101,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
             setIsLoading(false);
         }
     };
-
-    // Called after a successful profile update (e.g. SettingsPage's handleProfileSave)
-    // so the rest of the app reflects new data immediately, without needing a re-login.
+    
     const updateUser = (updatedFields: Partial<UserProfile>) => {
         setUser(prev => {
             if (!prev) return prev;

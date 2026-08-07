@@ -59,8 +59,7 @@ const sendMessage = async (req, res) => {
 
         io.to(chatId).emit("new-message", populatedMessage);
 
-        // Strategic notifications — fire-and-forget so a notification hiccup
-        // never delays or breaks the message-send response.
+        
         const recipientIds = conversation.participant
             .map(id => id.toString())
             .filter(id => id !== sender.toString());

@@ -1,4 +1,3 @@
-// middleware/rateLimit.js
 import rateLimit from "express-rate-limit";
 
 export const generalLimiter = rateLimit({
@@ -9,7 +8,6 @@ export const generalLimiter = rateLimit({
     message: { message: "Too many requests, please try again later." }
 });
 
-// Stricter limiter for auth endpoints — brute-force protection
 export const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 10,

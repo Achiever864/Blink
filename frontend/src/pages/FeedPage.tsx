@@ -456,7 +456,7 @@ const FeedPage: React.FC = () => {
                                     <PostComments
                                         postId={post._id}
                                         onCommentAdded={() => {
-                                            // bump the count locally so it updates without a refetch
+                                            
                                             setPosts(prev => prev.map(p =>
                                                 p._id === post._id
                                                     ? { ...p, commentsCount: (p.commentsCount ?? 0) + 1 }

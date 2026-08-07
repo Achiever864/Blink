@@ -119,7 +119,7 @@ const getFeed = async (req, res) => {
         const postMap = new Map(posts.map(p => [p._id.toString(), p]));
         const orderedPosts = pageIds
             .map(id => postMap.get(id))
-            .filter(Boolean); //
+            .filter(Boolean); 
         
         
 
@@ -214,8 +214,7 @@ const getUserPosts = async (req, res) => {
             });
         }
 
-        // Own profile → see everything. Someone else's profile → public only
-        // (extend later to include "friends"-visibility posts if viewerId is a friend).
+        
         const visibilityFilter =
             viewerId && viewerId === userId
                 ? {}
@@ -302,7 +301,6 @@ const deletePost = async (req, res) => {
             return res.status(403).json({ message: "You can only delete your own posts" });
         }
 
-        // Clean up dependent data so nothing orphaned is left behind
         await Comment.deleteMany({ post: postId });
         await post.deleteOne();
 

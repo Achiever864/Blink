@@ -33,8 +33,8 @@ class PostRecommend{
     recencyScore(candidatePosts){
         const scores = new Map();
         const now = Date.now();
-        const halfLifeHours = 24; //tightened from 48 -- fresh posts fall off faster, so recency actually separates the ranking
-        const maxScore = 30; //doubled from 15 so recency carries real weight against engagement/velocity
+        const halfLifeHours = 24;
+        const maxScore = 30; 
 
         for (const post of candidatePosts){
             const ageHours = (now - new Date(post.createdAt).getTime())/ (1000 * 60 * 60);
@@ -109,8 +109,6 @@ class PostRecommend{
         return scores;
     }
 
-    //small random jitter so the feed doesn't look frozen on repeat visits --
-    //keeps ranking mostly intact but shuffles posts that are close in score
     randomnessScore(candidatePosts, magnitude = 6){
         const scores = new Map();
 
@@ -121,9 +119,6 @@ class PostRecommend{
         return scores;
     }
 
-    //multiplicative decay applied to the WHOLE combined score, not just an additive term --
-    //this is what actually kills old high-engagement posts, since engagement alone has no ceiling
-    //and was steamrolling recencyScore's additive points
     stalenessMultiplier(candidatePosts, halfLifeHours = 30){
         const multipliers = new Map();
         const now = Date.now();
@@ -152,7 +147,6 @@ class PostRecommend{
             const authorId = post.author.toString();
             const seenCount = authorSeenCount.get(authorId) || 0;
 
-            //each repeat appearance from the same author gets progressively penalized
             penalties.set(postId, seenCount * 6);
             authorSeenCount.set(authorId, seenCount + 1);
         }
@@ -173,8 +167,7 @@ class PostRecommend{
         const user = await User.findById(userId);
         if (!user) throw new Error("User not found");
 
-        //pull in friends + friends of friends as your candidate posts as candidate pool,
-        //same $nin exclusion pattern as FriendRecommend, but here we want visibility filtering too
+        
         const friendships = await Friendship.find({
             status: "accepted",
             $or: [{ requester: userId }, { recipient: userId }]
@@ -229,8 +222,6 @@ class PostRecommend{
         this.mergeScores(finalScores, interestScores);
         this.mergeScores(finalScores, randomnessScores);
 
-        //apply staleness decay to the WHOLE score before anything else -- this is what
-        //actually drags a stuck-at-the-top old post back down, regardless of its engagement
         const stalenessMultipliers = this.stalenessMultiplier(candidatePosts);
         for (const [postId, score] of finalScores){
             finalScores.set(postId, score * (stalenessMultipliers.get(postId) ?? 1));

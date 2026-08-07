@@ -46,7 +46,6 @@ const ResetPasswordPage: React.FC = () => {
         }
     };
 
-    // No token in the URL at all — this page was reached without a valid link
     if (!token) {
         return (
             <div className="relative flex min-h-screen items-center justify-center bg-brand-bg px-4 overflow-hidden text-brand-text">

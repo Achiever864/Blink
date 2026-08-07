@@ -131,7 +131,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
     const handleDeleteMessage = async (messageId: string) => {
         if (!user?.id) return;
 
-        // Optimistic soft-delete
         setMessages(prev => prev.map(msg =>
             msg._id === messageId ? { ...msg, isDeleted: true, text: "", attachment: null } : msg
         ));
@@ -140,9 +139,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ activeChat, onOpenSettings, onS
             await API.post("/message/delete", { messageId, userId: user.id });
         } catch (error: any) {
             showStatus(error.response?.data?.message || "Failed to delete message", "error");
-            // Not reverting the optimistic delete here since re-fetching the
-            // original text/attachment would need a refetch anyway — simplest
-            // recovery is just letting the next fetchMessages() correct it.
         }
     };
 
