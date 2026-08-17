@@ -41,7 +41,7 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(express.json({ limit: "10mb" })); // caps request body size — prevents oversized-payload DoS
+app.use(express.json({ limit: "10mb" })); // caps request body size
 //app.use(mongoSanitize());
 app.use(hpp());
 app.use(generalLimiter);

@@ -133,7 +133,7 @@ const FriendsPage: React.FC = () => {
     const handleSendRequest = async (targetId: string) => {
         if (!user?.id) return;
         try {
-            await API.post("/friend/sendRequest", { requesterId: user.id, recipientId: targetId });
+            await API.post("/friend/send", { requesterId: user.id, recipientId: targetId });
             setSearchResults(prev => prev.map(r => r.id === targetId ? { ...r, status: "requested" } : r));
             showStatus("Friend request sent", "success");
         } catch (error: any) {

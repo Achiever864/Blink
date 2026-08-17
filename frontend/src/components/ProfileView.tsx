@@ -121,7 +121,7 @@ const ProfileView: React.FC<UserProfileModalProps> = ({
         if (!currentUser?.id || !userId) return;
         try {
             setSendingRequest(true);
-            await API.post("/friend/sendRequest", {
+            await API.post("/friend/send", {
                 requesterId: currentUser.id,
                 recipientId: userId
             });
